@@ -1,0 +1,31 @@
+items:
+  - id: "ioc-001"
+    type: "ip"
+    value: "1.2.3.4"
+    category: "c2"
+    severity: "high"
+    source: "local"
+    description: "example c2 server"
+    tags: ["apt", "c2"]
+    enabled: true
+  - id: "ioc-002"
+    type: "domain"
+    value: "evil.example.com"
+    category: "malware"
+    severity: "high"
+    source: "local"
+    enabled: true
+  - id: "ioc-003"
+    type: "cidr"
+    value: "45.67.89.0/24"
+    category: "scanner"
+    severity: "medium"
+    source: "local"
+    enabled: true
+  - id: "ioc-004"
+    type: "url"
+    value: "http://bad.example.com/shell.php"
+    category: "webshell"
+    severity: "critical"
+    source: "local"
+    enabled: true
