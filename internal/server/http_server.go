@@ -2,19 +2,25 @@ package server
 
 import (
 	"encoding/json"
+	"html/template"
 	"net/http"
 	"strings"
+	"sync"
 
+	"ta_node/internal/config"
 	"ta_node/internal/intel"
 )
 
 type Server struct {
-	store *intel.Store
-	mux   *http.ServeMux
+	store      *intel.Store
+	cfg        config.Config
+	configPath string
+	mu         sync.RWMutex
+	mux        *http.ServeMux
 }
 
-func New(store *intel.Store) *Server {
-	s := &Server{store: store, mux: http.NewServeMux()}
+func New(store *intel.Store, cfg config.Config, configPath string) *Server {
+	s := &Server{store: store, cfg: cfg, configPath: configPath, mux: http.NewServeMux()}
 	s.routes()
 	return s
 }
@@ -26,8 +32,54 @@ func (s *Server) ListenAndServe(addr string) error {
 }
 
 func (s *Server) routes() {
+	s.mux.HandleFunc("/", s.handleConfigPage)
+	s.mux.HandleFunc("/config", s.handleConfigPage)
+	s.mux.HandleFunc("/api/v1/config", s.handleConfig)
 	s.mux.HandleFunc("/api/v1/intel", s.handleIntel)
 	s.mux.HandleFunc("/api/v1/intel/", s.handleIntelID)
+}
+
+func (s *Server) handleConfig(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		s.mu.RLock()
+		cfg := s.cfg
+		s.mu.RUnlock()
+		writeJSON(w, http.StatusOK, map[string]any{"config": cfg, "path": s.configPath})
+	case http.MethodPost:
+		var req struct {
+			Config config.Config `json:"config"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]any{"success": false, "error": err.Error()})
+			return
+		}
+		if err := config.Save(s.configPath, req.Config); err != nil {
+			writeJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "error": err.Error()})
+			return
+		}
+		s.mu.Lock()
+		s.cfg = req.Config
+		s.mu.Unlock()
+		writeJSON(w, http.StatusOK, map[string]any{"success": true, "path": s.configPath, "restart_required": true})
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	}
+}
+
+func (s *Server) handleConfigPage(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" && r.URL.Path != "/config" {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	s.mu.RLock()
+	data := struct {
+		Config     config.Config
+		ConfigPath string
+	}{Config: s.cfg, ConfigPath: s.configPath}
+	s.mu.RUnlock()
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	_ = configPage.Execute(w, data)
 }
 
 func (s *Server) handleIntel(w http.ResponseWriter, r *http.Request) {
@@ -87,3 +139,264 @@ func writeJSON(w http.ResponseWriter, code int, v any) {
 	w.WriteHeader(code)
 	_ = json.NewEncoder(w).Encode(v)
 }
+
+var configPage = template.Must(template.New("config").Parse(`<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ta_node 配置</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --line: #d9dee7;
+      --text: #151922;
+      --muted: #657083;
+      --accent: #1f7a5a;
+      --accent-dark: #155f45;
+      --danger: #a33a32;
+      --shadow: 0 1px 2px rgba(20, 24, 32, .08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 14px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+      padding: 16px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    .topbar {
+      max-width: 1180px;
+      margin: 0 auto;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    h1 { font-size: 20px; margin: 0; font-weight: 650; }
+    .path { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 20px 24px 36px;
+    }
+    form {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    fieldset {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 0;
+      min-width: 0;
+    }
+    legend {
+      padding: 0 6px;
+      font-weight: 650;
+      color: #202632;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 155px minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
+      margin: 10px 0;
+    }
+    label { color: var(--muted); }
+    input {
+      width: 100%;
+      min-height: 34px;
+      border: 1px solid #cfd6e2;
+      border-radius: 6px;
+      padding: 7px 9px;
+      color: var(--text);
+      background: #fff;
+      font: inherit;
+    }
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      min-height: 18px;
+      accent-color: var(--accent);
+    }
+    .full { grid-column: 1 / -1; }
+    .actions {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: flex-end;
+      padding-top: 4px;
+    }
+    button {
+      border: 1px solid transparent;
+      border-radius: 7px;
+      padding: 9px 14px;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 620;
+    }
+    .primary { background: var(--accent); color: white; }
+    .primary:hover { background: var(--accent-dark); }
+    .secondary { background: #fff; border-color: #cfd6e2; color: #222936; }
+    .status {
+      min-height: 20px;
+      color: var(--muted);
+      margin-right: auto;
+    }
+    .status.error { color: var(--danger); }
+    .status.ok { color: var(--accent-dark); }
+    @media (max-width: 860px) {
+      form { grid-template-columns: 1fr; }
+      .topbar { align-items: flex-start; flex-direction: column; gap: 4px; }
+    }
+    @media (max-width: 560px) {
+      header, main { padding-left: 14px; padding-right: 14px; }
+      .row { grid-template-columns: 1fr; gap: 5px; }
+      .actions { flex-wrap: wrap; justify-content: stretch; }
+      .status { width: 100%; }
+      button { flex: 1; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div>
+        <h1>ta_node 配置</h1>
+        <div class="path">配置文件：{{.ConfigPath}}</div>
+      </div>
+    </div>
+  </header>
+  <main>
+    <form id="configForm">
+      <fieldset>
+        <legend>节点</legend>
+        <div class="row"><label for="node.device_id">设备 ID</label><input id="node.device_id" value="{{.Config.Node.DeviceID}}"></div>
+        <div class="row"><label for="node.management_url">管理端 URL</label><input id="node.management_url" value="{{.Config.Node.ManagementURL}}"></div>
+        <div class="row"><label for="node.token">Token</label><input id="node.token" type="password" value="{{.Config.Node.Token}}"></div>
+      </fieldset>
+      <fieldset>
+        <legend>采集</legend>
+        <div class="row"><label for="capture.interface">网卡</label><input id="capture.interface" value="{{.Config.Capture.Interface}}"></div>
+        <div class="row"><label for="capture.pcap_file">PCAP 文件</label><input id="capture.pcap_file" value="{{.Config.Capture.PCAPFile}}"></div>
+        <div class="row"><label for="capture.bpf_filter">BPF 过滤</label><input id="capture.bpf_filter" value="{{.Config.Capture.BPFFilter}}"></div>
+        <div class="row"><label for="capture.snaplen">Snaplen</label><input id="capture.snaplen" type="number" min="64" value="{{.Config.Capture.Snaplen}}"></div>
+        <div class="row"><label for="capture.promiscuous">混杂模式</label><input id="capture.promiscuous" type="checkbox" {{if .Config.Capture.Promiscuous}}checked{{end}}></div>
+      </fieldset>
+      <fieldset>
+        <legend>规则与情报</legend>
+        <div class="row"><label for="patterns.pattern_dir">规则目录</label><input id="patterns.pattern_dir" value="{{.Config.Patterns.PatternDir}}"></div>
+        <div class="row"><label for="intel.intel_file">情报文件</label><input id="intel.intel_file" value="{{.Config.Intel.IntelFile}}"></div>
+        <div class="row"><label for="intel.reload_interval_sec">热加载间隔</label><input id="intel.reload_interval_sec" type="number" min="1" value="{{.Config.Intel.ReloadIntervalSec}}"></div>
+        <div class="row"><label for="intel.enable_hot_reload">启用热加载</label><input id="intel.enable_hot_reload" type="checkbox" {{if .Config.Intel.EnableHotReload}}checked{{end}}></div>
+      </fieldset>
+      <fieldset>
+        <legend>证据</legend>
+        <div class="row"><label for="evidence.enable_pcap_save">保存 PCAP</label><input id="evidence.enable_pcap_save" type="checkbox" {{if .Config.Evidence.EnablePCAPSave}}checked{{end}}></div>
+        <div class="row"><label for="evidence.pcap_dir">证据目录</label><input id="evidence.pcap_dir" value="{{.Config.Evidence.PCAPDir}}"></div>
+      </fieldset>
+      <fieldset>
+        <legend>事件队列</legend>
+        <div class="row"><label for="event.queue_db">SQLite DB</label><input id="event.queue_db" value="{{.Config.Event.QueueDB}}"></div>
+        <div class="row"><label for="event.push_batch_size">推送批量</label><input id="event.push_batch_size" type="number" min="1" value="{{.Config.Event.PushBatchSize}}"></div>
+        <div class="row"><label for="event.retry_interval_sec">重试间隔</label><input id="event.retry_interval_sec" type="number" min="1" value="{{.Config.Event.RetryIntervalSec}}"></div>
+        <div class="row"><label for="event.push_timeout_sec">推送超时</label><input id="event.push_timeout_sec" type="number" min="1" value="{{.Config.Event.PushTimeoutSec}}"></div>
+      </fieldset>
+      <fieldset>
+        <legend>本地服务</legend>
+        <div class="row"><label for="server.enable">启用 API</label><input id="server.enable" type="checkbox" {{if .Config.Server.Enable}}checked{{end}}></div>
+        <div class="row"><label for="server.listen">监听地址</label><input id="server.listen" value="{{.Config.Server.Listen}}"></div>
+      </fieldset>
+      <div class="actions">
+        <div id="status" class="status"></div>
+        <button class="secondary" type="button" id="reloadBtn">重新加载</button>
+        <button class="primary" type="submit">保存配置</button>
+      </div>
+    </form>
+  </main>
+  <script>
+    const ids = [
+      "node.device_id", "node.management_url", "node.token",
+      "capture.interface", "capture.pcap_file", "capture.bpf_filter", "capture.snaplen", "capture.promiscuous",
+      "patterns.pattern_dir",
+      "intel.intel_file", "intel.reload_interval_sec", "intel.enable_hot_reload",
+      "evidence.enable_pcap_save", "evidence.pcap_dir",
+      "event.queue_db", "event.push_batch_size", "event.retry_interval_sec", "event.push_timeout_sec",
+      "server.enable", "server.listen"
+    ];
+    const statusEl = document.getElementById("status");
+    function readValue(id) {
+      const el = document.getElementById(id);
+      if (el.type === "checkbox") return el.checked;
+      if (el.type === "number") return Number(el.value);
+      return el.value;
+    }
+    function writeValue(id, value) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (el.type === "checkbox") el.checked = Boolean(value);
+      else el.value = value ?? "";
+    }
+    function setPath(obj, path, value) {
+      const parts = path.split(".");
+      let cur = obj;
+      for (let i = 0; i < parts.length - 1; i++) cur = cur[parts[i]] ??= {};
+      cur[parts.at(-1)] = value;
+    }
+    function getPath(obj, path) {
+      return path.split(".").reduce((cur, key) => cur?.[key], obj);
+    }
+    function collectConfig() {
+      const cfg = {};
+      for (const id of ids) setPath(cfg, id, readValue(id));
+      return cfg;
+    }
+    function setStatus(text, cls) {
+      statusEl.className = "status " + (cls || "");
+      statusEl.textContent = text;
+    }
+    document.getElementById("configForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      setStatus("正在保存...", "");
+      try {
+        const res = await fetch("/api/v1/config", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({config: collectConfig()})
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || res.statusText);
+        setStatus("已保存，重启 ta_node 后采集和推送参数生效。", "ok");
+      } catch (err) {
+        setStatus("保存失败：" + err.message, "error");
+      }
+    });
+    document.getElementById("reloadBtn").addEventListener("click", async () => {
+      setStatus("正在读取...", "");
+      try {
+        const res = await fetch("/api/v1/config");
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || res.statusText);
+        for (const id of ids) writeValue(id, getPath(data.config, id));
+        setStatus("已重新加载当前内存配置。", "ok");
+      } catch (err) {
+        setStatus("读取失败：" + err.message, "error");
+      }
+    });
+  </script>
+</body>
+</html>`))

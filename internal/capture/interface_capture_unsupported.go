@@ -1,4 +1,4 @@
-//go:build !pcap
+//go:build !linux && !pcap
 
 package capture
 
@@ -11,7 +11,7 @@ import (
 type InterfaceCapture struct{}
 
 func NewInterfaceCapture(name string, snaplen int32, promiscuous bool, bpf string) (*InterfaceCapture, error) {
-	return nil, fmt.Errorf("live capture requires building with -tags pcap and system libpcap headers")
+	return nil, fmt.Errorf("live capture without libpcap is currently supported on linux only")
 }
 
 func (c *InterfaceCapture) Packets() <-chan gopacket.Packet { return nil }

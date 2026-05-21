@@ -24,7 +24,7 @@ import (
 )
 
 func main() {
-	cfg, _, rest, err := config.LoadWithFlags(os.Args[1:])
+	cfg, configPath, rest, err := config.LoadWithFlags(os.Args[1:])
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -34,12 +34,12 @@ func main() {
 		}
 		return
 	}
-	if err := runNode(cfg); err != nil {
+	if err := runNode(cfg, configPath); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func runNode(cfg config.Config) error {
+func runNode(cfg config.Config, configPath string) error {
 	rules, err := fingerprint.LoadDir(cfg.Patterns.PatternDir)
 	if err != nil {
 		return fmt.Errorf("load patterns: %w", err)
@@ -63,13 +63,17 @@ func runNode(cfg config.Config) error {
 	go push.StartWorker(ctx, q, client, cfg.Event.PushBatchSize, cfg.RetryInterval())
 	if cfg.Server.Enable {
 		go func() {
-			if err := server.New(intelStore).ListenAndServe(cfg.Server.Listen); err != nil {
+			if err := server.New(intelStore, cfg, configPath).ListenAndServe(cfg.Server.Listen); err != nil {
 				log.Printf("intel api stopped: %v", err)
 			}
 		}()
 	}
 	if cfg.Intel.EnableHotReload {
 		go hotReload(ctx, intelStore, cfg.ReloadInterval())
+	}
+	if cfg.Runtime.ConfigOnly {
+		<-ctx.Done()
+		return nil
 	}
 
 	src, err := openSource(cfg)

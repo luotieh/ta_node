@@ -3,60 +3,66 @@ package config
 import (
 	"flag"
 	"os"
+	"path/filepath"
 	"time"
 
 	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
-	Node     NodeConfig     `yaml:"node"`
-	Capture  CaptureConfig  `yaml:"capture"`
-	Patterns PatternConfig  `yaml:"patterns"`
-	Intel    IntelConfig    `yaml:"intel"`
-	Evidence EvidenceConfig `yaml:"evidence"`
-	Event    EventConfig    `yaml:"event"`
-	Server   ServerConfig   `yaml:"server"`
+	Node     NodeConfig     `json:"node" yaml:"node"`
+	Capture  CaptureConfig  `json:"capture" yaml:"capture"`
+	Patterns PatternConfig  `json:"patterns" yaml:"patterns"`
+	Intel    IntelConfig    `json:"intel" yaml:"intel"`
+	Evidence EvidenceConfig `json:"evidence" yaml:"evidence"`
+	Event    EventConfig    `json:"event" yaml:"event"`
+	Server   ServerConfig   `json:"server" yaml:"server"`
+	Runtime  RuntimeConfig  `json:"-" yaml:"-"`
+}
+
+type RuntimeConfig struct {
+	ConfigOnly bool
 }
 
 type NodeConfig struct {
-	DeviceID      string `yaml:"device_id"`
-	ManagementURL string `yaml:"management_url"`
-	Token         string `yaml:"token"`
+	DeviceID      string `json:"device_id" yaml:"device_id"`
+	ManagementURL string `json:"management_url" yaml:"management_url"`
+	Token         string `json:"token" yaml:"token"`
 }
 
 type CaptureConfig struct {
-	Interface   string `yaml:"interface"`
-	PCAPFile    string `yaml:"pcap_file"`
-	BPFFilter   string `yaml:"bpf_filter"`
-	Snaplen     int32  `yaml:"snaplen"`
-	Promiscuous bool   `yaml:"promiscuous"`
+	Interface   string `json:"interface" yaml:"interface"`
+	PCAPFile    string `json:"pcap_file" yaml:"pcap_file"`
+	BPFFilter   string `json:"bpf_filter" yaml:"bpf_filter"`
+	Snaplen     int32  `json:"snaplen" yaml:"snaplen"`
+	Promiscuous bool   `json:"promiscuous" yaml:"promiscuous"`
 }
 
 type PatternConfig struct {
-	PatternDir string `yaml:"pattern_dir"`
+	PatternDir string `json:"pattern_dir" yaml:"pattern_dir"`
 }
 
 type IntelConfig struct {
-	IntelFile         string `yaml:"intel_file"`
-	ReloadIntervalSec int    `yaml:"reload_interval_sec"`
-	EnableHotReload   bool   `yaml:"enable_hot_reload"`
+	IntelFile         string `json:"intel_file" yaml:"intel_file"`
+	ReloadIntervalSec int    `json:"reload_interval_sec" yaml:"reload_interval_sec"`
+	EnableHotReload   bool   `json:"enable_hot_reload" yaml:"enable_hot_reload"`
 }
 
 type EvidenceConfig struct {
-	EnablePCAPSave bool   `yaml:"enable_pcap_save"`
-	PCAPDir        string `yaml:"pcap_dir"`
+	EnablePCAPSave bool   `json:"enable_pcap_save" yaml:"enable_pcap_save"`
+	PCAPDir        string `json:"pcap_dir" yaml:"pcap_dir"`
 }
 
 type EventConfig struct {
-	QueueDB          string `yaml:"queue_db"`
-	PushBatchSize    int    `yaml:"push_batch_size"`
-	RetryIntervalSec int    `yaml:"retry_interval_sec"`
-	PushTimeoutSec   int    `yaml:"push_timeout_sec"`
+	QueueDB          string `json:"queue_db" yaml:"queue_db"`
+	PushBatchSize    int    `json:"push_batch_size" yaml:"push_batch_size"`
+	RetryIntervalSec int    `json:"retry_interval_sec" yaml:"retry_interval_sec"`
+	PushTimeoutSec   int    `json:"push_timeout_sec" yaml:"push_timeout_sec"`
 }
 
 type ServerConfig struct {
-	Enable bool   `yaml:"enable"`
-	Listen string `yaml:"listen"`
+	Enable bool   `json:"enable" yaml:"enable"`
+	Listen string `json:"listen" yaml:"listen"`
 }
 
 func Default() Config {
@@ -99,6 +105,17 @@ func Load(path string) (Config, error) {
 	return cfg, nil
 }
 
+func Save(path string, cfg Config) error {
+	data, err := yaml.Marshal(cfg)
+	if err != nil {
+		return err
+	}
+	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+		return err
+	}
+	return os.WriteFile(path, data, 0644)
+}
+
 func LoadWithFlags(args []string) (Config, string, []string, error) {
 	fs := flag.NewFlagSet("ta_node", flag.ContinueOnError)
 	configPath := fs.String("config", "./configs/ta_node.yaml", "config file")
@@ -110,6 +127,7 @@ func LoadWithFlags(args []string) (Config, string, []string, error) {
 	intelFile := fs.String("intel-file", "", "intel yaml file")
 	eventDB := fs.String("event-db", "", "event sqlite queue db")
 	enablePCAPSave := fs.Bool("enable-pcap-save", false, "save evidence pcap")
+	configOnly := fs.Bool("config-only", false, "start local config api without opening capture source")
 	err := fs.Parse(args)
 	if err != nil {
 		return Config{}, "", nil, err
@@ -142,6 +160,7 @@ func LoadWithFlags(args []string) (Config, string, []string, error) {
 	if flagWasSet(fs, "enable-pcap-save") {
 		cfg.Evidence.EnablePCAPSave = *enablePCAPSave
 	}
+	cfg.Runtime.ConfigOnly = *configOnly
 	return cfg, *configPath, fs.Args(), nil
 }
 

@@ -13,7 +13,9 @@ go mod tidy
 go build -o ta_node ./cmd/ta_node
 ```
 
-在线网卡采集依赖系统 `libpcap` 头文件。部署机安装 `libpcap-dev` / `libpcap-devel` 后使用：
+在线网卡采集默认使用 Linux AF_PACKET，不再依赖系统 `libpcap` 头文件或动态库。需要 root 或 `CAP_NET_RAW` / `CAP_NET_ADMIN` 权限。
+
+如果明确需要 libpcap 后端，部署机安装 `libpcap-dev` / `libpcap-devel` 后使用：
 
 ```bash
 go build -tags pcap -o ta_node ./cmd/ta_node
@@ -91,6 +93,29 @@ POST   /api/v1/intel
 DELETE /api/v1/intel/{id}
 POST   /api/v1/intel/reload
 POST   /api/v1/intel/sync
+```
+
+## Web 配置页
+
+本地服务启用后可访问：
+
+```text
+http://127.0.0.1:19090/config
+```
+
+页面支持修改节点、采集、规则情报、证据、事件队列和本地服务参数，并写回启动时的 `--config` 文件。采集网卡、pcap 文件、推送地址、队列路径等运行时参数保存后需要重启 `ta_node` 生效。
+
+如果部署机尚未具备在线采集权限，可以先只启动配置服务：
+
+```bash
+./ta_node --config ./configs/ta_node.yaml --config-only
+```
+
+配置 API：
+
+```http
+GET  /api/v1/config
+POST /api/v1/config
 ```
 
 ## 事件推送
