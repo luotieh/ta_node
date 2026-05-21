@@ -93,7 +93,68 @@ POST   /api/v1/intel
 DELETE /api/v1/intel/{id}
 POST   /api/v1/intel/reload
 POST   /api/v1/intel/sync
+POST   /api/v1/intel/sync-source
+POST   /api/v1/intel/batch-upsert
+POST   /api/v1/intel/stix
+GET    /api/v1/intel/stats
+GET    /api/v1/health
 ```
+
+`/api/v1/intel/sync` 仍然是全量替换。Threat Intel Hub 推荐使用 `/api/v1/intel/sync-source`，只替换指定 `source` 的 IOC，保留 `local`、`cli`、`manual` 等本地情报：
+
+```bash
+curl -X POST http://127.0.0.1:19090/api/v1/intel/sync-source \
+  -H 'Authorization: Bearer <server.token>' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "source": "Threat Intel Hub",
+    "items": [
+      {
+        "id": "thih-ip-virustotal-1.2.3.4",
+        "type": "ip",
+        "value": "1.2.3.4",
+        "category": "c2",
+        "severity": "high",
+        "source": "Threat Intel Hub",
+        "description": "source=VirusTotal reputation_score=-80",
+        "tags": ["threat-intel-hub", "virustotal", "c2"],
+        "enabled": true,
+        "expire_at": 1780000000
+      }
+    ]
+  }'
+```
+
+增量推送使用 `/api/v1/intel/batch-upsert`：
+
+```json
+{
+  "items": [
+    {"id": "hub-domain-evil", "type": "domain", "value": "evil.example.com", "source": "Threat Intel Hub", "enabled": true}
+  ]
+}
+```
+
+轻量 STIX/TAXII Envelope 接收接口只解析 Indicator，不实现完整 TAXII Server：
+
+```bash
+curl -X POST 'http://127.0.0.1:19090/api/v1/intel/stix?source=Threat%20Intel%20Hub' \
+  -H 'Authorization: Bearer <server.token>' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "objects": [
+      {
+        "type": "indicator",
+        "pattern": "[domain-name:value = '\''evil.example.com'\'']",
+        "labels": ["malware"],
+        "confidence": 90,
+        "valid_until": "2026-06-04T00:00:00Z"
+      }
+    ]
+  }'
+```
+
+支持的 STIX pattern 范围包括 `ipv4-addr`、`ipv6-addr`、`domain-name`、`url`、`file:hashes.*` 和 `ipv4-addr ISSUBSET`。复杂 `AND/OR` pattern 会跳过并在响应中计入 `skipped`。
 
 ## Web 配置页
 
@@ -104,6 +165,14 @@ http://127.0.0.1:19090/config
 ```
 
 页面支持修改节点、采集、规则情报、证据、事件队列和本地服务参数，并写回启动时的 `--config` 文件。采集网卡、pcap 文件、推送地址、队列路径等运行时参数保存后需要重启 `ta_node` 生效。
+
+`server.token` 为空时保持兼容，不启用本地 API 鉴权；非空时写接口要求：
+
+```http
+Authorization: Bearer <server.token>
+```
+
+受保护的写接口包括情报新增、删除、重载、同步、STIX 接收和配置保存。生产部署建议将 `server.listen` 绑定到 `127.0.0.1`，或通过反向代理提供 TLS 和访问控制。配置页不会明文回显 `server.token`。
 
 如果部署机尚未具备在线采集权限，可以先只启动配置服务：
 
@@ -169,3 +238,4 @@ go test ./...
 ```
 
 单元测试覆盖配置加载、情报加载和匹配、payload 规则加载、HTTP head/body/total 匹配、事件 JSON、SQLite 队列去重与状态更新、推送失败保留事件。
+新增测试覆盖 source-scoped 同步、批量 upsert、STIX Bundle/TAXII Envelope 解析、情报统计、API 鉴权、过期 IOC 清理和索引化匹配。

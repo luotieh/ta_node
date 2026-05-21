@@ -18,3 +18,13 @@ type ThreatIntel struct {
 type File struct {
 	Items []ThreatIntel `json:"items" yaml:"items"`
 }
+
+type StoreStats struct {
+	Total         int            `json:"total"`
+	Enabled       int            `json:"enabled"`
+	Expired       int            `json:"expired"`
+	ByType        map[string]int `json:"by_type"`
+	BySource      map[string]int `json:"by_source"`
+	LastUpdatedAt int64          `json:"last_updated_at"`
+	Version       int64          `json:"version"`
+}

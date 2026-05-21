@@ -46,6 +46,24 @@ curl -X POST http://127.0.0.1:19090/api/v1/intel \
   -d '{"type":"domain","value":"evil.example.com","category":"c2","severity":"critical","enabled":true}'
 ```
 
+Threat Intel Hub should prefer source-scoped sync so local IOC are preserved:
+
+```bash
+curl -X POST http://127.0.0.1:19090/api/v1/intel/sync-source \
+  -H 'Authorization: Bearer <server.token>' \
+  -H 'Content-Type: application/json' \
+  -d '{"source":"Threat Intel Hub","items":[{"id":"hub-ip-1.2.3.4","type":"ip","value":"1.2.3.4","category":"c2","severity":"high","enabled":true}]}'
+```
+
+Incremental updates and lightweight STIX/TAXII Envelope ingestion are also available:
+
+```text
+POST /api/v1/intel/batch-upsert
+POST /api/v1/intel/stix?source=Threat%20Intel%20Hub
+GET  /api/v1/intel/stats
+GET  /api/v1/health
+```
+
 Open the deployment configuration page at:
 
 ```text
@@ -61,3 +79,5 @@ On machines where live capture privileges are not available yet, start only the 
 The page writes back to the `--config` file. Capture and push settings take effect after restarting `ta_node`.
 
 Events are persisted in SQLite before push. When the management endpoint is unavailable, pending events remain in `event_queue` and are retried by the push worker.
+
+For exposed deployments, set `server.token` and send `Authorization: Bearer <token>` on write APIs, or bind `server.listen` to `127.0.0.1` behind a TLS reverse proxy.

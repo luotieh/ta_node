@@ -43,9 +43,13 @@ type PatternConfig struct {
 }
 
 type IntelConfig struct {
-	IntelFile         string `json:"intel_file" yaml:"intel_file"`
-	ReloadIntervalSec int    `json:"reload_interval_sec" yaml:"reload_interval_sec"`
-	EnableHotReload   bool   `json:"enable_hot_reload" yaml:"enable_hot_reload"`
+	IntelFile               string `json:"intel_file" yaml:"intel_file"`
+	ReloadIntervalSec       int    `json:"reload_interval_sec" yaml:"reload_interval_sec"`
+	EnableHotReload         bool   `json:"enable_hot_reload" yaml:"enable_hot_reload"`
+	PruneExpiredIntervalSec int    `json:"prune_expired_interval_sec" yaml:"prune_expired_interval_sec"`
+	AcceptSTIX              bool   `json:"accept_stix" yaml:"accept_stix"`
+	DefaultSource           string `json:"default_source" yaml:"default_source"`
+	MaxItems                int    `json:"max_items" yaml:"max_items"`
 }
 
 type EvidenceConfig struct {
@@ -63,6 +67,7 @@ type EventConfig struct {
 type ServerConfig struct {
 	Enable bool   `json:"enable" yaml:"enable"`
 	Listen string `json:"listen" yaml:"listen"`
+	Token  string `json:"token" yaml:"token"`
 }
 
 func Default() Config {
@@ -75,9 +80,13 @@ func Default() Config {
 		},
 		Patterns: PatternConfig{PatternDir: "./patterns"},
 		Intel: IntelConfig{
-			IntelFile:         "./configs/intel.yaml",
-			ReloadIntervalSec: 30,
-			EnableHotReload:   true,
+			IntelFile:               "./configs/intel.yaml",
+			ReloadIntervalSec:       30,
+			EnableHotReload:         true,
+			PruneExpiredIntervalSec: 300,
+			AcceptSTIX:              true,
+			DefaultSource:           "Threat Intel Hub",
+			MaxItems:                100000,
 		},
 		Evidence: EvidenceConfig{EnablePCAPSave: true, PCAPDir: "./data/evidence"},
 		Event: EventConfig{
@@ -176,6 +185,10 @@ func flagWasSet(fs *flag.FlagSet, name string) bool {
 
 func (c Config) ReloadInterval() time.Duration {
 	return time.Duration(c.Intel.ReloadIntervalSec) * time.Second
+}
+
+func (c Config) PruneExpiredInterval() time.Duration {
+	return time.Duration(c.Intel.PruneExpiredIntervalSec) * time.Second
 }
 
 func (c Config) RetryInterval() time.Duration {

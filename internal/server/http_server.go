@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+	"time"
 
 	"ta_node/internal/config"
 	"ta_node/internal/intel"
@@ -35,6 +36,7 @@ func (s *Server) routes() {
 	s.mux.HandleFunc("/", s.handleConfigPage)
 	s.mux.HandleFunc("/config", s.handleConfigPage)
 	s.mux.HandleFunc("/api/v1/config", s.handleConfig)
+	s.mux.HandleFunc("/api/v1/health", s.handleHealth)
 	s.mux.HandleFunc("/api/v1/intel", s.handleIntel)
 	s.mux.HandleFunc("/api/v1/intel/", s.handleIntelID)
 }
@@ -45,14 +47,29 @@ func (s *Server) handleConfig(w http.ResponseWriter, r *http.Request) {
 		s.mu.RLock()
 		cfg := s.cfg
 		s.mu.RUnlock()
+		cfg.Node.Token = ""
+		cfg.Server.Token = ""
 		writeJSON(w, http.StatusOK, map[string]any{"config": cfg, "path": s.configPath})
 	case http.MethodPost:
+		if !s.authorized(r) {
+			writeJSON(w, http.StatusUnauthorized, map[string]any{"success": false, "error": "unauthorized"})
+			return
+		}
 		var req struct {
 			Config config.Config `json:"config"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			writeJSON(w, http.StatusBadRequest, map[string]any{"success": false, "error": err.Error()})
 			return
+		}
+		s.mu.RLock()
+		current := s.cfg
+		s.mu.RUnlock()
+		if current.Node.Token != "" && req.Config.Node.Token == "" {
+			req.Config.Node.Token = current.Node.Token
+		}
+		if current.Server.Token != "" && req.Config.Server.Token == "" {
+			req.Config.Server.Token = current.Server.Token
 		}
 		if err := config.Save(s.configPath, req.Config); err != nil {
 			writeJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "error": err.Error()})
@@ -74,9 +91,13 @@ func (s *Server) handleConfigPage(w http.ResponseWriter, r *http.Request) {
 	}
 	s.mu.RLock()
 	data := struct {
-		Config     config.Config
-		ConfigPath string
-	}{Config: s.cfg, ConfigPath: s.configPath}
+		Config         config.Config
+		ConfigPath     string
+		HasNodeToken   bool
+		HasServerToken bool
+	}{Config: s.cfg, ConfigPath: s.configPath, HasNodeToken: s.cfg.Node.Token != "", HasServerToken: s.cfg.Server.Token != ""}
+	data.Config.Node.Token = ""
+	data.Config.Server.Token = ""
 	s.mu.RUnlock()
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	_ = configPage.Execute(w, data)
@@ -87,6 +108,10 @@ func (s *Server) handleIntel(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		writeJSON(w, http.StatusOK, map[string]any{"items": s.store.List()})
 	case http.MethodPost:
+		if !s.authorized(r) {
+			writeJSON(w, http.StatusUnauthorized, map[string]any{"success": false, "error": "unauthorized"})
+			return
+		}
 		var it intel.ThreatIntel
 		if err := json.NewDecoder(r.Body).Decode(&it); err != nil {
 			writeJSON(w, http.StatusBadRequest, map[string]any{"success": false, "error": err.Error()})
@@ -107,18 +132,30 @@ func (s *Server) handleIntelID(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimPrefix(r.URL.Path, "/api/v1/intel/")
 	switch {
 	case r.Method == http.MethodDelete:
+		if !s.authorized(r) {
+			writeJSON(w, http.StatusUnauthorized, map[string]any{"success": false, "error": "unauthorized"})
+			return
+		}
 		if err := s.store.Delete(path); err != nil {
 			writeJSON(w, http.StatusNotFound, map[string]any{"success": false, "error": err.Error()})
 			return
 		}
 		writeJSON(w, http.StatusOK, map[string]any{"success": true})
 	case r.Method == http.MethodPost && path == "reload":
+		if !s.authorized(r) {
+			writeJSON(w, http.StatusUnauthorized, map[string]any{"success": false, "error": "unauthorized"})
+			return
+		}
 		if err := s.store.Reload(); err != nil {
 			writeJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "error": err.Error()})
 			return
 		}
 		writeJSON(w, http.StatusOK, map[string]any{"success": true})
 	case r.Method == http.MethodPost && path == "sync":
+		if !s.authorized(r) {
+			writeJSON(w, http.StatusUnauthorized, map[string]any{"success": false, "error": "unauthorized"})
+			return
+		}
 		var f intel.File
 		if err := json.NewDecoder(r.Body).Decode(&f); err != nil {
 			writeJSON(w, http.StatusBadRequest, map[string]any{"success": false, "error": err.Error()})
@@ -129,9 +166,133 @@ func (s *Server) handleIntelID(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		writeJSON(w, http.StatusOK, map[string]any{"success": true})
+	case r.Method == http.MethodPost && path == "sync-source":
+		if !s.authorized(r) {
+			writeJSON(w, http.StatusUnauthorized, map[string]any{"success": false, "error": "unauthorized"})
+			return
+		}
+		var req struct {
+			Source string              `json:"source"`
+			Items  []intel.ThreatIntel `json:"items"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]any{"success": false, "error": err.Error()})
+			return
+		}
+		if req.Source == "" {
+			req.Source = r.URL.Query().Get("source")
+		}
+		if err := s.checkItemLimit(len(req.Items)); err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]any{"success": false, "error": err.Error()})
+			return
+		}
+		if err := s.store.SyncSource(req.Source, req.Items); err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]any{"success": false, "error": err.Error()})
+			return
+		}
+		writeJSON(w, http.StatusOK, map[string]any{"success": true, "count": len(req.Items)})
+	case r.Method == http.MethodPost && path == "batch-upsert":
+		if !s.authorized(r) {
+			writeJSON(w, http.StatusUnauthorized, map[string]any{"success": false, "error": "unauthorized"})
+			return
+		}
+		var f intel.File
+		if err := json.NewDecoder(r.Body).Decode(&f); err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]any{"success": false, "error": err.Error()})
+			return
+		}
+		if err := s.checkItemLimit(len(f.Items)); err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]any{"success": false, "error": err.Error()})
+			return
+		}
+		if err := s.store.UpsertMany(f.Items); err != nil {
+			writeJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "error": err.Error()})
+			return
+		}
+		writeJSON(w, http.StatusOK, map[string]any{"success": true, "count": len(f.Items)})
+	case r.Method == http.MethodPost && path == "stix":
+		if !s.authorized(r) {
+			writeJSON(w, http.StatusUnauthorized, map[string]any{"success": false, "error": "unauthorized"})
+			return
+		}
+		if !s.acceptSTIX() {
+			writeJSON(w, http.StatusForbidden, map[string]any{"success": false, "error": "stix disabled"})
+			return
+		}
+		source := r.URL.Query().Get("source")
+		if source == "" {
+			source = s.defaultSource()
+		}
+		result, err := intel.ParseSTIXIndicators(r.Body, source)
+		if err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]any{"success": false, "error": err.Error()})
+			return
+		}
+		if err := s.checkItemLimit(len(result.Items)); err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]any{"success": false, "error": err.Error()})
+			return
+		}
+		if err := s.store.UpsertMany(result.Items); err != nil {
+			writeJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "error": err.Error()})
+			return
+		}
+		writeJSON(w, http.StatusOK, map[string]any{"success": true, "count": len(result.Items), "skipped": result.Skipped, "errors": result.Errors})
+	case r.Method == http.MethodGet && path == "stats":
+		writeJSON(w, http.StatusOK, s.store.Stats())
 	default:
 		w.WriteHeader(http.StatusNotFound)
 	}
+}
+
+func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	s.mu.RLock()
+	deviceID := s.cfg.Node.DeviceID
+	s.mu.RUnlock()
+	writeJSON(w, http.StatusOK, map[string]any{
+		"status":      "ok",
+		"device_id":   deviceID,
+		"intel_count": s.store.Stats().Total,
+		"server_time": time.Now().Unix(),
+	})
+}
+
+func (s *Server) authorized(r *http.Request) bool {
+	s.mu.RLock()
+	token := s.cfg.Server.Token
+	s.mu.RUnlock()
+	if token == "" {
+		return true
+	}
+	return r.Header.Get("Authorization") == "Bearer "+token
+}
+
+func (s *Server) checkItemLimit(incoming int) error {
+	s.mu.RLock()
+	maxItems := s.cfg.Intel.MaxItems
+	s.mu.RUnlock()
+	if maxItems <= 0 {
+		return nil
+	}
+	if s.store.Stats().Total+incoming > maxItems {
+		return http.ErrContentLength
+	}
+	return nil
+}
+
+func (s *Server) acceptSTIX() bool {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.cfg.Intel.AcceptSTIX
+}
+
+func (s *Server) defaultSource() string {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.cfg.Intel.DefaultSource
 }
 
 func writeJSON(w http.ResponseWriter, code int, v any) {
@@ -287,7 +448,7 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
         <legend>节点</legend>
         <div class="row"><label for="node.device_id">设备 ID</label><input id="node.device_id" value="{{.Config.Node.DeviceID}}"></div>
         <div class="row"><label for="node.management_url">管理端 URL</label><input id="node.management_url" value="{{.Config.Node.ManagementURL}}"></div>
-        <div class="row"><label for="node.token">Token</label><input id="node.token" type="password" value="{{.Config.Node.Token}}"></div>
+        <div class="row"><label for="node.token">推送 Token</label><input id="node.token" type="password" placeholder="{{if .HasNodeToken}}留空保持不变{{end}}"></div>
       </fieldset>
       <fieldset>
         <legend>采集</legend>
@@ -303,6 +464,10 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
         <div class="row"><label for="intel.intel_file">情报文件</label><input id="intel.intel_file" value="{{.Config.Intel.IntelFile}}"></div>
         <div class="row"><label for="intel.reload_interval_sec">热加载间隔</label><input id="intel.reload_interval_sec" type="number" min="1" value="{{.Config.Intel.ReloadIntervalSec}}"></div>
         <div class="row"><label for="intel.enable_hot_reload">启用热加载</label><input id="intel.enable_hot_reload" type="checkbox" {{if .Config.Intel.EnableHotReload}}checked{{end}}></div>
+        <div class="row"><label for="intel.prune_expired_interval_sec">过期清理间隔</label><input id="intel.prune_expired_interval_sec" type="number" min="0" value="{{.Config.Intel.PruneExpiredIntervalSec}}"></div>
+        <div class="row"><label for="intel.accept_stix">接收 STIX</label><input id="intel.accept_stix" type="checkbox" {{if .Config.Intel.AcceptSTIX}}checked{{end}}></div>
+        <div class="row"><label for="intel.default_source">默认来源</label><input id="intel.default_source" value="{{.Config.Intel.DefaultSource}}"></div>
+        <div class="row"><label for="intel.max_items">最大 IOC 数</label><input id="intel.max_items" type="number" min="0" value="{{.Config.Intel.MaxItems}}"></div>
       </fieldset>
       <fieldset>
         <legend>证据</legend>
@@ -320,6 +485,7 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
         <legend>本地服务</legend>
         <div class="row"><label for="server.enable">启用 API</label><input id="server.enable" type="checkbox" {{if .Config.Server.Enable}}checked{{end}}></div>
         <div class="row"><label for="server.listen">监听地址</label><input id="server.listen" value="{{.Config.Server.Listen}}"></div>
+        <div class="row"><label for="server.token">API Token</label><input id="server.token" type="password" placeholder="{{if .HasServerToken}}留空保持不变{{end}}"></div>
       </fieldset>
       <div class="actions">
         <div id="status" class="status"></div>
@@ -333,10 +499,10 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
       "node.device_id", "node.management_url", "node.token",
       "capture.interface", "capture.pcap_file", "capture.bpf_filter", "capture.snaplen", "capture.promiscuous",
       "patterns.pattern_dir",
-      "intel.intel_file", "intel.reload_interval_sec", "intel.enable_hot_reload",
+      "intel.intel_file", "intel.reload_interval_sec", "intel.enable_hot_reload", "intel.prune_expired_interval_sec", "intel.accept_stix", "intel.default_source", "intel.max_items",
       "evidence.enable_pcap_save", "evidence.pcap_dir",
       "event.queue_db", "event.push_batch_size", "event.retry_interval_sec", "event.push_timeout_sec",
-      "server.enable", "server.listen"
+      "server.enable", "server.listen", "server.token"
     ];
     const statusEl = document.getElementById("status");
     function readValue(id) {

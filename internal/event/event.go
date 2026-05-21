@@ -19,9 +19,12 @@ type ThreatEvent struct {
 	Direction    string `json:"direction"`
 	ThreatSource string `json:"threat_source"`
 
-	IOCType     string `json:"ioc_type,omitempty"`
-	IOCValue    string `json:"ioc_value,omitempty"`
-	IOCCategory string `json:"ioc_category,omitempty"`
+	IOCType     string   `json:"ioc_type,omitempty"`
+	IOCValue    string   `json:"ioc_value,omitempty"`
+	IOCCategory string   `json:"ioc_category,omitempty"`
+	IOCID       string   `json:"ioc_id,omitempty"`
+	IOCSource   string   `json:"ioc_source,omitempty"`
+	IOCTags     []string `json:"ioc_tags,omitempty"`
 
 	RuleID      string `json:"rule_id,omitempty"`
 	ThreatIndex string `json:"threat_index,omitempty"`

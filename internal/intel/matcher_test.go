@@ -14,6 +14,7 @@ func TestIntelMatcher(t *testing.T) {
 		{ID: "cidr", Type: "cidr", Value: "45.67.89.0/24", Category: "scanner", Severity: "medium", Enabled: true},
 		{ID: "domain", Type: "domain", Value: "evil.example.com", Category: "malware", Severity: "high", Enabled: true},
 		{ID: "url", Type: "url", Value: "http://bad.example.com/shell.php", Category: "webshell", Severity: "critical", Enabled: true},
+		{ID: "expired", Type: "ip", Value: "10.0.0.1", Category: "c2", Severity: "high", Enabled: true, ExpireAt: 1},
 	}); err != nil {
 		t.Fatal(err)
 	}

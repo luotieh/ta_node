@@ -59,6 +59,9 @@ func (e *Engine) Detect(f flow.FlowFeature) []event.ThreatEvent {
 		ev.IOCType = hit.Type
 		ev.IOCValue = hit.Value
 		ev.IOCCategory = hit.Category
+		ev.IOCID = hit.ID
+		ev.IOCSource = hit.Source
+		ev.IOCTags = hit.Tags
 		events = append(events, ev)
 	}
 	return events

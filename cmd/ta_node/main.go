@@ -71,6 +71,9 @@ func runNode(cfg config.Config, configPath string) error {
 	if cfg.Intel.EnableHotReload {
 		go hotReload(ctx, intelStore, cfg.ReloadInterval())
 	}
+	if cfg.Intel.PruneExpiredIntervalSec > 0 {
+		go pruneExpired(ctx, intelStore, cfg.PruneExpiredInterval())
+	}
 	if cfg.Runtime.ConfigOnly {
 		<-ctx.Done()
 		return nil
@@ -141,6 +144,21 @@ func hotReload(ctx context.Context, store *intel.Store, interval time.Duration) 
 		case <-ticker.C:
 			if err := store.Reload(); err != nil {
 				log.Printf("intel reload failed: %v", err)
+			}
+		}
+	}
+}
+
+func pruneExpired(ctx context.Context, store *intel.Store, interval time.Duration) {
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			if deleted := store.PruneExpired(time.Now().Unix()); deleted > 0 {
+				log.Printf("pruned expired intel items: %d", deleted)
 			}
 		}
 	}

@@ -17,6 +17,10 @@ intel:
   intel_file: "./configs/intel.yaml"
   reload_interval_sec: 30
   enable_hot_reload: true
+  prune_expired_interval_sec: 300
+  accept_stix: true
+  default_source: "Threat Intel Hub"
+  max_items: 100000
 
 evidence:
   enable_pcap_save: true
@@ -31,3 +35,4 @@ event:
 server:
   enable: true
   listen: "0.0.0.0:19090"
+  token: ""
