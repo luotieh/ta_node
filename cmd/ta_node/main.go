@@ -60,7 +60,9 @@ func runNode(cfg config.Config, configPath string) error {
 	defer stop()
 
 	client := push.NewClient(cfg.Node.ManagementURL, cfg.Node.Token, cfg.PushTimeout())
-	go push.StartWorker(ctx, q, client, cfg.Event.PushBatchSize, cfg.RetryInterval())
+	if cfg.Event.EnablePush {
+		go push.StartWorker(ctx, q, client, cfg.Event.PushBatchSize, cfg.RetryInterval())
+	}
 	if cfg.Server.Enable {
 		go func() {
 			if err := server.New(intelStore, cfg, configPath).ListenAndServe(cfg.Server.Listen); err != nil {

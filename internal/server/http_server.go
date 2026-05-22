@@ -10,6 +10,7 @@ import (
 
 	"ta_node/internal/config"
 	"ta_node/internal/intel"
+	"ta_node/internal/queue"
 )
 
 type Server struct {
@@ -37,6 +38,7 @@ func (s *Server) routes() {
 	s.mux.HandleFunc("/config", s.handleConfigPage)
 	s.mux.HandleFunc("/api/v1/config", s.handleConfig)
 	s.mux.HandleFunc("/api/v1/health", s.handleHealth)
+	s.mux.HandleFunc("/api/v1/push/logs", s.handlePushLogs)
 	s.mux.HandleFunc("/api/v1/intel", s.handleIntel)
 	s.mux.HandleFunc("/api/v1/intel/", s.handleIntelID)
 }
@@ -260,6 +262,22 @@ func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (s *Server) handlePushLogs(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	s.mu.RLock()
+	path := s.cfg.Event.QueueDB
+	s.mu.RUnlock()
+	logs, err := queue.RecentPushLogs(path, 50)
+	if err != nil {
+		writeJSON(w, http.StatusOK, map[string]any{"items": []queue.PushLog{}, "error": err.Error()})
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"items": logs})
+}
+
 func (s *Server) authorized(r *http.Request) bool {
 	s.mu.RLock()
 	token := s.cfg.Server.Token
@@ -420,6 +438,50 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
     }
     .status.error { color: var(--danger); }
     .status.ok { color: var(--accent-dark); }
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+      background: #fff;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+    }
+    th {
+      background: #f1f4f7;
+      color: #394252;
+      font-weight: 650;
+    }
+    tr:last-child td { border-bottom: 0; }
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .muted { color: var(--muted); }
+    .badge {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 12px;
+      font-weight: 650;
+      background: #eef2f6;
+      color: #394252;
+    }
+    .badge.pushed { background: #e4f4ec; color: #155f45; }
+    .badge.failed { background: #f9e8e6; color: var(--danger); }
+    .badge.pending { background: #eef2f6; color: #394252; }
     @media (max-width: 860px) {
       form { grid-template-columns: 1fr; }
       .topbar { align-items: flex-start; flex-direction: column; gap: 4px; }
@@ -447,8 +509,6 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
       <fieldset>
         <legend>节点</legend>
         <div class="row"><label for="node.device_id">设备 ID</label><input id="node.device_id" value="{{.Config.Node.DeviceID}}"></div>
-        <div class="row"><label for="node.management_url">管理端 URL</label><input id="node.management_url" value="{{.Config.Node.ManagementURL}}"></div>
-        <div class="row"><label for="node.token">推送 Token</label><input id="node.token" type="password" placeholder="{{if .HasNodeToken}}留空保持不变{{end}}"></div>
       </fieldset>
       <fieldset>
         <legend>采集</legend>
@@ -477,6 +537,12 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
       <fieldset>
         <legend>事件队列</legend>
         <div class="row"><label for="event.queue_db">SQLite DB</label><input id="event.queue_db" value="{{.Config.Event.QueueDB}}"></div>
+      </fieldset>
+      <fieldset>
+        <legend>事件推送</legend>
+        <div class="row"><label for="event.enable_push">启用推送</label><input id="event.enable_push" type="checkbox" {{if .Config.Event.EnablePush}}checked{{end}}></div>
+        <div class="row"><label for="node.management_url">管理端 URL</label><input id="node.management_url" value="{{.Config.Node.ManagementURL}}"></div>
+        <div class="row"><label for="node.token">推送 Token</label><input id="node.token" type="password" placeholder="{{if .HasNodeToken}}留空保持不变{{end}}"></div>
         <div class="row"><label for="event.push_batch_size">推送批量</label><input id="event.push_batch_size" type="number" min="1" value="{{.Config.Event.PushBatchSize}}"></div>
         <div class="row"><label for="event.retry_interval_sec">重试间隔</label><input id="event.retry_interval_sec" type="number" min="1" value="{{.Config.Event.RetryIntervalSec}}"></div>
         <div class="row"><label for="event.push_timeout_sec">推送超时</label><input id="event.push_timeout_sec" type="number" min="1" value="{{.Config.Event.PushTimeoutSec}}"></div>
@@ -486,6 +552,30 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
         <div class="row"><label for="server.enable">启用 API</label><input id="server.enable" type="checkbox" {{if .Config.Server.Enable}}checked{{end}}></div>
         <div class="row"><label for="server.listen">监听地址</label><input id="server.listen" value="{{.Config.Server.Listen}}"></div>
         <div class="row"><label for="server.token">API Token</label><input id="server.token" type="password" placeholder="{{if .HasServerToken}}留空保持不变{{end}}"></div>
+      </fieldset>
+      <fieldset class="full">
+        <legend>推送日志</legend>
+        <div class="toolbar">
+          <div id="pushLogStatus" class="muted">最近 50 条队列推送状态</div>
+          <button class="secondary" type="button" id="refreshPushLogsBtn">刷新日志</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>时间</th>
+                <th>状态</th>
+                <th>事件</th>
+                <th>IOC</th>
+                <th>重试</th>
+                <th>错误</th>
+              </tr>
+            </thead>
+            <tbody id="pushLogRows">
+              <tr><td colspan="6" class="muted">暂无数据</td></tr>
+            </tbody>
+          </table>
+        </div>
       </fieldset>
       <div class="actions">
         <div id="status" class="status"></div>
@@ -501,7 +591,7 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
       "patterns.pattern_dir",
       "intel.intel_file", "intel.reload_interval_sec", "intel.enable_hot_reload", "intel.prune_expired_interval_sec", "intel.accept_stix", "intel.default_source", "intel.max_items",
       "evidence.enable_pcap_save", "evidence.pcap_dir",
-      "event.queue_db", "event.push_batch_size", "event.retry_interval_sec", "event.push_timeout_sec",
+      "event.enable_push", "event.queue_db", "event.push_batch_size", "event.retry_interval_sec", "event.push_timeout_sec",
       "server.enable", "server.listen", "server.token"
     ];
     const statusEl = document.getElementById("status");
@@ -535,6 +625,44 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
       statusEl.className = "status " + (cls || "");
       statusEl.textContent = text;
     }
+    function formatTime(ts) {
+      if (!ts) return "";
+      return new Date(ts * 1000).toLocaleString();
+    }
+    function escapeText(value) {
+      return String(value ?? "").replace(/[&<>"']/g, (ch) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      })[ch]);
+    }
+    async function loadPushLogs() {
+      const rowsEl = document.getElementById("pushLogRows");
+      const logStatus = document.getElementById("pushLogStatus");
+      logStatus.textContent = "正在读取推送日志...";
+      try {
+        const res = await fetch("/api/v1/push/logs");
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || res.statusText);
+        const items = data.items || [];
+        if (items.length === 0) {
+          rowsEl.innerHTML = '<tr><td colspan="6" class="muted">暂无数据</td></tr>';
+        } else {
+          rowsEl.innerHTML = items.map((item) =>
+            '<tr>' +
+              '<td>' + escapeText(formatTime(item.updated_at)) + '</td>' +
+              '<td><span class="badge ' + escapeText(item.status) + '">' + escapeText(item.status) + '</span></td>' +
+              '<td>' + escapeText(item.event_name || item.event_id || "") + '</td>' +
+              '<td>' + escapeText([item.ioc_type, item.ioc_value].filter(Boolean).join(": ")) + '</td>' +
+              '<td>' + escapeText(item.retry_count) + '</td>' +
+              '<td>' + escapeText(item.last_error || "") + '</td>' +
+            '</tr>'
+          ).join("");
+        }
+        logStatus.textContent = data.error ? ("读取队列失败：" + data.error) : "最近 50 条队列推送状态";
+      } catch (err) {
+        rowsEl.innerHTML = '<tr><td colspan="6" class="muted">读取失败</td></tr>';
+        logStatus.textContent = "读取推送日志失败：" + err.message;
+      }
+    }
     document.getElementById("configForm").addEventListener("submit", async (event) => {
       event.preventDefault();
       setStatus("正在保存...", "");
@@ -563,6 +691,8 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
         setStatus("读取失败：" + err.message, "error");
       }
     });
+    document.getElementById("refreshPushLogsBtn").addEventListener("click", loadPushLogs);
+    loadPushLogs();
   </script>
 </body>
 </html>`))

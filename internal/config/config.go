@@ -58,6 +58,7 @@ type EvidenceConfig struct {
 }
 
 type EventConfig struct {
+	EnablePush       bool   `json:"enable_push" yaml:"enable_push"`
 	QueueDB          string `json:"queue_db" yaml:"queue_db"`
 	PushBatchSize    int    `json:"push_batch_size" yaml:"push_batch_size"`
 	RetryIntervalSec int    `json:"retry_interval_sec" yaml:"retry_interval_sec"`
@@ -90,6 +91,7 @@ func Default() Config {
 		},
 		Evidence: EvidenceConfig{EnablePCAPSave: true, PCAPDir: "./data/evidence"},
 		Event: EventConfig{
+			EnablePush:       true,
 			QueueDB:          "./data/event_queue.db",
 			PushBatchSize:    100,
 			RetryIntervalSec: 30,

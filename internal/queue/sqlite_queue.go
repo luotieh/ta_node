@@ -83,7 +83,7 @@ func (q *SQLiteQueue) LoadPending(limit int) ([]event.ThreatEvent, error) {
 }
 
 func (q *SQLiteQueue) MarkPushed(eventID string) error {
-	_, err := q.db.Exec(`UPDATE event_queue SET status=2, updated_at=? WHERE event_id=?`, time.Now().Unix(), eventID)
+	_, err := q.db.Exec(`UPDATE event_queue SET status=2, last_error='', updated_at=? WHERE event_id=?`, time.Now().Unix(), eventID)
 	return err
 }
 

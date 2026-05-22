@@ -27,6 +27,7 @@ evidence:
   pcap_dir: "./data/evidence"
 
 event:
+  enable_push: true
   queue_db: "./data/event_queue.db"
   push_batch_size: 100
   retry_interval_sec: 30

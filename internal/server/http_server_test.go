@@ -9,7 +9,9 @@ import (
 	"testing"
 
 	"ta_node/internal/config"
+	"ta_node/internal/event"
 	"ta_node/internal/intel"
+	"ta_node/internal/queue"
 )
 
 func TestConfigPageAndAPI(t *testing.T) {
@@ -120,5 +122,35 @@ func TestIntelAPIsAndAuth(t *testing.T) {
 	s.Handler().ServeHTTP(rec, req)
 	if rec.Code != http.StatusOK || !bytes.Contains(rec.Body.Bytes(), []byte(`"status":"ok"`)) {
 		t.Fatalf("health status=%d body=%s", rec.Code, rec.Body.String())
+	}
+}
+
+func TestPushLogsAPI(t *testing.T) {
+	dir := t.TempDir()
+	queuePath := filepath.Join(dir, "events.db")
+	q, err := queue.NewSQLite(queuePath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer q.Close()
+	if err := q.Enqueue(event.ThreatEvent{EventID: "ev-1", EventTime: 123, EventName: "evil.example.com", Severity: "high", IOCType: "domain", IOCValue: "evil.example.com"}); err != nil {
+		t.Fatal(err)
+	}
+	if err := q.MarkFailed("ev-1", "network error"); err != nil {
+		t.Fatal(err)
+	}
+
+	cfg := config.Default()
+	cfg.Event.QueueDB = queuePath
+	store, err := intel.NewStore("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := New(store, cfg, filepath.Join(dir, "ta_node.yaml"))
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/push/logs", nil)
+	rec := httptest.NewRecorder()
+	s.Handler().ServeHTTP(rec, req)
+	if rec.Code != http.StatusOK || !bytes.Contains(rec.Body.Bytes(), []byte(`"status":"failed"`)) || !bytes.Contains(rec.Body.Bytes(), []byte("network error")) {
+		t.Fatalf("push logs status=%d body=%s", rec.Code, rec.Body.String())
 	}
 }
