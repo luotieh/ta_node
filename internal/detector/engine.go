@@ -1,9 +1,10 @@
 package detector
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
-
-	"github.com/google/uuid"
+	"strings"
 
 	"ta_node/internal/event"
 	"ta_node/internal/flow"
@@ -32,9 +33,14 @@ func (e *Engine) Detect(f flow.FlowFeature) []event.ThreatEvent {
 		EvidenceFile:   f.EvidenceFile,
 		PacketTimeUsec: f.PacketTimeUsec,
 	}
+	seen := map[string]bool{}
 	for _, hit := range f.FingerprintHits {
 		ev := base
-		ev.EventID = uuid.NewString()
+		ev.EventID = stableEventID(f, "fingerprint", hit.RuleID, hit.Type, hit.Name, fmt.Sprintf("%d:%d", hit.MatchFrom, hit.MatchTo))
+		if seen[ev.EventID] {
+			continue
+		}
+		seen[ev.EventID] = true
 		ev.EventType = hit.Type
 		ev.EventName = hit.Name
 		ev.Severity = "high"
@@ -50,7 +56,11 @@ func (e *Engine) Detect(f flow.FlowFeature) []event.ThreatEvent {
 	}
 	for _, hit := range f.IntelHits {
 		ev := base
-		ev.EventID = uuid.NewString()
+		ev.EventID = stableEventID(f, "intel", hit.ID, hit.Type, hit.Value, hit.Source)
+		if seen[ev.EventID] {
+			continue
+		}
+		seen[ev.EventID] = true
 		ev.EventType = hit.Category
 		ev.EventName = hit.Value
 		ev.Severity = hit.Severity
@@ -65,4 +75,18 @@ func (e *Engine) Detect(f flow.FlowFeature) []event.ThreatEvent {
 		events = append(events, ev)
 	}
 	return events
+}
+
+func stableEventID(f flow.FlowFeature, parts ...string) string {
+	keyParts := []string{
+		fmt.Sprintf("%d", f.FirstTime),
+		f.SrcIP,
+		fmt.Sprintf("%d", f.SrcPort),
+		f.DstIP,
+		fmt.Sprintf("%d", f.DstPort),
+		strings.ToLower(f.Proto),
+	}
+	keyParts = append(keyParts, parts...)
+	sum := sha256.Sum256([]byte(strings.Join(keyParts, "|")))
+	return "evt-" + hex.EncodeToString(sum[:16])
 }
