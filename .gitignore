@@ -1,0 +1,9 @@
+/dist/
+/release/
+/data/
+*.db
+*.db-*
+*.pcap
+*.log
+/ta_node
+~$*.docx

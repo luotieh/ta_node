@@ -81,3 +81,60 @@ The page writes back to the `--config` file. Capture and push settings take effe
 Events are persisted in SQLite before push. When the management endpoint is unavailable, pending events remain in `event_queue` and are retried by the push worker.
 
 For exposed deployments, set `server.token` and send `Authorization: Bearer <token>` on write APIs, or bind `server.listen` to `127.0.0.1` behind a TLS reverse proxy.
+
+## ARM Offline Deployment
+
+Supported targets:
+
+```text
+Linux arm64
+Linux armv7
+```
+
+Prepare dependencies in an online development environment:
+
+```bash
+go mod tidy
+go mod vendor
+go mod verify
+```
+
+Build offline ARM binaries:
+
+```bash
+./scripts/build-all-offline.sh
+```
+
+Package the offline release:
+
+```bash
+./scripts/package-offline.sh
+```
+
+Install on an ARM64 machine:
+
+```bash
+tar -xzf ta_node-offline-*.tar.gz
+cd ta_node-offline-*
+sudo ./deploy/install-offline.sh arm64
+```
+
+Install on an ARMv7 machine:
+
+```bash
+tar -xzf ta_node-offline-*.tar.gz
+cd ta_node-offline-*
+sudo ./deploy/install-offline.sh armv7
+```
+
+Manage the service:
+
+```bash
+sudo systemctl status ta_node
+sudo journalctl -u ta_node -f
+sudo systemctl restart ta_node
+```
+
+The offline config is `configs/ta_node.offline.yaml`. It disables event push by default and binds the local config service to `127.0.0.1:19090`. For remote access to the config page, set a strong `server.token` and configure your firewall or reverse proxy explicitly.
+
+The default ARM offline build uses Linux AF_PACKET and does not use `-tags pcap`. In this mode, keep `capture.bpf_filter` empty. If BPF filter support is required, build a separate `-tags pcap` version and provide the target ARM libpcap development libraries. The pcap build is an optional advanced path and is not part of the default offline package.

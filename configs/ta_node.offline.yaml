@@ -1,0 +1,39 @@
+node:
+  device_id: "node-arm-offline-001"
+  management_url: ""
+  token: ""
+
+capture:
+  interface: "eth0"
+  pcap_file: ""
+  bpf_filter: ""
+  snaplen: 1600
+  promiscuous: true
+
+patterns:
+  pattern_dir: "./patterns"
+
+intel:
+  intel_file: "./configs/intel.yaml"
+  reload_interval_sec: 30
+  enable_hot_reload: true
+  prune_expired_interval_sec: 300
+  accept_stix: true
+  default_source: "Threat Intel Hub"
+  max_items: 100000
+
+evidence:
+  enable_pcap_save: true
+  pcap_dir: "./data/evidence"
+
+event:
+  enable_push: false
+  queue_db: "./data/event_queue.db"
+  push_batch_size: 100
+  retry_interval_sec: 30
+  push_timeout_sec: 5
+
+server:
+  enable: true
+  listen: "127.0.0.1:19090"
+  token: "CHANGE_ME_TO_A_RANDOM_TOKEN"

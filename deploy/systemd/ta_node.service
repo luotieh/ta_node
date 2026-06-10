@@ -1,0 +1,17 @@
+[Unit]
+Description=Traffic Analysis Node
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/ta_node
+ExecStart=/opt/ta_node/ta_node --config /opt/ta_node/configs/ta_node.offline.yaml
+Restart=always
+RestartSec=5
+AmbientCapabilities=CAP_NET_RAW CAP_NET_ADMIN
+CapabilityBoundingSet=CAP_NET_RAW CAP_NET_ADMIN
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
