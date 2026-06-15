@@ -38,6 +38,16 @@ Intel CLI:
 ./ta_node --config ./configs/ta_node.yaml intel reload
 ```
 
+### Splitting and incrementally adding IOCs
+
+`intel.intel_file` (`configs/intel.yaml`) is the primary writable file — API,
+CLI and Hub-sync changes are persisted there. To keep a large IOC set
+manageable, also drop `*.yaml`/`*.yml` files into `intel.intel_dir`
+(`configs/intel.d/`): they are loaded concurrently and merged by `id`, so a big
+feed can be split across files and new IOCs added by adding a new file (picked
+up on the next hot-reload — no restart). Overlay files are read-only; on an `id`
+conflict the primary file wins. See `configs/intel.d/README.md`.
+
 Local intel API listens on `server.listen`:
 
 ```bash

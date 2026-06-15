@@ -45,6 +45,7 @@ type PatternConfig struct {
 
 type IntelConfig struct {
 	IntelFile               string `json:"intel_file" yaml:"intel_file"`
+	IntelDir                string `json:"intel_dir" yaml:"intel_dir"`
 	ReloadIntervalSec       int    `json:"reload_interval_sec" yaml:"reload_interval_sec"`
 	EnableHotReload         bool   `json:"enable_hot_reload" yaml:"enable_hot_reload"`
 	PruneExpiredIntervalSec int    `json:"prune_expired_interval_sec" yaml:"prune_expired_interval_sec"`
@@ -89,6 +90,7 @@ func Default() Config {
 		Patterns: PatternConfig{PatternDir: "./patterns"},
 		Intel: IntelConfig{
 			IntelFile:               "./configs/intel.yaml",
+			IntelDir:                "./configs/intel.d",
 			ReloadIntervalSec:       30,
 			EnableHotReload:         true,
 			PruneExpiredIntervalSec: 300,
@@ -148,6 +150,7 @@ func LoadWithFlags(args []string) (Config, string, []string, error) {
 	managementURL := fs.String("management-url", "", "management event url")
 	patternDir := fs.String("pattern-dir", "", "pattern directory")
 	intelFile := fs.String("intel-file", "", "intel yaml file")
+	intelDir := fs.String("intel-dir", "", "intel overlay directory (*.yaml/*.yml)")
 	eventDB := fs.String("event-db", "", "event sqlite queue db")
 	enablePCAPSave := fs.Bool("enable-pcap-save", false, "save evidence pcap")
 	configOnly := fs.Bool("config-only", false, "start local config api without opening capture source")
@@ -176,6 +179,9 @@ func LoadWithFlags(args []string) (Config, string, []string, error) {
 	}
 	if *intelFile != "" {
 		cfg.Intel.IntelFile = *intelFile
+	}
+	if *intelDir != "" {
+		cfg.Intel.IntelDir = *intelDir
 	}
 	if *eventDB != "" {
 		cfg.Event.QueueDB = *eventDB

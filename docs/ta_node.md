@@ -76,6 +76,10 @@ sudo ./ta_node --config ./configs/ta_node.yaml --interface eth0
 
 本地文件格式见 `configs/intel.yaml`。支持 `ip`、`cidr`、`domain`、`url`、`hash`，其中 `hash` 当前只存储不检测。
 
+### 多文件切分与增量添加
+
+`intel.intel_file`（`configs/intel.yaml`）是**主可写文件**，API、CLI 和 Hub 同步的改动都持久化到这里。为避免单文件过大、便于增量添加，可把额外的 `*.yaml`/`*.yml` 文件放入 `intel.intel_dir`（默认 `configs/intel.d/`）：这些文件会被**并发加载**并按 `id` 合并。于是大型情报可拆分到多个文件，新增情报只需放入新文件（热加载周期内自动生效，无需重启）。叠加目录中的文件为**只读**——API/CLI/同步只写主文件；`id` 冲突时以主文件为准。删除叠加文件中的 IOC 需直接编辑/删除对应文件。详见 `configs/intel.d/README.md`。
+
 CLI：
 
 ```bash

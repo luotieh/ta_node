@@ -14,7 +14,13 @@ patterns:
   pattern_dir: "./patterns"
 
 intel:
+  # Primary writable file: API / CLI / Hub-sync changes are persisted here.
   intel_file: "./configs/intel.yaml"
+  # Read-only overlay dir: every *.yaml/*.yml here is loaded (concurrently) and
+  # merged by id. Split large feeds across files and drop in new files to add
+  # IOCs incrementally — no need to edit one giant file. On id conflict the
+  # primary file wins. Set "" to disable.
+  intel_dir: "./configs/intel.d"
   reload_interval_sec: 30
   enable_hot_reload: true
   prune_expired_interval_sec: 300

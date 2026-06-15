@@ -45,10 +45,11 @@ func runNode(cfg config.Config, configPath string) error {
 		return fmt.Errorf("load patterns: %w", err)
 	}
 	fpEngine := fingerprint.New(rules)
-	intelStore, err := intel.NewStore(cfg.Intel.IntelFile)
+	intelStore, err := intel.NewStoreWithDir(cfg.Intel.IntelFile, cfg.Intel.IntelDir)
 	if err != nil {
 		return fmt.Errorf("load intel: %w", err)
 	}
+	log.Printf("loaded %d IOCs (file=%q dir=%q)", intelStore.Stats().Total, cfg.Intel.IntelFile, cfg.Intel.IntelDir)
 	intelMatcher := intel.NewMatcher(intelStore)
 	q, err := queue.NewSQLite(cfg.Event.QueueDB)
 	if err != nil {
@@ -182,7 +183,7 @@ func runIntelCLI(cfg config.Config, args []string) error {
 	if len(args) == 0 {
 		return fmt.Errorf("usage: ta_node intel add|list|delete|reload")
 	}
-	store, err := intel.NewStore(cfg.Intel.IntelFile)
+	store, err := intel.NewStoreWithDir(cfg.Intel.IntelFile, cfg.Intel.IntelDir)
 	if err != nil {
 		return err
 	}
