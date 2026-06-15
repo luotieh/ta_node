@@ -33,7 +33,15 @@ event:
   retry_interval_sec: 30
   push_timeout_sec: 5
 
+flow:
+  max_flows: 1000000
+  idle_timeout_sec: 120
+  cleanup_interval_sec: 30
+
 server:
   enable: true
-  listen: "0.0.0.0:19090"
+  # Bind to localhost by default; the config page and write APIs are otherwise
+  # exposed without auth. Set a token and/or front with a TLS reverse proxy
+  # before binding to 0.0.0.0.
+  listen: "127.0.0.1:19090"
   token: ""

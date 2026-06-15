@@ -1,7 +1,9 @@
 package server
 
 import (
+	"crypto/subtle"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"net/http"
 	"strings"
@@ -285,7 +287,9 @@ func (s *Server) authorized(r *http.Request) bool {
 	if token == "" {
 		return true
 	}
-	return r.Header.Get("Authorization") == "Bearer "+token
+	expected := "Bearer " + token
+	got := r.Header.Get("Authorization")
+	return subtle.ConstantTimeCompare([]byte(got), []byte(expected)) == 1
 }
 
 func (s *Server) checkItemLimit(incoming int) error {
@@ -295,8 +299,9 @@ func (s *Server) checkItemLimit(incoming int) error {
 	if maxItems <= 0 {
 		return nil
 	}
-	if s.store.Stats().Total+incoming > maxItems {
-		return http.ErrContentLength
+	total := s.store.Stats().Total
+	if total+incoming > maxItems {
+		return fmt.Errorf("intel item limit exceeded: max_items=%d current=%d incoming=%d", maxItems, total, incoming)
 	}
 	return nil
 }
@@ -515,6 +520,7 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
         <div class="row"><label for="capture.interface">网卡</label><input id="capture.interface" value="{{.Config.Capture.Interface}}"></div>
         <div class="row"><label for="capture.pcap_file">PCAP 文件</label><input id="capture.pcap_file" value="{{.Config.Capture.PCAPFile}}"></div>
         <div class="row"><label for="capture.bpf_filter">BPF 过滤</label><input id="capture.bpf_filter" value="{{.Config.Capture.BPFFilter}}"></div>
+        <div class="row"><label></label><span class="muted" style="font-size:12px">BPF 过滤需用 -tags pcap 构建；默认 AF_PACKET 后端填写非空值会导致启动失败。</span></div>
         <div class="row"><label for="capture.snaplen">Snaplen</label><input id="capture.snaplen" type="number" min="64" value="{{.Config.Capture.Snaplen}}"></div>
         <div class="row"><label for="capture.promiscuous">混杂模式</label><input id="capture.promiscuous" type="checkbox" {{if .Config.Capture.Promiscuous}}checked{{end}}></div>
       </fieldset>

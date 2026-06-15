@@ -36,3 +36,28 @@ func TestIntelMatcher(t *testing.T) {
 		t.Fatalf("expected 4 hits, got %d: %#v", len(hits), hits)
 	}
 }
+
+func TestIntelMatcherMatchesCNAMEAnswer(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "intel.yaml")
+	if err := SaveFile(path, []ThreatIntel{
+		{ID: "domain", Type: "domain", Value: "evil.example.com", Category: "malware", Severity: "high", Enabled: true},
+	}); err != nil {
+		t.Fatal(err)
+	}
+	store, err := NewStore(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	m := NewMatcher(store)
+	// A benign-looking query whose DNS answer is a CNAME pointing at the IOC.
+	pf := parser.PacketFeature{
+		SrcIP:      "192.168.1.10",
+		DstIP:      "8.8.8.8",
+		DNSQuery:   "cdn.example.org",
+		DNSAnswers: []string{"evil.example.com"},
+	}
+	hits := m.MatchPacket(pf)
+	if len(hits) != 1 || hits[0].ID != "domain" {
+		t.Fatalf("expected CNAME answer to hit domain IOC, got %#v", hits)
+	}
+}

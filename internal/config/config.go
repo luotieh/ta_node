@@ -16,6 +16,7 @@ type Config struct {
 	Intel    IntelConfig    `json:"intel" yaml:"intel"`
 	Evidence EvidenceConfig `json:"evidence" yaml:"evidence"`
 	Event    EventConfig    `json:"event" yaml:"event"`
+	Flow     FlowConfig     `json:"flow" yaml:"flow"`
 	Server   ServerConfig   `json:"server" yaml:"server"`
 	Runtime  RuntimeConfig  `json:"-" yaml:"-"`
 }
@@ -65,6 +66,12 @@ type EventConfig struct {
 	PushTimeoutSec   int    `json:"push_timeout_sec" yaml:"push_timeout_sec"`
 }
 
+type FlowConfig struct {
+	MaxFlows           int `json:"max_flows" yaml:"max_flows"`
+	IdleTimeoutSec     int `json:"idle_timeout_sec" yaml:"idle_timeout_sec"`
+	CleanupIntervalSec int `json:"cleanup_interval_sec" yaml:"cleanup_interval_sec"`
+}
+
 type ServerConfig struct {
 	Enable bool   `json:"enable" yaml:"enable"`
 	Listen string `json:"listen" yaml:"listen"`
@@ -97,7 +104,12 @@ func Default() Config {
 			RetryIntervalSec: 30,
 			PushTimeoutSec:   5,
 		},
-		Server: ServerConfig{Enable: true, Listen: "0.0.0.0:19090"},
+		Flow: FlowConfig{
+			MaxFlows:           1000000,
+			IdleTimeoutSec:     120,
+			CleanupIntervalSec: 30,
+		},
+		Server: ServerConfig{Enable: true, Listen: "127.0.0.1:19090"},
 	}
 }
 
@@ -199,4 +211,16 @@ func (c Config) RetryInterval() time.Duration {
 
 func (c Config) PushTimeout() time.Duration {
 	return time.Duration(c.Event.PushTimeoutSec) * time.Second
+}
+
+func (c Config) FlowIdleTimeout() time.Duration {
+	return time.Duration(c.Flow.IdleTimeoutSec) * time.Second
+}
+
+func (c Config) FlowCleanupInterval() time.Duration {
+	interval := c.Flow.CleanupIntervalSec
+	if interval <= 0 {
+		interval = 30
+	}
+	return time.Duration(interval) * time.Second
 }

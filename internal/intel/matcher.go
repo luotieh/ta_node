@@ -64,6 +64,16 @@ func (m *Matcher) MatchPacket(pf parser.PacketFeature) []ThreatIntel {
 	for _, it := range m.matchDomainLocked(pf.HTTPHost) {
 		addHit(it)
 	}
+	// DNS answers may include CNAME targets (domains, not IPs); match those
+	// against domain IOCs so malicious CNAME chains are caught.
+	for _, ans := range pf.DNSAnswers {
+		if net.ParseIP(ans) != nil {
+			continue
+		}
+		for _, it := range m.matchDomainLocked(ans) {
+			addHit(it)
+		}
+	}
 	if pf.HTTPURL != "" {
 		lowerURL := strings.ToLower(pf.HTTPURL)
 		for _, it := range m.urlMap[lowerURL] {

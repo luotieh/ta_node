@@ -87,7 +87,8 @@ func runNode(cfg config.Config, configPath string) error {
 	}
 	defer src.Close()
 
-	agg := flow.NewAggregator()
+	agg := flow.NewAggregator(cfg.Flow.MaxFlows, cfg.FlowIdleTimeout())
+	go flowCleanup(ctx, agg, cfg.FlowCleanupInterval())
 	det := detector.New(cfg.Node.DeviceID)
 	evWriter := evidence.New(cfg.Evidence.EnablePCAPSave, cfg.Evidence.PCAPDir, cfg.Node.DeviceID)
 
@@ -110,8 +111,6 @@ func runNode(cfg config.Config, configPath string) error {
 				continue
 			}
 			f := agg.Update(pf, fpHits, intelHits)
-			f.FingerprintHits = fpHits
-			f.IntelHits = intelHits
 			events := det.Detect(f)
 			for _, ev := range events {
 				path, err := evWriter.Save(ev.EventID, pkt)
@@ -147,6 +146,19 @@ func hotReload(ctx context.Context, store *intel.Store, interval time.Duration) 
 			if err := store.Reload(); err != nil {
 				log.Printf("intel reload failed: %v", err)
 			}
+		}
+	}
+}
+
+func flowCleanup(ctx context.Context, agg *flow.Aggregator, interval time.Duration) {
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			agg.Cleanup()
 		}
 	}
 }
