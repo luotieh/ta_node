@@ -94,6 +94,8 @@ For exposed deployments, set `server.token` and send `Authorization: Bearer <tok
 
 ## ARM Offline Deployment
 
+For the full Chinese deployment guide (build → package → install → operate), see [`docs/ta_node-ARM离线部署.md`](docs/ta_node-ARM离线部署.md).
+
 Supported targets:
 
 ```text
