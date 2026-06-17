@@ -1,7 +1,12 @@
 node:
   device_id: "node-arm-offline-001"
+  # For the warning-platform backend use the node ingest path, e.g.
+  #   http://<host>:<port>/traffic/internal/event/push
+  # (NOT /api/events* — that is the agent event-create API and 400s node events.)
   management_url: ""
   token: ""
+  # Sent as X-API-Key on push; set only if the management sets internal_api_key.
+  api_key: ""
 
 capture:
   interface: "eth0"

@@ -29,6 +29,9 @@ type NodeConfig struct {
 	DeviceID      string `json:"device_id" yaml:"device_id"`
 	ManagementURL string `json:"management_url" yaml:"management_url"`
 	Token         string `json:"token" yaml:"token"`
+	// APIKey is sent as the X-API-Key header on event push; required by the
+	// management internal ingest endpoint only when it sets internal_api_key.
+	APIKey string `json:"api_key" yaml:"api_key"`
 }
 
 type CaptureConfig struct {

@@ -36,4 +36,10 @@ type ThreatEvent struct {
 	EvidenceFile   string         `json:"evidence_file,omitempty"`
 	PacketTimeUsec uint64         `json:"packet_time_usec,omitempty"`
 	RawFeature     map[string]any `json:"raw_feature,omitempty"`
+
+	// Aliases consumed by the management ingest endpoint
+	// (/internal/event/push -> LyEventToDeepSOC): it reads "protocol" (not
+	// "proto") and "occurrence_time" (not "event_time").
+	Protocol       string `json:"protocol,omitempty"`
+	OccurrenceTime string `json:"occurrence_time,omitempty"`
 }

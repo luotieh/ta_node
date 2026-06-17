@@ -60,7 +60,7 @@ func runNode(cfg config.Config, configPath string) error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	client := push.NewClient(cfg.Node.ManagementURL, cfg.Node.Token, cfg.PushTimeout())
+	client := push.NewClient(cfg.Node.ManagementURL, cfg.Node.Token, cfg.Node.APIKey, cfg.PushTimeout())
 	if cfg.Event.EnablePush {
 		go push.StartWorker(ctx, q, client, cfg.Event.PushBatchSize, cfg.RetryInterval())
 	}

@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"strings"
+	"time"
 
 	"ta_node/internal/event"
 	"ta_node/internal/flow"
@@ -21,11 +22,13 @@ func (e *Engine) Detect(f flow.FlowFeature) []event.ThreatEvent {
 	base := event.ThreatEvent{
 		DeviceID:       e.deviceID,
 		EventTime:      f.LastTime,
+		OccurrenceTime: occurrenceTime(f.LastTime),
 		SrcIP:          f.SrcIP,
 		SrcPort:        f.SrcPort,
 		DstIP:          f.DstIP,
 		DstPort:        f.DstPort,
 		Proto:          f.Proto,
+		Protocol:       f.Proto,
 		Direction:      "unknown",
 		Flows:          1,
 		Packets:        f.Packets,
@@ -75,6 +78,17 @@ func (e *Engine) Detect(f flow.FlowFeature) []event.ThreatEvent {
 		events = append(events, ev)
 	}
 	return events
+}
+
+// occurrenceTime renders a microsecond epoch (FlowFeature timestamps are
+// time.UnixMicro values) as RFC3339 UTC for the management ingest endpoint,
+// which reads "occurrence_time". Returns "" when unset so the server falls
+// back to its own receive time.
+func occurrenceTime(usec uint64) string {
+	if usec == 0 {
+		return ""
+	}
+	return time.UnixMicro(int64(usec)).UTC().Format(time.RFC3339)
 }
 
 func stableEventID(f flow.FlowFeature, parts ...string) string {

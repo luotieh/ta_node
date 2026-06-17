@@ -1,7 +1,15 @@
 node:
   device_id: "node-001"
-  management_url: "http://127.0.0.1:8080/api/events"
+  # Management event-ingest endpoint. For the warning-platform backend, use the
+  # node ingest path (NOT /api/events*, which is the agent event-create API and
+  # rejects node events with 400 "事件消息不能为空"):
+  #   http://<host>:<port>/traffic/internal/event/push
+  management_url: "http://127.0.0.1:8080/traffic/internal/event/push"
+  # Bearer token sent as Authorization on push (used by /api/* style endpoints).
   token: ""
+  # Sent as the X-API-Key header on push. Set only if the management configures
+  # internal_api_key; leave empty when the ingest endpoint is open.
+  api_key: ""
 
 capture:
   interface: "eth0"
