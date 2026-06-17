@@ -443,6 +443,7 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
     }
     .status.error { color: var(--danger); }
     .status.ok { color: var(--accent-dark); }
+    .auth-token { width: 220px; flex: 0 0 auto; }
     .table-wrap {
       overflow-x: auto;
       border: 1px solid var(--line);
@@ -496,6 +497,7 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
       .row { grid-template-columns: 1fr; gap: 5px; }
       .actions { flex-wrap: wrap; justify-content: stretch; }
       .status { width: 100%; }
+      .auth-token { width: 100%; flex: 1 1 100%; }
       button { flex: 1; }
     }
   </style>
@@ -585,6 +587,7 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
       </fieldset>
       <div class="actions">
         <div id="status" class="status"></div>
+        <input id="authToken" class="auth-token" type="password" autocomplete="current-password" placeholder="鉴权 Token（输入一次后记住）">
         <button class="secondary" type="button" id="reloadBtn">重新加载</button>
         <button class="primary" type="submit">保存配置</button>
       </div>
@@ -601,6 +604,21 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
       "server.enable", "server.listen", "server.token"
     ];
     const statusEl = document.getElementById("status");
+    const AUTH_TOKEN_KEY = "ta_node.authToken";
+    const authTokenEl = document.getElementById("authToken");
+    authTokenEl.value = localStorage.getItem(AUTH_TOKEN_KEY) || "";
+    authTokenEl.addEventListener("change", () => rememberToken(authTokenEl.value));
+    function rememberToken(token) {
+      token = (token || "").trim();
+      if (token) localStorage.setItem(AUTH_TOKEN_KEY, token);
+      else localStorage.removeItem(AUTH_TOKEN_KEY);
+    }
+    function authHeaders(base) {
+      const headers = Object.assign({}, base || {});
+      const token = authTokenEl.value.trim();
+      if (token) headers["Authorization"] = "Bearer " + token;
+      return headers;
+    }
     function readValue(id) {
       const el = document.getElementById(id);
       if (el.type === "checkbox") return el.checked;
@@ -675,11 +693,13 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
       try {
         const res = await fetch("/api/v1/config", {
           method: "POST",
-          headers: {"Content-Type": "application/json"},
+          headers: authHeaders({"Content-Type": "application/json"}),
           body: JSON.stringify({config: collectConfig()})
         });
         const data = await res.json();
         if (!res.ok || !data.success) throw new Error(data.error || res.statusText);
+        const rotated = String(readValue("server.token") || "").trim();
+        if (rotated) rememberToken(rotated);
         setStatus("已保存，重启 ta_node 后采集和推送参数生效。", "ok");
       } catch (err) {
         setStatus("保存失败：" + err.message, "error");
