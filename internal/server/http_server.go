@@ -51,7 +51,6 @@ func (s *Server) handleConfig(w http.ResponseWriter, r *http.Request) {
 		s.mu.RLock()
 		cfg := s.cfg
 		s.mu.RUnlock()
-		cfg.Node.Token = ""
 		cfg.Node.APIKey = ""
 		cfg.Server.Token = ""
 		writeJSON(w, http.StatusOK, map[string]any{"config": cfg, "path": s.configPath})
@@ -70,9 +69,6 @@ func (s *Server) handleConfig(w http.ResponseWriter, r *http.Request) {
 		s.mu.RLock()
 		current := s.cfg
 		s.mu.RUnlock()
-		if current.Node.Token != "" && req.Config.Node.Token == "" {
-			req.Config.Node.Token = current.Node.Token
-		}
 		if current.Node.APIKey != "" && req.Config.Node.APIKey == "" {
 			req.Config.Node.APIKey = current.Node.APIKey
 		}
@@ -101,11 +97,9 @@ func (s *Server) handleConfigPage(w http.ResponseWriter, r *http.Request) {
 	data := struct {
 		Config         config.Config
 		ConfigPath     string
-		HasNodeToken   bool
 		HasNodeAPIKey  bool
 		HasServerToken bool
-	}{Config: s.cfg, ConfigPath: s.configPath, HasNodeToken: s.cfg.Node.Token != "", HasNodeAPIKey: s.cfg.Node.APIKey != "", HasServerToken: s.cfg.Server.Token != ""}
-	data.Config.Node.Token = ""
+	}{Config: s.cfg, ConfigPath: s.configPath, HasNodeAPIKey: s.cfg.Node.APIKey != "", HasServerToken: s.cfg.Server.Token != ""}
 	data.Config.Node.APIKey = ""
 	data.Config.Server.Token = ""
 	s.mu.RUnlock()
@@ -556,7 +550,6 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
         <legend>事件推送</legend>
         <div class="row"><label for="event.enable_push">启用推送</label><input id="event.enable_push" type="checkbox" {{if .Config.Event.EnablePush}}checked{{end}}></div>
         <div class="row"><label for="node.management_url">管理端 URL</label><input id="node.management_url" value="{{.Config.Node.ManagementURL}}"></div>
-        <div class="row"><label for="node.token">推送 Token</label><input id="node.token" type="password" placeholder="{{if .HasNodeToken}}留空保持不变{{end}}"></div>
         <div class="row"><label for="node.api_key">内部 API Key</label><input id="node.api_key" type="password" placeholder="{{if .HasNodeAPIKey}}留空保持不变{{else}}X-API-Key，留空则不发送{{end}}"></div>
         <div class="row"><label for="event.push_batch_size">推送批量</label><input id="event.push_batch_size" type="number" min="1" value="{{.Config.Event.PushBatchSize}}"></div>
         <div class="row"><label for="event.retry_interval_sec">重试间隔</label><input id="event.retry_interval_sec" type="number" min="1" value="{{.Config.Event.RetryIntervalSec}}"></div>
@@ -602,7 +595,7 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
   </main>
   <script>
     const ids = [
-      "node.device_id", "node.management_url", "node.token", "node.api_key",
+      "node.device_id", "node.management_url", "node.api_key",
       "capture.interface", "capture.pcap_file", "capture.bpf_filter", "capture.snaplen", "capture.promiscuous",
       "patterns.pattern_dir",
       "intel.intel_file", "intel.reload_interval_sec", "intel.enable_hot_reload", "intel.prune_expired_interval_sec", "intel.accept_stix", "intel.default_source", "intel.max_items",

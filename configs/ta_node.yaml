@@ -5,8 +5,6 @@ node:
   # rejects node events with 400 "事件消息不能为空"):
   #   http://<host>:<port>/traffic/internal/event/push
   management_url: "http://127.0.0.1:8080/traffic/internal/event/push"
-  # Bearer token sent as Authorization on push (used by /api/* style endpoints).
-  token: ""
   # Sent as the X-API-Key header on push. Set only if the management configures
   # internal_api_key; leave empty when the ingest endpoint is open.
   api_key: ""

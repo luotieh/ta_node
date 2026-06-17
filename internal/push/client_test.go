@@ -20,7 +20,7 @@ func TestPushFailureKeepsEvent(t *testing.T) {
 	if err := q.Enqueue(ev); err != nil {
 		t.Fatal(err)
 	}
-	client := NewClient("http://127.0.0.1:1/api/events", "", "", time.Millisecond)
+	client := NewClient("http://127.0.0.1:1/api/events", "", time.Millisecond)
 	drain(context.Background(), q, client, 10)
 	pending, err := q.LoadPending(10)
 	if err != nil {

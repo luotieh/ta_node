@@ -16,13 +16,12 @@ import (
 
 type Client struct {
 	url    string
-	token  string
 	apiKey string
 	http   *http.Client
 }
 
-func NewClient(url, token, apiKey string, timeout time.Duration) *Client {
-	return &Client{url: url, token: token, apiKey: apiKey, http: &http.Client{Timeout: timeout}}
+func NewClient(url, apiKey string, timeout time.Duration) *Client {
+	return &Client{url: url, apiKey: apiKey, http: &http.Client{Timeout: timeout}}
 }
 
 func (c *Client) PushEvent(ctx context.Context, ev event.ThreatEvent) error {
@@ -35,9 +34,6 @@ func (c *Client) PushEvent(ctx context.Context, ev event.ThreatEvent) error {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	if c.token != "" {
-		req.Header.Set("Authorization", "Bearer "+c.token)
-	}
 	if c.apiKey != "" {
 		req.Header.Set("X-API-Key", c.apiKey)
 	}
