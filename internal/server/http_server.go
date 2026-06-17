@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"ta_node/internal/buildinfo"
 	"ta_node/internal/config"
 	"ta_node/internal/intel"
 	"ta_node/internal/queue"
@@ -94,12 +95,17 @@ func (s *Server) handleConfigPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.mu.RLock()
+	version := buildinfo.Short()
+	if t := buildinfo.Get().Time; t != "" {
+		version += " · " + t
+	}
 	data := struct {
 		Config         config.Config
 		ConfigPath     string
+		Version        string
 		HasNodeAPIKey  bool
 		HasServerToken bool
-	}{Config: s.cfg, ConfigPath: s.configPath, HasNodeAPIKey: s.cfg.Node.APIKey != "", HasServerToken: s.cfg.Server.Token != ""}
+	}{Config: s.cfg, ConfigPath: s.configPath, Version: version, HasNodeAPIKey: s.cfg.Node.APIKey != "", HasServerToken: s.cfg.Server.Token != ""}
 	data.Config.Node.APIKey = ""
 	data.Config.Server.Token = ""
 	s.mu.RUnlock()
@@ -258,6 +264,8 @@ func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 	s.mu.RUnlock()
 	writeJSON(w, http.StatusOK, map[string]any{
 		"status":      "ok",
+		"version":     buildinfo.Short(),
+		"built_at":    buildinfo.Get().Time,
 		"device_id":   deviceID,
 		"intel_count": s.store.Stats().Total,
 		"server_time": time.Now().Unix(),
@@ -507,6 +515,7 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
     <div class="topbar">
       <div>
         <h1>ta_node 配置</h1>
+        <div class="path">版本：{{.Version}}</div>
         <div class="path">配置文件：{{.ConfigPath}}</div>
       </div>
     </div>

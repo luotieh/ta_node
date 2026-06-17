@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"ta_node/internal/buildinfo"
 	"ta_node/internal/capture"
 	"ta_node/internal/config"
 	"ta_node/internal/detector"
@@ -40,6 +41,7 @@ func main() {
 }
 
 func runNode(cfg config.Config, configPath string) error {
+	log.Printf("ta_node version %s (built %s)", buildinfo.Short(), buildinfo.Get().Time)
 	rules, err := fingerprint.LoadDir(cfg.Patterns.PatternDir)
 	if err != nil {
 		return fmt.Errorf("load patterns: %w", err)
