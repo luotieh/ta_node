@@ -36,7 +36,19 @@ sudo cp "$BIN" /opt/ta_node/ta_node.new
 sudo chmod +x /opt/ta_node/ta_node.new
 sudo mv -f /opt/ta_node/ta_node.new /opt/ta_node/ta_node
 
-sudo cp -r configs /opt/ta_node/
+# configs/ is operator-owned: settings the admin edits (interface, listen,
+# token, ...) plus runtime data the API/CLI/sync write to (intel.yaml,
+# intel.d/). NEVER clobber it on upgrade -- that would reset the admin's config
+# and wipe accumulated IOCs. Copy only files that do not exist yet (fresh
+# install / newly added files), and stage the packaged defaults under
+# configs.dist/ so new/changed defaults can be diffed and merged by hand.
+sudo mkdir -p /opt/ta_node/configs
+sudo cp -rn configs/. /opt/ta_node/configs/
+sudo rm -rf /opt/ta_node/configs.dist
+sudo cp -r configs /opt/ta_node/configs.dist
+echo "configs/: kept existing operator files; packaged defaults staged in /opt/ta_node/configs.dist/"
+
+# patterns/ are detection rules shipped with the release; refresh on upgrade.
 sudo cp -r patterns /opt/ta_node/
 sudo cp deploy/systemd/ta_node.service /etc/systemd/system/ta_node.service
 sudo systemctl daemon-reload

@@ -121,11 +121,28 @@ sudo ./deploy/install-offline.sh armv7
 
 - 创建 `/opt/ta_node` 与 `/opt/ta_node/data/evidence`
 - 重装时先 `systemctl stop ta_node`，再用「临时文件 + `mv` 原子替换」写入 `/opt/ta_node/ta_node`（规避运行中二进制的 `Text file busy`）
-- 拷贝 `configs/`、`patterns/` 到 `/opt/ta_node/`
+- `configs/`：**升级不覆盖已有配置**，只补全缺失文件；本次包内默认配置另存到 `/opt/ta_node/configs.dist/` 供对比合并（详见下节）
+- `patterns/`：检测规则随版本刷新，覆盖到 `/opt/ta_node/patterns/`
 - 安装 `deploy/systemd/ta_node.service` 到 `/etc/systemd/system/`
 - `daemon-reload` → `enable` → `restart` → 打印服务状态
 
 systemd 服务以 `--config /opt/ta_node/configs/ta_node.offline.yaml` 启动，并授予 `CAP_NET_RAW`、`CAP_NET_ADMIN`（在线抓包所需），同时 `NoNewPrivileges=true`。
+
+### 升级时的配置保留
+
+`configs/` 既有运维手改的设置（`capture.interface`、`server.listen`、`server.token` 等），也有**运行时被写入的数据**——`intel.yaml` 是 API/CLI/Hub 同步的主可写情报文件，`intel.d/` 是叠加目录。因此安装脚本对 `configs/` 采用**只增不覆盖**（`cp -rn`）：
+
+- 首次安装：完整写入默认配置。
+- 升级：保留 `/opt/ta_node/configs/` 下所有已存在文件（你的配置和已积累的 IOC 不会丢），仅补入版本新增的文件。
+- 每次安装都会把本次包内的默认配置刷新到 `/opt/ta_node/configs.dist/`。当新版本引入了新配置项时，可对比合并：
+
+```bash
+diff -ru /opt/ta_node/configs /opt/ta_node/configs.dist
+```
+
+> 配置加载是「内置默认值 + YAML 覆盖」，旧配置缺少新版本新增的键时会自动取默认值，不影响启动；按需参考 `configs.dist/` 手动补齐即可。
+>
+> 注意：`patterns/` 会在升级时被覆盖以获取最新规则。如果你手改过规则文件，请自行备份。
 
 ## 六、离线配置说明
 
