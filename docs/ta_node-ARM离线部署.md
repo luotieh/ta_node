@@ -120,7 +120,7 @@ sudo ./deploy/install-offline.sh armv7
 安装脚本做的事：
 
 - 创建 `/opt/ta_node` 与 `/opt/ta_node/data/evidence`
-- 拷贝对应架构二进制到 `/opt/ta_node/ta_node`
+- 重装时先 `systemctl stop ta_node`，再用「临时文件 + `mv` 原子替换」写入 `/opt/ta_node/ta_node`（规避运行中二进制的 `Text file busy`）
 - 拷贝 `configs/`、`patterns/` 到 `/opt/ta_node/`
 - 安装 `deploy/systemd/ta_node.service` 到 `/etc/systemd/system/`
 - `daemon-reload` → `enable` → `restart` → 打印服务状态
@@ -168,6 +168,7 @@ sudo systemctl stop ta_node
 
 ## 九、常见问题
 
+- **`cp: cannot create regular file '/opt/ta_node/ta_node': Text file busy`**：升级/重装时旧版本服务仍在运行，正在执行的二进制无法被覆盖（ETXTBSY）。脚本已在替换前 `systemctl stop ta_node` 并改用「临时文件 + `mv` 原子替换」规避此问题；若使用旧版脚本，手动先停服务再重装即可：`sudo systemctl stop ta_node && sudo ./deploy/install-offline.sh arm64`。
 - **`binary not found: dist/...`**：安装脚本未找到对应架构二进制，确认已执行 `build-all-offline.sh` 且选对了 `arm64`/`armv7` 参数。
 - **构建联网失败 / 校验和错误**：vendor 目录不完整，回到联网开发机重跑 `go mod vendor && go mod verify`。
 - **服务起来但抓不到包**：确认 `capture.interface` 为真实网卡，且服务具备 `CAP_NET_RAW`/`CAP_NET_ADMIN`（默认 service 已授予）。
