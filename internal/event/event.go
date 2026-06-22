@@ -1,5 +1,28 @@
 package event
 
+// SchemaVersion identifies the event payload layout. Bump it whenever fields
+// are added or their meaning changes so downstream consumers (AI analysis /
+// management ingest) can adapt to format evolution.
+const SchemaVersion = "1.1"
+
+// AppContext carries application-layer evidence from the packet that triggered
+// the event. All fields are best-effort and may be empty depending on protocol.
+type AppContext struct {
+	HTTPMethod  string            `json:"http_method,omitempty"`
+	HTTPHost    string            `json:"http_host,omitempty"`
+	HTTPURL     string            `json:"http_url,omitempty"`
+	UserAgent   string            `json:"user_agent,omitempty"`
+	HTTPHeaders map[string]string `json:"http_headers,omitempty"`
+	HTTPBody    string            `json:"http_body_sample,omitempty"`
+
+	DNSQuery   string   `json:"dns_query,omitempty"`
+	DNSQType   uint16   `json:"dns_qtype,omitempty"`
+	DNSAnswers []string `json:"dns_answers,omitempty"`
+
+	PayloadSample string `json:"payload_sample,omitempty"`
+	ICMPSeq       uint32 `json:"icmp_seq,omitempty"`
+}
+
 type ThreatEvent struct {
 	EventID   string `json:"event_id"`
 	DeviceID  string `json:"device_id"`
@@ -19,23 +42,32 @@ type ThreatEvent struct {
 	Direction    string `json:"direction"`
 	ThreatSource string `json:"threat_source"`
 
-	IOCType     string   `json:"ioc_type,omitempty"`
-	IOCValue    string   `json:"ioc_value,omitempty"`
-	IOCCategory string   `json:"ioc_category,omitempty"`
-	IOCID       string   `json:"ioc_id,omitempty"`
-	IOCSource   string   `json:"ioc_source,omitempty"`
-	IOCTags     []string `json:"ioc_tags,omitempty"`
+	IOCType        string   `json:"ioc_type,omitempty"`
+	IOCValue       string   `json:"ioc_value,omitempty"`
+	IOCCategory    string   `json:"ioc_category,omitempty"`
+	IOCID          string   `json:"ioc_id,omitempty"`
+	IOCSource      string   `json:"ioc_source,omitempty"`
+	IOCTags        []string `json:"ioc_tags,omitempty"`
+	IOCDescription string   `json:"ioc_description,omitempty"`
+	IOCExpireAt    int64    `json:"ioc_expire_at,omitempty"`
 
 	RuleID      string `json:"rule_id,omitempty"`
 	ThreatIndex string `json:"threat_index,omitempty"`
 
-	Flows   uint64 `json:"flows"`
-	Packets uint64 `json:"packets"`
-	Bytes   uint64 `json:"bytes"`
+	FirstTime  uint64 `json:"first_time,omitempty"`
+	DurationMs uint64 `json:"duration_ms,omitempty"`
+	Flows      uint64 `json:"flows"`
+	Packets    uint64 `json:"packets"`
+	Bytes      uint64 `json:"bytes"`
+
+	App *AppContext `json:"app,omitempty"`
 
 	EvidenceFile   string         `json:"evidence_file,omitempty"`
 	PacketTimeUsec uint64         `json:"packet_time_usec,omitempty"`
 	RawFeature     map[string]any `json:"raw_feature,omitempty"`
+
+	SchemaVersion string `json:"schema_version,omitempty"`
+	SensorVersion string `json:"sensor_version,omitempty"`
 
 	// Aliases consumed by the management ingest endpoint
 	// (/internal/event/push -> LyEventToDeepSOC): it reads "protocol" (not

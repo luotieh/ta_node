@@ -21,12 +21,14 @@ type PacketFeature struct {
 	DstPort uint16 `json:"dst_port"`
 	Proto   string `json:"proto"`
 
-	HTTPHost   string `json:"http_host,omitempty"`
-	HTTPURL    string `json:"http_url,omitempty"`
-	HTTPMethod string `json:"http_method,omitempty"`
-	UserAgent  string `json:"user_agent,omitempty"`
-	HTTPHeader []byte `json:"-"`
-	HTTPBody   []byte `json:"-"`
+	HTTPHost   string            `json:"http_host,omitempty"`
+	HTTPURL    string            `json:"http_url,omitempty"`
+	HTTPMethod string            `json:"http_method,omitempty"`
+	UserAgent  string            `json:"user_agent,omitempty"`
+	HTTPHeader []byte            `json:"-"`
+	HTTPBody   []byte            `json:"-"`
+	HTTPHeaders    map[string]string `json:"http_headers,omitempty"`
+	HTTPBodySample string            `json:"http_body_sample,omitempty"`
 
 	DNSQuery   string   `json:"dns_query,omitempty"`
 	DNSQType   uint16   `json:"dns_qtype,omitempty"`
@@ -128,24 +130,51 @@ func parseHTTP(pf *PacketFeature) {
 	pf.HTTPURL = path
 	header, body, _ := bytes.Cut(pf.Payload, []byte("\r\n\r\n"))
 	pf.HTTPHeader = append([]byte(nil), header...)
-	if body != nil {
+	if len(body) > 0 {
 		pf.HTTPBody = append([]byte(nil), body...)
+		pf.HTTPBodySample = samplePayload(body)
 	}
 	for _, line := range strings.Split(string(header), "\r\n") {
 		k, v, ok := strings.Cut(line, ":")
 		if !ok {
 			continue
 		}
-		switch strings.ToLower(strings.TrimSpace(k)) {
+		key := strings.ToLower(strings.TrimSpace(k))
+		val := strings.TrimSpace(v)
+		switch key {
 		case "host":
-			pf.HTTPHost = strings.TrimSpace(v)
+			pf.HTTPHost = val
 			if !strings.HasPrefix(pf.HTTPURL, "http://") && !strings.HasPrefix(pf.HTTPURL, "https://") {
 				pf.HTTPURL = "http://" + pf.HTTPHost + path
 			}
 		case "user-agent":
-			pf.UserAgent = strings.TrimSpace(v)
+			pf.UserAgent = val
+		}
+		// Capture a safe allowlist of headers for AI analysis. Sensitive
+		// credential headers (cookie/authorization/...) are deliberately
+		// excluded so they are never pushed off the node.
+		if safeHTTPHeaders[key] {
+			if pf.HTTPHeaders == nil {
+				pf.HTTPHeaders = map[string]string{}
+			}
+			pf.HTTPHeaders[key] = val
 		}
 	}
+}
+
+// safeHTTPHeaders is the allowlist of request headers that are forwarded with
+// events. Anything not listed here (Cookie, Authorization, Proxy-Authorization,
+// etc.) is dropped to avoid exfiltrating credentials.
+var safeHTTPHeaders = map[string]bool{
+	"host":             true,
+	"referer":          true,
+	"content-type":     true,
+	"content-length":   true,
+	"x-forwarded-for":  true,
+	"accept":           true,
+	"accept-language":  true,
+	"origin":           true,
+	"x-requested-with": true,
 }
 
 func httpRequestLine(payload []byte) (string, string, bool) {

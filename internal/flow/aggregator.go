@@ -90,7 +90,29 @@ func (a *Aggregator) Update(pf parser.PacketFeature, fpHits []fingerprint.Finger
 	out := st.feature
 	out.FingerprintHits = fpHits
 	out.IntelHits = intelHits
+	attachAppContext(&out, pf)
 	return out
+}
+
+// attachAppContext copies the triggering packet's application-layer context
+// onto the returned feature. It is intentionally NOT written back to the stored
+// flow: like hits, these (potentially large) fields must not accumulate on a
+// long-lived flow, and the context that matters for an event is that of the
+// packet that actually triggered the hit.
+func attachAppContext(out *FlowFeature, pf parser.PacketFeature) {
+	out.HTTPMethod = pf.HTTPMethod
+	out.UserAgent = pf.UserAgent
+	out.HTTPHeaders = pf.HTTPHeaders
+	out.HTTPBodySample = pf.HTTPBodySample
+	out.DNSQType = pf.DNSQType
+	out.DNSAnswers = pf.DNSAnswers
+	out.PayloadSample = pf.PayloadSample
+	out.ICMPSeq = pf.ICMPSeq
+	// HTTPHost/HTTPURL/DNSQuery already carried via firstNonEmpty on the stored
+	// flow, but prefer the triggering packet's values when present.
+	out.HTTPHost = firstNonEmpty(pf.HTTPHost, out.HTTPHost)
+	out.HTTPURL = firstNonEmpty(pf.HTTPURL, out.HTTPURL)
+	out.DNSQuery = firstNonEmpty(pf.DNSQuery, out.DNSQuery)
 }
 
 // Cleanup removes flows that have been idle for longer than the idle timeout

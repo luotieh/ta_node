@@ -31,6 +31,9 @@ type NodeConfig struct {
 	// APIKey is sent as the X-API-Key header on event push; required by the
 	// management internal ingest endpoint only when it sets internal_api_key.
 	APIKey string `json:"api_key" yaml:"api_key"`
+	// HomeNet lists local network ranges (CIDR) used to classify event
+	// direction as inbound/outbound/lateral. Empty leaves direction "unknown".
+	HomeNet []string `json:"home_net" yaml:"home_net"`
 }
 
 type CaptureConfig struct {

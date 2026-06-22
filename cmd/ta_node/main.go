@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -92,7 +94,9 @@ func runNode(cfg config.Config, configPath string) error {
 
 	agg := flow.NewAggregator(cfg.Flow.MaxFlows, cfg.FlowIdleTimeout())
 	go flowCleanup(ctx, agg, cfg.FlowCleanupInterval())
-	det := detector.New(cfg.Node.DeviceID)
+	det := detector.New(cfg.Node.DeviceID).
+		WithHomeNet(parseHomeNet(cfg.Node.HomeNet)).
+		WithSensorVersion(buildinfo.Short())
 	evWriter := evidence.New(cfg.Evidence.EnablePCAPSave, cfg.Evidence.PCAPDir, cfg.Node.DeviceID)
 
 	for {
@@ -129,6 +133,25 @@ func runNode(cfg config.Config, configPath string) error {
 			}
 		}
 	}
+}
+
+// parseHomeNet converts CIDR strings from config into parsed networks, skipping
+// (and logging) any malformed entries so a bad config line cannot stop the node.
+func parseHomeNet(cidrs []string) []*net.IPNet {
+	var nets []*net.IPNet
+	for _, c := range cidrs {
+		c = strings.TrimSpace(c)
+		if c == "" {
+			continue
+		}
+		_, n, err := net.ParseCIDR(c)
+		if err != nil {
+			log.Printf("ignoring invalid home_net entry %q: %v", c, err)
+			continue
+		}
+		nets = append(nets, n)
+	}
+	return nets
 }
 
 func openSource(cfg config.Config) (capture.Source, error) {

@@ -8,6 +8,11 @@ node:
   # Sent as the X-API-Key header on push. Set only if the management configures
   # internal_api_key; leave empty when the ingest endpoint is open.
   api_key: ""
+  # Local network ranges (CIDR) used to classify event direction as
+  # inbound/outbound/lateral. Leave empty to report direction as "unknown".
+  home_net: []
+    # - "10.0.0.0/8"
+    # - "192.168.0.0/16"
 
 capture:
   interface: "eth0"

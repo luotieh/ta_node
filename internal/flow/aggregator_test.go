@@ -52,6 +52,29 @@ func TestAggregatorCleanupEvictsIdleFlows(t *testing.T) {
 	}
 }
 
+func TestAggregatorAttachesAppContextWithoutPersisting(t *testing.T) {
+	a := NewAggregator(100, time.Minute)
+	p := pkt("1.1.1.1")
+	p.HTTPMethod = "GET"
+	p.UserAgent = "evil-bot/1.0"
+	p.PayloadSample = "GET /x HTTP/1.1"
+
+	// The triggering packet's app-layer context is attached to the returned
+	// feature for event enrichment.
+	got := a.Update(p, []fingerprint.FingerprintHit{{RuleID: "r"}}, nil)
+	if got.HTTPMethod != "GET" || got.UserAgent != "evil-bot/1.0" || got.PayloadSample != "GET /x HTTP/1.1" {
+		t.Fatalf("expected app context on returned feature, got %+v", got)
+	}
+
+	// A later packet on the same flow carrying no app-layer context must come
+	// back clean: the previous packet's context must NOT have been persisted on
+	// the stored flow (memory-safety invariant).
+	next := a.Update(pkt("1.1.1.1"), nil, nil)
+	if next.HTTPMethod != "" || next.UserAgent != "" || next.PayloadSample != "" {
+		t.Fatalf("app context must not persist on the stored flow, got %+v", next)
+	}
+}
+
 func TestAggregatorCapsLiveFlows(t *testing.T) {
 	now := time.Unix(1000, 0)
 	a := NewAggregator(1, time.Hour)

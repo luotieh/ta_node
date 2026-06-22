@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"net"
 	"strings"
 	"time"
 
@@ -12,10 +13,27 @@ import (
 )
 
 type Engine struct {
-	deviceID string
+	deviceID      string
+	homeNet       []*net.IPNet
+	sensorVersion string
 }
 
 func New(deviceID string) *Engine { return &Engine{deviceID: deviceID} }
+
+// WithHomeNet sets the local network ranges used to classify event Direction
+// (inbound/outbound/lateral/external). With no ranges, Direction stays
+// "unknown". Returns the engine for chaining.
+func (e *Engine) WithHomeNet(nets []*net.IPNet) *Engine {
+	e.homeNet = nets
+	return e
+}
+
+// WithSensorVersion stamps each event with the running build identity. Returns
+// the engine for chaining.
+func (e *Engine) WithSensorVersion(v string) *Engine {
+	e.sensorVersion = v
+	return e
+}
 
 func (e *Engine) Detect(f flow.FlowFeature) []event.ThreatEvent {
 	var events []event.ThreatEvent
@@ -29,12 +47,17 @@ func (e *Engine) Detect(f flow.FlowFeature) []event.ThreatEvent {
 		DstPort:        f.DstPort,
 		Proto:          f.Proto,
 		Protocol:       f.Proto,
-		Direction:      "unknown",
+		Direction:      e.direction(f.SrcIP, f.DstIP),
+		FirstTime:      f.FirstTime,
+		DurationMs:     durationMs(f.FirstTime, f.LastTime),
 		Flows:          1,
 		Packets:        f.Packets,
 		Bytes:          f.Bytes,
+		App:            appContext(f),
 		EvidenceFile:   f.EvidenceFile,
 		PacketTimeUsec: f.PacketTimeUsec,
+		SchemaVersion:  event.SchemaVersion,
+		SensorVersion:  e.sensorVersion,
 	}
 	seen := map[string]bool{}
 	for _, hit := range f.FingerprintHits {
@@ -75,6 +98,8 @@ func (e *Engine) Detect(f flow.FlowFeature) []event.ThreatEvent {
 		ev.IOCID = hit.ID
 		ev.IOCSource = hit.Source
 		ev.IOCTags = hit.Tags
+		ev.IOCDescription = hit.Description
+		ev.IOCExpireAt = hit.ExpireAt
 		events = append(events, ev)
 	}
 	return events
@@ -89,6 +114,72 @@ func occurrenceTime(usec uint64) string {
 		return ""
 	}
 	return time.UnixMicro(int64(usec)).UTC().Format(time.RFC3339)
+}
+
+// direction classifies traffic relative to the configured home network.
+func (e *Engine) direction(srcIP, dstIP string) string {
+	if len(e.homeNet) == 0 {
+		return "unknown"
+	}
+	srcLocal := ipInNets(srcIP, e.homeNet)
+	dstLocal := ipInNets(dstIP, e.homeNet)
+	switch {
+	case srcLocal && dstLocal:
+		return "lateral"
+	case srcLocal && !dstLocal:
+		return "outbound"
+	case !srcLocal && dstLocal:
+		return "inbound"
+	default:
+		return "external"
+	}
+}
+
+func ipInNets(ipStr string, nets []*net.IPNet) bool {
+	ip := net.ParseIP(ipStr)
+	if ip == nil {
+		return false
+	}
+	for _, n := range nets {
+		if n != nil && n.Contains(ip) {
+			return true
+		}
+	}
+	return false
+}
+
+// durationMs converts a flow's first/last microsecond timestamps to a duration
+// in milliseconds, clamping to 0 if the values are unset or out of order.
+func durationMs(firstUsec, lastUsec uint64) uint64 {
+	if lastUsec <= firstUsec {
+		return 0
+	}
+	return (lastUsec - firstUsec) / 1000
+}
+
+// appContext builds the application-layer evidence block, returning nil when no
+// fields are populated so the event omits the "app" object entirely.
+func appContext(f flow.FlowFeature) *event.AppContext {
+	app := &event.AppContext{
+		HTTPMethod:    f.HTTPMethod,
+		HTTPHost:      f.HTTPHost,
+		HTTPURL:       f.HTTPURL,
+		UserAgent:     f.UserAgent,
+		HTTPHeaders:   f.HTTPHeaders,
+		HTTPBody:      f.HTTPBodySample,
+		DNSQuery:      f.DNSQuery,
+		DNSQType:      f.DNSQType,
+		DNSAnswers:    f.DNSAnswers,
+		PayloadSample: f.PayloadSample,
+		ICMPSeq:       f.ICMPSeq,
+	}
+	if app.HTTPMethod == "" && app.HTTPHost == "" && app.HTTPURL == "" &&
+		app.UserAgent == "" && len(app.HTTPHeaders) == 0 && app.HTTPBody == "" &&
+		app.DNSQuery == "" && app.DNSQType == 0 && len(app.DNSAnswers) == 0 &&
+		app.PayloadSample == "" && app.ICMPSeq == 0 {
+		return nil
+	}
+	return app
 }
 
 func stableEventID(f flow.FlowFeature, parts ...string) string {
