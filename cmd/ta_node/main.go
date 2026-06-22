@@ -15,6 +15,7 @@ import (
 	"ta_node/internal/buildinfo"
 	"ta_node/internal/capture"
 	"ta_node/internal/config"
+	"ta_node/internal/counter"
 	"ta_node/internal/detector"
 	"ta_node/internal/evidence"
 	"ta_node/internal/fingerprint"
@@ -94,9 +95,14 @@ func runNode(cfg config.Config, configPath string) error {
 
 	agg := flow.NewAggregator(cfg.Flow.MaxFlows, cfg.FlowIdleTimeout())
 	go flowCleanup(ctx, agg, cfg.FlowCleanupInterval())
+	var localHits *counter.Window
+	if cfg.Event.LocalHitWindowSec > 0 {
+		localHits = counter.New(time.Duration(cfg.Event.LocalHitWindowSec)*time.Second, 0)
+	}
 	det := detector.New(cfg.Node.DeviceID).
 		WithHomeNet(parseHomeNet(cfg.Node.HomeNet)).
-		WithSensorVersion(buildinfo.Short())
+		WithSensorVersion(buildinfo.Short()).
+		WithLocalCounter(localHits, cfg.Event.LocalHitWindowSec)
 	evWriter := evidence.New(cfg.Evidence.EnablePCAPSave, cfg.Evidence.PCAPDir, cfg.Node.DeviceID)
 
 	for {

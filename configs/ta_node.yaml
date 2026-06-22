@@ -49,6 +49,10 @@ event:
   push_batch_size: 100
   retry_interval_sec: 30
   push_timeout_sec: 5
+  # Sliding window (seconds) for the node-local burst counter stamped on events
+  # as local_hit_count/local_window_sec (node-scoped hint, not a global count).
+  # Set 0 to disable.
+  local_hit_window_sec: 60
 
 flow:
   max_flows: 1000000

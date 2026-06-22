@@ -15,6 +15,9 @@ type FlowFeature struct {
 	Proto     string `json:"proto"`
 	Packets   uint64 `json:"packets"`
 	Bytes     uint64 `json:"bytes"`
+	// WireBytes accumulates original on-wire packet lengths (L2-L4 headers
+	// included); Bytes counts payload only.
+	WireBytes uint64 `json:"wire_bytes,omitempty"`
 
 	HTTPHost string `json:"http_host,omitempty"`
 	HTTPURL  string `json:"http_url,omitempty"`

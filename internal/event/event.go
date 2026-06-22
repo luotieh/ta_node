@@ -3,7 +3,7 @@ package event
 // SchemaVersion identifies the event payload layout. Bump it whenever fields
 // are added or their meaning changes so downstream consumers (AI analysis /
 // management ingest) can adapt to format evolution.
-const SchemaVersion = "1.1"
+const SchemaVersion = "1.2"
 
 // AppContext carries application-layer evidence from the packet that triggered
 // the event. All fields are best-effort and may be empty depending on protocol.
@@ -59,8 +59,25 @@ type ThreatEvent struct {
 	Flows      uint64 `json:"flows"`
 	Packets    uint64 `json:"packets"`
 	Bytes      uint64 `json:"bytes"`
+	// WireBytes is the on-wire data size of this communication (L2-L4 headers
+	// included); Bytes is payload only. VolumeRole tags which side of the
+	// communication the matched IOC is on, so this flow's volume reads as
+	// "to_ioc" (data toward the IOC, e.g. exfiltration) or "from_ioc" (data
+	// from the IOC, e.g. payload download). Empty when not an IOC hit or
+	// undetermined.
+	WireBytes  uint64 `json:"wire_bytes,omitempty"`
+	VolumeRole string `json:"volume_role,omitempty"`
 
 	App *AppContext `json:"app,omitempty"`
+
+	// Local* are a NODE-SCOPED, approximate burst signal: how many times this
+	// threat key (IOC/rule) fired on THIS node within LocalWindowSec. It is a
+	// triage hint, not an authoritative count — global/long-window counting
+	// belongs on the management side (see task plan §7.1).
+	LocalHitCount  int    `json:"local_hit_count,omitempty"`
+	LocalWindowSec int    `json:"local_window_sec,omitempty"`
+	LocalFirstSeen uint64 `json:"local_first_seen,omitempty"`
+	LocalScope     string `json:"local_scope,omitempty"`
 
 	EvidenceFile   string         `json:"evidence_file,omitempty"`
 	PacketTimeUsec uint64         `json:"packet_time_usec,omitempty"`

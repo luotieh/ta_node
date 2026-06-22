@@ -70,6 +70,9 @@ type EventConfig struct {
 	PushBatchSize    int    `json:"push_batch_size" yaml:"push_batch_size"`
 	RetryIntervalSec int    `json:"retry_interval_sec" yaml:"retry_interval_sec"`
 	PushTimeoutSec   int    `json:"push_timeout_sec" yaml:"push_timeout_sec"`
+	// LocalHitWindowSec sets the sliding window (seconds) for the node-local
+	// burst counter stamped on events (local_hit_count). 0 disables it.
+	LocalHitWindowSec int `json:"local_hit_window_sec" yaml:"local_hit_window_sec"`
 }
 
 type FlowConfig struct {
@@ -105,11 +108,12 @@ func Default() Config {
 		},
 		Evidence: EvidenceConfig{EnablePCAPSave: true, PCAPDir: "./data/evidence"},
 		Event: EventConfig{
-			EnablePush:       true,
-			QueueDB:          "./data/event_queue.db",
-			PushBatchSize:    100,
-			RetryIntervalSec: 30,
-			PushTimeoutSec:   5,
+			EnablePush:        true,
+			QueueDB:           "./data/event_queue.db",
+			PushBatchSize:     100,
+			RetryIntervalSec:  30,
+			PushTimeoutSec:    5,
+			LocalHitWindowSec: 60,
 		},
 		Flow: FlowConfig{
 			MaxFlows:           1000000,

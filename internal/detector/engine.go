@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"ta_node/internal/counter"
 	"ta_node/internal/event"
 	"ta_node/internal/flow"
 )
@@ -16,9 +17,20 @@ type Engine struct {
 	deviceID      string
 	homeNet       []*net.IPNet
 	sensorVersion string
+	localHits     *counter.Window
+	localWindow   int
 }
 
 func New(deviceID string) *Engine { return &Engine{deviceID: deviceID} }
+
+// WithLocalCounter enables a node-local burst counter. windowSec is recorded on
+// events so consumers know the window. A nil counter disables the feature.
+// Returns the engine for chaining.
+func (e *Engine) WithLocalCounter(c *counter.Window, windowSec int) *Engine {
+	e.localHits = c
+	e.localWindow = windowSec
+	return e
+}
 
 // WithHomeNet sets the local network ranges used to classify event Direction
 // (inbound/outbound/lateral/external). With no ranges, Direction stays
@@ -53,6 +65,7 @@ func (e *Engine) Detect(f flow.FlowFeature) []event.ThreatEvent {
 		Flows:          1,
 		Packets:        f.Packets,
 		Bytes:          f.Bytes,
+		WireBytes:      f.WireBytes,
 		App:            appContext(f),
 		EvidenceFile:   f.EvidenceFile,
 		PacketTimeUsec: f.PacketTimeUsec,
@@ -78,6 +91,7 @@ func (e *Engine) Detect(f flow.FlowFeature) []event.ThreatEvent {
 		if hit.EvidenceFile != "" {
 			ev.EvidenceFile = hit.EvidenceFile
 		}
+		e.stampLocalHits(&ev, f.LastTime, "fp|"+hit.RuleID)
 		events = append(events, ev)
 	}
 	for _, hit := range f.IntelHits {
@@ -100,6 +114,12 @@ func (e *Engine) Detect(f flow.FlowFeature) []event.ThreatEvent {
 		ev.IOCTags = hit.Tags
 		ev.IOCDescription = hit.Description
 		ev.IOCExpireAt = hit.ExpireAt
+		ev.VolumeRole = volumeRole(f, hit.Type, hit.Value)
+		localKey := hit.ID
+		if localKey == "" {
+			localKey = hit.Type + "|" + hit.Value
+		}
+		e.stampLocalHits(&ev, f.LastTime, "ioc|"+localKey)
 		events = append(events, ev)
 	}
 	return events
@@ -114,6 +134,50 @@ func occurrenceTime(usec uint64) string {
 		return ""
 	}
 	return time.UnixMicro(int64(usec)).UTC().Format(time.RFC3339)
+}
+
+// stampLocalHits records a hit for key in the node-local burst counter and
+// stamps the event with the resulting count/window/first-seen. No-op when the
+// counter is disabled. flowTimeUsec drives the counter clock so behavior is
+// deterministic under offline PCAP replay.
+func (e *Engine) stampLocalHits(ev *event.ThreatEvent, flowTimeUsec uint64, key string) {
+	if e.localHits == nil {
+		return
+	}
+	cnt, first := e.localHits.Hit(key, time.UnixMicro(int64(flowTimeUsec)))
+	ev.LocalHitCount = cnt
+	ev.LocalWindowSec = e.localWindow
+	ev.LocalFirstSeen = uint64(first.UnixMicro())
+	ev.LocalScope = "node"
+}
+
+// volumeRole tags which side of the communication the matched IOC is on, so the
+// flow's byte volume reads as toward ("to_ioc") or from ("from_ioc") the IOC.
+// Returns "" when it cannot be determined.
+func volumeRole(f flow.FlowFeature, iocType, iocValue string) string {
+	switch iocType {
+	case "ip":
+		switch iocValue {
+		case f.DstIP:
+			return "to_ioc"
+		case f.SrcIP:
+			return "from_ioc"
+		}
+	case "cidr":
+		if _, n, err := net.ParseCIDR(iocValue); err == nil {
+			if n.Contains(net.ParseIP(f.DstIP)) {
+				return "to_ioc"
+			}
+			if n.Contains(net.ParseIP(f.SrcIP)) {
+				return "from_ioc"
+			}
+		}
+	case "domain", "url":
+		// A domain/url IOC is the contacted host; the internal endpoint is
+		// reaching out to it, so this flow's volume is toward the IOC.
+		return "to_ioc"
+	}
+	return ""
 }
 
 // direction classifies traffic relative to the configured home network.

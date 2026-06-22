@@ -81,6 +81,7 @@ func (a *Aggregator) Update(pf parser.PacketFeature, fpHits []fingerprint.Finger
 	f.PacketTimeUsec = pf.PacketTimeUsec
 	f.Packets++
 	f.Bytes += uint64(len(pf.Payload))
+	f.WireBytes += uint64(pf.WireLen)
 	f.HTTPHost = firstNonEmpty(f.HTTPHost, pf.HTTPHost)
 	f.HTTPURL = firstNonEmpty(f.HTTPURL, pf.HTTPURL)
 	f.DNSQuery = firstNonEmpty(f.DNSQuery, pf.DNSQuery)
@@ -153,6 +154,7 @@ func transientFeature(pf parser.PacketFeature, fpHits []fingerprint.FingerprintH
 		Proto:           pf.Proto,
 		Packets:         1,
 		Bytes:           uint64(len(pf.Payload)),
+		WireBytes:       uint64(pf.WireLen),
 		HTTPHost:        pf.HTTPHost,
 		HTTPURL:         pf.HTTPURL,
 		DNSQuery:        pf.DNSQuery,

@@ -3,7 +3,9 @@ package detector
 import (
 	"net"
 	"testing"
+	"time"
 
+	"ta_node/internal/counter"
 	"ta_node/internal/event"
 	"ta_node/internal/fingerprint"
 	"ta_node/internal/flow"
@@ -92,6 +94,71 @@ func TestDetectAttachesAuxiliaryContext(t *testing.T) {
 	}
 	if ev.App.HTTPHeaders["content-type"] != "application/octet-stream" {
 		t.Errorf("app headers not populated: %+v", ev.App.HTTPHeaders)
+	}
+}
+
+func TestDetectVolumeRoleAndWireBytes(t *testing.T) {
+	det := New("node-1")
+	cases := []struct {
+		name     string
+		srcIP    string
+		dstIP    string
+		iocType  string
+		iocValue string
+		want     string
+	}{
+		{"ip dst is ioc -> to_ioc", "10.0.0.5", "1.2.3.4", "ip", "1.2.3.4", "to_ioc"},
+		{"ip src is ioc -> from_ioc", "1.2.3.4", "10.0.0.5", "ip", "1.2.3.4", "from_ioc"},
+		{"cidr dst is ioc -> to_ioc", "10.0.0.5", "1.2.3.4", "cidr", "1.2.3.0/24", "to_ioc"},
+		{"domain -> to_ioc", "10.0.0.5", "1.2.3.4", "domain", "evil.example.com", "to_ioc"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			f := flow.FlowFeature{
+				SrcIP: tc.srcIP, DstIP: tc.dstIP, Proto: "tcp", WireBytes: 4096,
+				IntelHits: []intel.ThreatIntel{{ID: "i1", Type: tc.iocType, Value: tc.iocValue, Category: "c2", Severity: "high"}},
+			}
+			ev := det.Detect(f)[0]
+			if ev.VolumeRole != tc.want {
+				t.Errorf("volume_role: want %q, got %q", tc.want, ev.VolumeRole)
+			}
+			if ev.WireBytes != 4096 {
+				t.Errorf("wire_bytes: want 4096, got %d", ev.WireBytes)
+			}
+		})
+	}
+}
+
+func TestDetectStampsLocalHitCount(t *testing.T) {
+	ctr := counter.New(60*time.Second, 100)
+	det := New("node-1").WithLocalCounter(ctr, 60)
+	mk := func(lastUsec uint64) flow.FlowFeature {
+		return flow.FlowFeature{
+			LastTime: lastUsec, SrcIP: "10.0.0.5", DstIP: "1.2.3.4", Proto: "tcp",
+			IntelHits: []intel.ThreatIntel{{ID: "ioc-1", Type: "ip", Value: "1.2.3.4", Category: "c2", Severity: "high"}},
+		}
+	}
+	// Two hits on the same IOC within the window -> count climbs to 2.
+	ev1 := det.Detect(mk(1_000_000))[0]
+	if ev1.LocalHitCount != 1 || ev1.LocalWindowSec != 60 || ev1.LocalScope != "node" {
+		t.Fatalf("first hit stamps wrong: count=%d window=%d scope=%q", ev1.LocalHitCount, ev1.LocalWindowSec, ev1.LocalScope)
+	}
+	ev2 := det.Detect(mk(2_000_000))[0]
+	if ev2.LocalHitCount != 2 {
+		t.Errorf("second hit count: want 2, got %d", ev2.LocalHitCount)
+	}
+	if ev2.LocalFirstSeen != 1_000_000 {
+		t.Errorf("local_first_seen: want 1000000, got %d", ev2.LocalFirstSeen)
+	}
+}
+
+func TestDetectWithoutCounterLeavesLocalFieldsZero(t *testing.T) {
+	det := New("node-1")
+	f := flow.FlowFeature{SrcIP: "10.0.0.5", DstIP: "1.2.3.4", Proto: "tcp",
+		IntelHits: []intel.ThreatIntel{{ID: "i", Type: "ip", Value: "1.2.3.4", Category: "c2", Severity: "low"}}}
+	ev := det.Detect(f)[0]
+	if ev.LocalHitCount != 0 || ev.LocalScope != "" {
+		t.Errorf("local fields should be unset without a counter: %+v", ev)
 	}
 }
 

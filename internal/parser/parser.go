@@ -14,6 +14,10 @@ import (
 
 type PacketFeature struct {
 	PacketTimeUsec uint64 `json:"packet_time_usec"`
+	// WireLen is the packet's original on-wire length (bytes), used to report
+	// communication data size including L2-L4 headers, distinct from the
+	// payload-only byte accounting.
+	WireLen uint32 `json:"wire_len,omitempty"`
 
 	SrcIP   string `json:"src_ip"`
 	SrcPort uint16 `json:"src_port"`
@@ -21,12 +25,12 @@ type PacketFeature struct {
 	DstPort uint16 `json:"dst_port"`
 	Proto   string `json:"proto"`
 
-	HTTPHost   string            `json:"http_host,omitempty"`
-	HTTPURL    string            `json:"http_url,omitempty"`
-	HTTPMethod string            `json:"http_method,omitempty"`
-	UserAgent  string            `json:"user_agent,omitempty"`
-	HTTPHeader []byte            `json:"-"`
-	HTTPBody   []byte            `json:"-"`
+	HTTPHost       string            `json:"http_host,omitempty"`
+	HTTPURL        string            `json:"http_url,omitempty"`
+	HTTPMethod     string            `json:"http_method,omitempty"`
+	UserAgent      string            `json:"user_agent,omitempty"`
+	HTTPHeader     []byte            `json:"-"`
+	HTTPBody       []byte            `json:"-"`
 	HTTPHeaders    map[string]string `json:"http_headers,omitempty"`
 	HTTPBodySample string            `json:"http_body_sample,omitempty"`
 
@@ -45,10 +49,18 @@ type PacketFeature struct {
 
 func Parse(packet gopacket.Packet) (PacketFeature, error) {
 	pf := PacketFeature{Packet: packet}
-	if ts := packet.Metadata().Timestamp; !ts.IsZero() {
+	md := packet.Metadata()
+	if ts := md.Timestamp; !ts.IsZero() {
 		pf.PacketTimeUsec = uint64(ts.UnixMicro())
 	} else {
 		pf.PacketTimeUsec = uint64(time.Now().UnixMicro())
+	}
+	// Prefer the original on-wire length; fall back to captured bytes when the
+	// capture source does not populate it.
+	if md.Length > 0 {
+		pf.WireLen = uint32(md.Length)
+	} else {
+		pf.WireLen = uint32(len(packet.Data()))
 	}
 	if ip4 := packet.Layer(layers.LayerTypeIPv4); ip4 != nil {
 		ip := ip4.(*layers.IPv4)
