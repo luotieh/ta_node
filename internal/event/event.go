@@ -1,9 +1,11 @@
 package event
 
+import "ta_node/internal/intel"
+
 // SchemaVersion identifies the event payload layout. Bump it whenever fields
 // are added or their meaning changes so downstream consumers (AI analysis /
 // management ingest) can adapt to format evolution.
-const SchemaVersion = "1.2"
+const SchemaVersion = "1.3"
 
 // AppContext carries application-layer evidence from the packet that triggered
 // the event. All fields are best-effort and may be empty depending on protocol.
@@ -50,6 +52,9 @@ type ThreatEvent struct {
 	IOCTags        []string `json:"ioc_tags,omitempty"`
 	IOCDescription string   `json:"ioc_description,omitempty"`
 	IOCExpireAt    int64    `json:"ioc_expire_at,omitempty"`
+
+	RecommendedAction string          `json:"recommended_action,omitempty"`
+	IOCEvidence       *intel.Evidence `json:"ioc_evidence,omitempty"`
 
 	RuleID      string `json:"rule_id,omitempty"`
 	ThreatIndex string `json:"threat_index,omitempty"`

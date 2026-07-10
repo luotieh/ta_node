@@ -63,7 +63,9 @@ func TestDetectAttachesAuxiliaryContext(t *testing.T) {
 		HTTPBodySample: "MZ...",
 		PayloadSample:  "POST /upload HTTP/1.1",
 		IntelHits: []intel.ThreatIntel{
-			{ID: "ioc-1", Type: "domain", Value: "evil.example.com", Source: "hub", Category: "c2", Severity: "high", Description: "known C2", ExpireAt: 4_102_444_800},
+			{ID: "ioc-1", Type: "domain", Value: "evil.example.com", Source: "hub", Category: "c2", Severity: "high", Description: "known C2", ExpireAt: 4_102_444_800,
+				RecommendedAction: "block_and_report",
+				Evidence:          &intel.Evidence{Activity: "Camp", Confidence: "high (1 source)", TLP: "white"}},
 		},
 	}
 	events := det.Detect(f)
@@ -85,6 +87,12 @@ func TestDetectAttachesAuxiliaryContext(t *testing.T) {
 	}
 	if ev.IOCDescription != "known C2" || ev.IOCExpireAt != 4_102_444_800 {
 		t.Errorf("ioc metadata missing: desc=%q expire=%d", ev.IOCDescription, ev.IOCExpireAt)
+	}
+	if ev.RecommendedAction != "block_and_report" {
+		t.Errorf("recommended_action not propagated: %q", ev.RecommendedAction)
+	}
+	if ev.IOCEvidence == nil || ev.IOCEvidence.TLP != "white" || ev.IOCEvidence.Confidence != "high (1 source)" {
+		t.Errorf("ioc_evidence not propagated: %+v", ev.IOCEvidence)
 	}
 	if ev.App == nil {
 		t.Fatal("expected app context, got nil")
