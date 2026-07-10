@@ -57,6 +57,9 @@ type IntelConfig struct {
 	AcceptSTIX              bool   `json:"accept_stix" yaml:"accept_stix"`
 	DefaultSource           string `json:"default_source" yaml:"default_source"`
 	MaxItems                int    `json:"max_items" yaml:"max_items"`
+	IocWatchDir             string `json:"ioc_watch_dir" yaml:"ioc_watch_dir"`
+	IocWatchIntervalSec     int    `json:"ioc_watch_interval_sec" yaml:"ioc_watch_interval_sec"`
+	EnableIocWatch          bool   `json:"enable_ioc_watch" yaml:"enable_ioc_watch"`
 }
 
 type EvidenceConfig struct {
@@ -105,6 +108,9 @@ func Default() Config {
 			AcceptSTIX:              true,
 			DefaultSource:           "Threat Intel Hub",
 			MaxItems:                100000,
+			IocWatchDir:             "/data/yt/ioc",
+			IocWatchIntervalSec:     5,
+			EnableIocWatch:          true,
 		},
 		Evidence: EvidenceConfig{EnablePCAPSave: true, PCAPDir: "./data/evidence"},
 		Event: EventConfig{
@@ -238,4 +244,8 @@ func (c Config) FlowCleanupInterval() time.Duration {
 		interval = 30
 	}
 	return time.Duration(interval) * time.Second
+}
+
+func (c Config) WatchInterval() time.Duration {
+	return time.Duration(c.Intel.IocWatchIntervalSec) * time.Second
 }

@@ -38,6 +38,12 @@ intel:
   accept_stix: true
   default_source: "Threat Intel Hub"
   max_items: 100000
+  # 网闸投递的 IOC 规则 zip 落地目录。轮询发现新 *.zip -> 解析 items yaml ->
+  # 去重后 upsert 进 intel_file，立即生效。处理完移入 <dir>/processed，坏包移入
+  # <dir>/failed。设为 "" 关闭。
+  ioc_watch_dir: "/data/yt/ioc"
+  ioc_watch_interval_sec: 5
+  enable_ioc_watch: true
 
 evidence:
   enable_pcap_save: true

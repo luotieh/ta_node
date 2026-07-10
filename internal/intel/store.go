@@ -318,3 +318,72 @@ func normalize(it *ThreatIntel, now int64) {
 	}
 	it.UpdatedAt = now
 }
+
+// canonicalValue normalizes an IOC value for identity comparison, mirroring the
+// matcher's indexing so two entries that would match the same traffic collapse
+// to one key.
+func canonicalValue(t, v string) string {
+	switch strings.ToLower(strings.TrimSpace(t)) {
+	case "ip":
+		if c := canonicalIP(v); c != "" {
+			return c
+		}
+	case "domain":
+		return canonicalDomain(v)
+	}
+	return strings.ToLower(strings.TrimSpace(v))
+}
+
+// canonicalKey identifies an IOC by (type, normalized value) rather than id, so
+// the same indicator delivered under different feed ids is deduped.
+func canonicalKey(it ThreatIntel) string {
+	return strings.ToLower(strings.TrimSpace(it.Type)) + "|" + canonicalValue(it.Type, it.Value)
+}
+
+// UpsertDedup merges a feed batch into the primary set with (type,value) dedup:
+//   - within the batch, entries with the same canonical key collapse, keeping
+//     the one with the newest incoming updated_at;
+//   - against the existing set, an incoming entry whose canonical key already
+//     exists reuses that entry's id (in-place update) instead of adding a
+//     duplicate row for the same indicator.
+//
+// It bumps the version (matcher picks it up on the next packet) and persists
+// atomically. An empty effective batch is a no-op.
+func (s *Store) UpsertDedup(items []ThreatIntel) error {
+	batch := map[string]ThreatIntel{}
+	for _, it := range items {
+		k := canonicalKey(it)
+		if ex, ok := batch[k]; ok && ex.UpdatedAt >= it.UpdatedAt {
+			continue
+		}
+		batch[k] = it
+	}
+	if len(batch) == 0 {
+		return nil
+	}
+	now := time.Now().Unix()
+	s.mu.Lock()
+	existing := make(map[string]string, len(s.items))
+	for id, it := range s.items {
+		existing[canonicalKey(it)] = id
+	}
+	for k, it := range batch {
+		if id, ok := existing[k]; ok {
+			it.ID = id
+		}
+		createdAt := it.CreatedAt
+		normalize(&it, now)
+		if prev, ok := s.items[it.ID]; ok && createdAt == 0 {
+			it.CreatedAt = prev.CreatedAt
+		}
+		s.primary[it.ID] = it
+	}
+	s.rebuildItemsLocked()
+	s.version++
+	saved := s.snapshotLocked()
+	s.mu.Unlock()
+	if s.path != "" {
+		return SaveFileAtomic(s.path, saved)
+	}
+	return nil
+}

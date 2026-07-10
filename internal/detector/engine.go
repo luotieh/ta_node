@@ -114,6 +114,8 @@ func (e *Engine) Detect(f flow.FlowFeature) []event.ThreatEvent {
 		ev.IOCTags = hit.Tags
 		ev.IOCDescription = hit.Description
 		ev.IOCExpireAt = hit.ExpireAt
+		ev.RecommendedAction = hit.RecommendedAction
+		ev.IOCEvidence = hit.Evidence
 		ev.VolumeRole = volumeRole(f, hit.Type, hit.Value)
 		localKey := hit.ID
 		if localKey == "" {
