@@ -54,3 +54,63 @@ func TestStoreSyncSourceUpsertStatsAndPrune(t *testing.T) {
 		t.Fatal("expired IOC was not pruned")
 	}
 }
+
+func TestUpsertDedupCollapsesSameValue(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "intel.yaml")
+	s, err := NewStore(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// 同一 value、不同 id、大小写/末尾点差异 —— 应折叠为一条
+	err = s.UpsertDedup([]ThreatIntel{
+		{ID: "otx-a", Type: "domain", Value: "Evil.example.com", Enabled: true},
+		{ID: "otx-b", Type: "domain", Value: "evil.example.com.", Enabled: true},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	list := s.List()
+	if len(list) != 1 {
+		t.Fatalf("want 1 deduped item, got %d: %+v", len(list), list)
+	}
+}
+
+func TestUpsertDedupReusesExistingID(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "intel.yaml")
+	s, err := NewStore(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.Add(ThreatIntel{ID: "local-1", Type: "ip", Value: "1.2.3.4", Enabled: true}); err != nil {
+		t.Fatal(err)
+	}
+	// feed 用不同 id 送同一 value —— 应复用既有 id 就地更新，不新增
+	if err := s.UpsertDedup([]ThreatIntel{
+		{ID: "otx-x", Type: "ip", Value: "1.2.3.4", Category: "c2", Enabled: true},
+	}); err != nil {
+		t.Fatal(err)
+	}
+	list := s.List()
+	if len(list) != 1 {
+		t.Fatalf("want 1 item, got %d", len(list))
+	}
+	if list[0].ID != "local-1" || list[0].Category != "c2" {
+		t.Errorf("want in-place update of local-1 with category c2, got %+v", list[0])
+	}
+}
+
+func TestUpsertDedupEmptyNoop(t *testing.T) {
+	s, err := NewStore("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	v := s.Version()
+	if err := s.UpsertDedup(nil); err != nil {
+		t.Fatal(err)
+	}
+	if s.Version() != v {
+		t.Errorf("empty upsert should not bump version: %d -> %d", v, s.Version())
+	}
+}
