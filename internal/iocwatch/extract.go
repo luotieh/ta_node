@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"strings"
 
 	"gopkg.in/yaml.v3"
@@ -56,6 +57,7 @@ func extractItems(path string, maxItems int) ([]intel.ThreatIntel, error) {
 		}
 		items = append(items, fy.Items...)
 		if maxItems > 0 && len(items) > maxItems {
+			log.Printf("iocwatch: %s exceeds max_items=%d, truncating (kept %d, dropped %d)", path, maxItems, maxItems, len(items)-maxItems)
 			items = items[:maxItems]
 			break
 		}
