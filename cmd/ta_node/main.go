@@ -55,7 +55,7 @@ func runNode(cfg config.Config, configPath string) error {
 	if err != nil {
 		return fmt.Errorf("load intel: %w", err)
 	}
-	log.Printf("loaded %d IOCs (file=%q dir=%q)", intelStore.Stats().Total, cfg.Intel.IntelFile, cfg.Intel.IntelDir)
+	log.Printf("loaded %d IOCs (file=%q)", intelStore.Stats().Total, cfg.Intel.IntelFile)
 	intelMatcher := intel.NewMatcher(intelStore)
 	q, err := queue.NewSQLite(cfg.Event.QueueDB)
 	if err != nil {
