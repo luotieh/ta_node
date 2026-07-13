@@ -78,6 +78,11 @@ type EventConfig struct {
 	PushBatchSize    int    `json:"push_batch_size" yaml:"push_batch_size"`
 	RetryIntervalSec int    `json:"retry_interval_sec" yaml:"retry_interval_sec"`
 	PushTimeoutSec   int    `json:"push_timeout_sec" yaml:"push_timeout_sec"`
+	// MaxPushRetry caps how many times a failed event is retried before it is
+	// abandoned (kept in the queue for inspection but no longer pushed), so a
+	// dead management endpoint cannot make the backlog replay forever.
+	// 0 means retry without limit.
+	MaxPushRetry int `json:"max_push_retry" yaml:"max_push_retry"`
 	// LocalHitWindowSec sets the sliding window (seconds) for the node-local
 	// burst counter stamped on events (local_hit_count). 0 disables it.
 	LocalHitWindowSec int `json:"local_hit_window_sec" yaml:"local_hit_window_sec"`
@@ -125,6 +130,7 @@ func Default() Config {
 			PushBatchSize:     100,
 			RetryIntervalSec:  30,
 			PushTimeoutSec:    5,
+			MaxPushRetry:      20,
 			LocalHitWindowSec: 60,
 		},
 		Flow: FlowConfig{

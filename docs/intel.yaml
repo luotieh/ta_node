@@ -1,0 +1,4280 @@
+items:
+- id: bf032243-6ad9-420a-9216-d1f651c2d2fe
+  type: domain
+  value: tmodloader.org
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: How a single ScreenConnect incident exposed a massive campaign
+    | 关联: remote access trojan, fake software, c2 infrastructure, process hollowing,
+    screenconnect, powershell loader | 交叉验证: WhoisXML=malware, seen 2026-03-26~2026-07-06
+    | 来源: otx · 置信: high (2 sources) | TLP:WHITE'
+  evidence:
+    activity: How a single ScreenConnect incident exposed a massive campaign
+    threat_labels:
+    - remote access trojan
+    - fake software
+    - c2 infrastructure
+    - process hollowing
+    - screenconnect
+    - powershell loader
+    - typosquatting
+    - seo poisoning
+    source: otx
+    cross_check: WhoisXML=malware, seen 2026-03-26~2026-07-06
+    confidence: high (2 sources)
+    tlp: white
+    misp_event_id: '2151'
+    narrative: 已检测到针对域 tmodloader.org 的访问告警。该域名经 OTX 标记为冒牌软件、SEO 投毒分发，关联 ScreenConnect
+      远控木马、PowerShell 加载器及进程镂空技术，充当 C2 基础设施。WhoisXML 交叉验证确认其在 2026-03-26 至 2026-07-06
+      期间活跃为恶意。建议立即阻断对该域名的访问，排查受影响终端中 ScreenConnect 异常外联。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="remote access trojan"
+  - otx:tag="fake software"
+  - otx:tag="c2 infrastructure"
+  - otx:tag="process hollowing"
+  - otx:tag="screenconnect"
+  - otx:tag="powershell loader"
+  - otx:tag="typosquatting"
+  - otx:tag="seo poisoning"
+  - otx:tag="dll sideloading"
+  - otx:tag="AsyncRAT"
+  - whoisxml:enriched
+  - whoisxml:threat="malware"
+  enabled: true
+  created_at: 1783412454
+  updated_at: 1783417503
+- id: 93841ae8-8458-4383-8b68-0d46a10db550
+  type: domain
+  value: axiscamerastation.org
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: From Bing Search to Ransomware: Bumblebee and AdaptixC2 Deliver
+    Akira | 关联: rustdesk, trojanized installer, lateral movement, adaptixc2, akira,
+    credential dumping | 交叉验证: WhoisXML=malware, seen 2025-08-07~2026-07-06 | 来源:
+    otx · 置信: high (2 sources) | TLP:WHITE'
+  evidence:
+    activity: 'From Bing Search to Ransomware: Bumblebee and AdaptixC2 Deliver Akira'
+    threat_labels:
+    - rustdesk
+    - trojanized installer
+    - lateral movement
+    - adaptixc2
+    - akira
+    - credential dumping
+    - bumblebee
+    - seo poisoning
+    source: otx
+    cross_check: WhoisXML=malware, seen 2025-08-07~2026-07-06
+    confidence: high (2 sources)
+    tlp: white
+    misp_event_id: '2167'
+    narrative: 域名 axiscamerastation.org 与“Bumblebee 和 AdaptixC2 投递 Akira 勒索软件”活动相关，涉及
+      SEO 投毒、木马化安装程序、横向移动、凭证窃取等恶意行为。OTX 标记威胁，WhoisXML 交叉
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rustdesk"
+  - otx:tag="trojanized installer"
+  - otx:tag="lateral movement"
+  - otx:tag="adaptixc2"
+  - otx:tag="akira"
+  - otx:tag="credential dumping"
+  - otx:tag="bumblebee"
+  - otx:tag="seo poisoning"
+  - whoisxml:enriched
+  - whoisxml:threat="malware"
+  enabled: true
+  created_at: 1783412454
+  updated_at: 1783416113
+- id: 8a77fe25-dc9b-4929-b996-d66a9065143a
+  type: domain
+  value: tmodloader.pro
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: How a single ScreenConnect incident exposed a massive campaign
+    | 关联: remote access trojan, fake software, c2 infrastructure, process hollowing,
+    screenconnect, powershell loader | 交叉验证: WhoisXML=malware, seen 2026-03-26~2026-07-06
+    | 来源: otx · 置信: high (2 sources) | TLP:WHITE'
+  evidence:
+    activity: How a single ScreenConnect incident exposed a massive campaign
+    threat_labels:
+    - remote access trojan
+    - fake software
+    - c2 infrastructure
+    - process hollowing
+    - screenconnect
+    - powershell loader
+    - typosquatting
+    - seo poisoning
+    source: otx
+    cross_check: WhoisXML=malware, seen 2026-03-26~2026-07-06
+    confidence: high (2 sources)
+    tlp: white
+    misp_event_id: '2151'
+    narrative: "**威胁告警：恶意域名 tmodloader.pro 涉及大规模木马活动**  \n该域名关联远程访问木马、ScreenConnect\
+      \ 滥用、PowerShell 加载、进程镂空等技术，被 OTX 标记，并经 WhoisXML 确认为恶意（活跃期 2026-03-26 至 2026-07-06）。域名通过仿冒与\
+      \ SEO 投毒传播，疑似 C2 设施。  \n**建议：** 立即阻断对该域名的访问与 DNS 解析，排查内网 ScreenConnect 异常连接并隔离受感染主机。"
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="remote access trojan"
+  - otx:tag="fake software"
+  - otx:tag="c2 infrastructure"
+  - otx:tag="process hollowing"
+  - otx:tag="screenconnect"
+  - otx:tag="powershell loader"
+  - otx:tag="typosquatting"
+  - otx:tag="seo poisoning"
+  - otx:tag="dll sideloading"
+  - otx:tag="AsyncRAT"
+  - whoisxml:enriched
+  - whoisxml:threat="malware"
+  enabled: true
+  created_at: 1783412454
+  updated_at: 1783416113
+- id: 828538e6-6771-4994-823a-56680244e410
+  type: domain
+  value: couldinstallup.com
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: India''s government and energy sectors targeted with ZOHOMURK
+    and MINIRECON | 关联: india, government targeting, websocket, minirecon, zohomurk,
+    shadowpad | 交叉验证: WhoisXML=malware, seen 2026-07-01~2026-07-06 | 来源: otx · 置信:
+    high (2 sources) | TLP:WHITE'
+  evidence:
+    activity: India's government and energy sectors targeted with ZOHOMURK and MINIRECON
+    threat_labels:
+    - india
+    - government targeting
+    - websocket
+    - minirecon
+    - zohomurk
+    - shadowpad
+    - cloud c2
+    - hydropower
+    source: otx
+    cross_check: WhoisXML=malware, seen 2026-07-01~2026-07-06
+    confidence: high (2 sources)
+    tlp: white
+    misp_event_id: '2160'
+    narrative: 告警：域名 couldinstallup.com 关联印度政府及能源行业定向攻击（活动含 ZOHOMURK、MINIRECON 等）。OTX
+      与 WhoisXML 均将其判定为恶意，观测窗口 2026-07-01 至 07-06，置信度高。建议排查内网与该域名的通信记录，并隔离受感染主机。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="india"
+  - otx:tag="government targeting"
+  - otx:tag="websocket"
+  - otx:tag="minirecon"
+  - otx:tag="zohomurk"
+  - otx:tag="shadowpad"
+  - otx:tag="cloud c2"
+  - otx:tag="hydropower"
+  - otx:tag="espionage"
+  - otx:tag="pubload"
+  - whoisxml:enriched
+  - whoisxml:threat="malware"
+  enabled: true
+  created_at: 1783412454
+  updated_at: 1783416113
+- id: 4b4bd93b-3543-4637-be1e-ec9e994cbe4e
+  type: domain
+  value: angryipscanner.org
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: From Bing Search to Ransomware: Bumblebee and AdaptixC2 Deliver
+    Akira | 关联: rustdesk, trojanized installer, lateral movement, adaptixc2, akira,
+    credential dumping | 交叉验证: WhoisXML=malware, seen 2025-01-14~2026-07-06 | 来源:
+    otx · 置信: high (2 sources) | TLP:WHITE'
+  evidence:
+    activity: 'From Bing Search to Ransomware: Bumblebee and AdaptixC2 Deliver Akira'
+    threat_labels:
+    - rustdesk
+    - trojanized installer
+    - lateral movement
+    - adaptixc2
+    - akira
+    - credential dumping
+    - bumblebee
+    - seo poisoning
+    source: otx
+    cross_check: WhoisXML=malware, seen 2025-01-14~2026-07-06
+    confidence: high (2 sources)
+    tlp: white
+    misp_event_id: '2167'
+    narrative: SOC告警：域名 `angryipscanner.org` 被多源情报标记为恶意，关联 Bumblebee/AdaptixC2 活动链。攻击链通过
+      SEO 中毒诱导下载木马化安装程序，最终投递 Akira 勒索软件，涉及横向移动及凭证转储。依据 OTX 与 WhoisXML（标记时段 2025-01-14
+      至 2026-07-06），置信度高。建议立即封锁该域名，排查 DNS 及出站流量，检查终端是否触碰相关威胁指标。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rustdesk"
+  - otx:tag="trojanized installer"
+  - otx:tag="lateral movement"
+  - otx:tag="adaptixc2"
+  - otx:tag="akira"
+  - otx:tag="credential dumping"
+  - otx:tag="bumblebee"
+  - otx:tag="seo poisoning"
+  - whoisxml:enriched
+  - whoisxml:threat="malware"
+  enabled: true
+  created_at: 1783412454
+  updated_at: 1783416113
+- id: 1c4aca06-4693-4bcf-8355-db713a943c41
+  type: domain
+  value: opmanager.pro
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: From Bing Search to Ransomware: Bumblebee and AdaptixC2 Deliver
+    Akira | 关联: rustdesk, trojanized installer, lateral movement, adaptixc2, akira,
+    credential dumping | 交叉验证: WhoisXML=malware, seen 2025-08-07~2026-07-06 | 来源:
+    otx · 置信: high (2 sources) | TLP:WHITE'
+  evidence:
+    activity: 'From Bing Search to Ransomware: Bumblebee and AdaptixC2 Deliver Akira'
+    threat_labels:
+    - rustdesk
+    - trojanized installer
+    - lateral movement
+    - adaptixc2
+    - akira
+    - credential dumping
+    - bumblebee
+    - seo poisoning
+    source: otx
+    cross_check: WhoisXML=malware, seen 2025-08-07~2026-07-06
+    confidence: high (2 sources)
+    tlp: white
+    misp_event_id: '2167'
+    narrative: 据威胁情报，域名 opmanager.pro 关联 Akira 勒索软件分发链，通过 SEO 投毒传播 Bumblebee 和 AdaptixC2，并利用
+      RustDesk 木马安装包进行横向移动与凭据窃取。OTX 与 WhoisXML 均定性为 malware，活动时段 2025-08-07 至 2026-07-06，置信度高。建议立即阻断该域名通信，排查内部主机异常行为。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rustdesk"
+  - otx:tag="trojanized installer"
+  - otx:tag="lateral movement"
+  - otx:tag="adaptixc2"
+  - otx:tag="akira"
+  - otx:tag="credential dumping"
+  - otx:tag="bumblebee"
+  - otx:tag="seo poisoning"
+  - whoisxml:enriched
+  - whoisxml:threat="malware"
+  enabled: true
+  created_at: 1783412454
+  updated_at: 1783416113
+- id: 8a9a9565-7041-4f55-a43a-aad0c471fd8b
+  type: domain
+  value: 2rxyt9urhq0bgj.org
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: From Bing Search to Ransomware: Bumblebee and AdaptixC2 Deliver
+    Akira | 关联: rustdesk, trojanized installer, lateral movement, adaptixc2, akira,
+    credential dumping | 交叉验证: WhoisXML=malware, seen 2025-07-10~2026-07-06 | 来源:
+    otx · 置信: high (2 sources) | TLP:WHITE'
+  evidence:
+    activity: 'From Bing Search to Ransomware: Bumblebee and AdaptixC2 Deliver Akira'
+    threat_labels:
+    - rustdesk
+    - trojanized installer
+    - lateral movement
+    - adaptixc2
+    - akira
+    - credential dumping
+    - bumblebee
+    - seo poisoning
+    source: otx
+    cross_check: WhoisXML=malware, seen 2025-07-10~2026-07-06
+    confidence: high (2 sources)
+    tlp: white
+    misp_event_id: '2167'
+    narrative: 该域名 2rxyt9urhq0bgj.org 关联高置信度恶意活动，OTX 将其标记为恶意软件分发载体，WhoisXML 交叉确认恶意软件且观察期为
+      2025-07-10 至 2026-07-06。活动链涉及 Bumblebee 下载器、AdaptixC2、凭证窃取、横向移动及 Akira 勒索软件，可能通过
+      SEO 中毒诱导下载木马安装包。建议立即阻断对该域名的访问，并排查是否有主机进行过 DNS 请求或出站连接。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rustdesk"
+  - otx:tag="trojanized installer"
+  - otx:tag="lateral movement"
+  - otx:tag="adaptixc2"
+  - otx:tag="akira"
+  - otx:tag="credential dumping"
+  - otx:tag="bumblebee"
+  - otx:tag="seo poisoning"
+  - whoisxml:enriched
+  - whoisxml:threat="malware"
+  enabled: true
+  created_at: 1783412454
+  updated_at: 1783416113
+- id: 9ce68f10-5dff-4d7b-9f45-870fb7dbe1bf
+  type: domain
+  value: ev2sirbd269o5j.org
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: From Bing Search to Ransomware: Bumblebee and AdaptixC2 Deliver
+    Akira | 关联: rustdesk, trojanized installer, lateral movement, adaptixc2, akira,
+    credential dumping | 交叉验证: WhoisXML=malware, seen 2025-07-10~2026-07-06 | 来源:
+    otx · 置信: high (2 sources) | TLP:WHITE'
+  evidence:
+    activity: 'From Bing Search to Ransomware: Bumblebee and AdaptixC2 Deliver Akira'
+    threat_labels:
+    - rustdesk
+    - trojanized installer
+    - lateral movement
+    - adaptixc2
+    - akira
+    - credential dumping
+    - bumblebee
+    - seo poisoning
+    source: otx
+    cross_check: WhoisXML=malware, seen 2025-07-10~2026-07-06
+    confidence: high (2 sources)
+    tlp: white
+    misp_event_id: '2167'
+    narrative: 已关联 Bumblebee 木马、AdaptixC2 及 Akira 勒索软件活动，用于 SEO 中毒投放木马化 RustDesk 安装程序，实现横向移动与凭证转储。OTX
+      与 WhoisXML 交叉验证均为恶意，置信度高。建议立即阻断该域名通信，并排查内网异常登入及可疑进程。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rustdesk"
+  - otx:tag="trojanized installer"
+  - otx:tag="lateral movement"
+  - otx:tag="adaptixc2"
+  - otx:tag="akira"
+  - otx:tag="credential dumping"
+  - otx:tag="bumblebee"
+  - otx:tag="seo poisoning"
+  - whoisxml:enriched
+  - whoisxml:threat="malware"
+  enabled: true
+  created_at: 1783412454
+  updated_at: 1783416113
+- id: b0f53503-eb5f-43b5-83ae-7a0303bb9a00
+  type: domain
+  value: ijt0l3i8brit6q.org
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: From Bing Search to Ransomware: Bumblebee and AdaptixC2 Deliver
+    Akira | 关联: rustdesk, trojanized installer, lateral movement, adaptixc2, akira,
+    credential dumping | 交叉验证: WhoisXML=malware, seen 2025-07-10~2026-07-06 | 来源:
+    otx · 置信: high (2 sources) | TLP:WHITE'
+  evidence:
+    activity: 'From Bing Search to Ransomware: Bumblebee and AdaptixC2 Deliver Akira'
+    threat_labels:
+    - rustdesk
+    - trojanized installer
+    - lateral movement
+    - adaptixc2
+    - akira
+    - credential dumping
+    - bumblebee
+    - seo poisoning
+    source: otx
+    cross_check: WhoisXML=malware, seen 2025-07-10~2026-07-06
+    confidence: high (2 sources)
+    tlp: white
+    misp_event_id: '2167'
+    narrative: "**威胁告警**  \n发现域名 `ijt0l3i8brit6q.org` 与 Bumblebee、AdaptixC2 及 Akira\
+      \ 勒索软件攻击链相关，涉及 SEO 投毒、木马化安装程序（RustDesk）、凭据窃取与横向移动。该 IOC 被 OTX 和 WhoisXML 标记为恶意，活跃于\
+      \ 2025-07-10 起，置信度高。  \n**建议**：立即封锁该域名，排查 DNS 及流量日志，检查内网是否存在 RustDesk 或其他木马化程序痕迹。"
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rustdesk"
+  - otx:tag="trojanized installer"
+  - otx:tag="lateral movement"
+  - otx:tag="adaptixc2"
+  - otx:tag="akira"
+  - otx:tag="credential dumping"
+  - otx:tag="bumblebee"
+  - otx:tag="seo poisoning"
+  - whoisxml:enriched
+  - whoisxml:threat="malware"
+  enabled: true
+  created_at: 1783412454
+  updated_at: 1783416113
+- id: 763001ec-d29d-4ff2-8f92-b32e786ce33d
+  type: domain
+  value: ip-scanner.org
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: From Bing Search to Ransomware: Bumblebee and AdaptixC2 Deliver
+    Akira | 关联: rustdesk, trojanized installer, lateral movement, adaptixc2, akira,
+    credential dumping | 交叉验证: WhoisXML=malware, seen 2025-08-07~2026-07-06 | 来源:
+    otx · 置信: high (2 sources) | TLP:WHITE'
+  evidence:
+    activity: 'From Bing Search to Ransomware: Bumblebee and AdaptixC2 Deliver Akira'
+    threat_labels:
+    - rustdesk
+    - trojanized installer
+    - lateral movement
+    - adaptixc2
+    - akira
+    - credential dumping
+    - bumblebee
+    - seo poisoning
+    source: otx
+    cross_check: WhoisXML=malware, seen 2025-08-07~2026-07-06
+    confidence: high (2 sources)
+    tlp: white
+    misp_event_id: '2167'
+    narrative: 根据威胁情报，域名 `ip-scanner.org` 关联恶意软件活动，涉及 Akira 勒索软件投放链（Bumblebee、AdaptixC2
+      木马安装程序、RustDesk 横向移动、凭证窃取等），疑似利用 SEO 污染投递。WhoisXML 将其标记为恶意软件，观察到活跃时间为 2025-08-07
+      至 2026-07-06，置信度高。建议立即阻断该域名的访问，排查受感染主机是否存在凭证窃取或横向移动痕迹。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rustdesk"
+  - otx:tag="trojanized installer"
+  - otx:tag="lateral movement"
+  - otx:tag="adaptixc2"
+  - otx:tag="akira"
+  - otx:tag="credential dumping"
+  - otx:tag="bumblebee"
+  - otx:tag="seo poisoning"
+  - whoisxml:enriched
+  - whoisxml:threat="malware"
+  enabled: true
+  created_at: 1783412454
+  updated_at: 1783416113
+- id: otx-698b63d4a7a0ee426b30664d-4201119635
+  type: domain
+  value: 2-api.mooo.com
+  category: network_activity
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Storm-2603 Exploits CVE-2026-23760 to Stage Warlock Ransomware
+    | 关联: smartermail, cve-2026-23760, warlock, ransomware | 来源: otx · 置信: high (1
+    source) | TLP:WHITE'
+  evidence:
+    activity: Storm-2603 Exploits CVE-2026-23760 to Stage Warlock Ransomware
+    threat_labels:
+    - smartermail
+    - cve-2026-23760
+    - warlock
+    - ransomware
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 698b63d4a7a0ee426b30664d
+    narrative: "【告警通告】  \n检测到与域名 2-api.mooo.com 相关的恶意活动，关联 Storm-2603 组织利用 CVE-2026-23760\
+      \ 漏洞投放 Warlock 勒索软件。标签为 smartermail、cve-2026-23760、warlock、ransomware。该情报来自\
+      \ OTX，置信度高(单一来源)。建议立即在边界阻断对该域名的访问，排查 SmarterMail 相关系统是否存在该漏洞利用痕迹。"
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="smartermail"
+  - otx:tag="cve-2026-23760"
+  - otx:tag="warlock"
+  - otx:tag="ransomware"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-698d2ac3b38a12b4cb5a2723-4203972412
+  type: url
+  value: http://95.179.213.0/update/Upgrade.exe
+  category: network_activity
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Nation-State Actors Exploit Notepad++ Supply Chain | 关联: cobalt
+    strike, chrysalis, supply chain, infrastructure hijacking, notepad++ | 来源: otx
+    · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Nation-State Actors Exploit Notepad++ Supply Chain
+    threat_labels:
+    - cobalt strike
+    - chrysalis
+    - supply chain
+    - infrastructure hijacking
+    - notepad++
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 698d2ac3b38a12b4cb5a2723
+    narrative: null
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="cobalt strike"
+  - otx:tag="chrysalis"
+  - otx:tag="supply chain"
+  - otx:tag="infrastructure hijacking"
+  - otx:tag="notepad++"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-698d2ac3b38a12b4cb5a2723-4196141957
+  type: url
+  value: http://95.179.213.0/update/AutoUpdater.exe
+  category: network_activity
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Nation-State Actors Exploit Notepad++ Supply Chain | 关联: cobalt
+    strike, chrysalis, supply chain, infrastructure hijacking, notepad++ | 来源: otx
+    · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Nation-State Actors Exploit Notepad++ Supply Chain
+    threat_labels:
+    - cobalt strike
+    - chrysalis
+    - supply chain
+    - infrastructure hijacking
+    - notepad++
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 698d2ac3b38a12b4cb5a2723
+    narrative: 告警：发现IOC http://95.179.213.0/update/AutoUpdater.exe，关联活动“国家级行为者利用Notepad++供应链攻击”，威胁标签含Cobalt
+      Strike等，置信度：高（单一OTX源）。判定为疑似供应链劫持。建议立即阻断该URL及关联文件，排查受影响主机。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="cobalt strike"
+  - otx:tag="chrysalis"
+  - otx:tag="supply chain"
+  - otx:tag="infrastructure hijacking"
+  - otx:tag="notepad++"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-698d2ac3b38a12b4cb5a2723-4196141954
+  type: url
+  value: http://45.76.155.202/update/update.exe
+  category: network_activity
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Nation-State Actors Exploit Notepad++ Supply Chain | 关联: cobalt
+    strike, chrysalis, supply chain, infrastructure hijacking, notepad++ | 来源: otx
+    · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Nation-State Actors Exploit Notepad++ Supply Chain
+    threat_labels:
+    - cobalt strike
+    - chrysalis
+    - supply chain
+    - infrastructure hijacking
+    - notepad++
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 698d2ac3b38a12b4cb5a2723
+    narrative: 检测到与国家级攻击者利用Notepad++供应链投毒相关联的Cobalt Strike载荷分发地址。根据OTX高置信度情报，IOC `http://45.76.155.202/update/update.exe`
+      被标记为用于基础设施劫持与后渗透。建议立即阻断该URL的出站请求，彻底排查相关主机是否已下载执行，并逆向样本以确定后续C2。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="cobalt strike"
+  - otx:tag="chrysalis"
+  - otx:tag="supply chain"
+  - otx:tag="infrastructure hijacking"
+  - otx:tag="notepad++"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-698d2ac3b38a12b4cb5a2723-4196141952
+  type: url
+  value: http://45.32.144.255/update/update.exe
+  category: network_activity
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Nation-State Actors Exploit Notepad++ Supply Chain | 关联: cobalt
+    strike, chrysalis, supply chain, infrastructure hijacking, notepad++ | 来源: otx
+    · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Nation-State Actors Exploit Notepad++ Supply Chain
+    threat_labels:
+    - cobalt strike
+    - chrysalis
+    - supply chain
+    - infrastructure hijacking
+    - notepad++
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 698d2ac3b38a12b4cb5a2723
+    narrative: 检测到与 Cobalt Strike 活动相关的恶意下载行为。依据：IOC `http://45.32.144.255/update/update.exe`
+      被 OTX 标记为“Nation-State Actors Exploit Notepad++ Supply Chain”，威胁标签含 cobalt strike、supply
+      chain 等，置信度 high。建议立即阻断该 URL 访问，并排查主机是否执行过该文件，以排除供应链投毒风险。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="cobalt strike"
+  - otx:tag="chrysalis"
+  - otx:tag="supply chain"
+  - otx:tag="infrastructure hijacking"
+  - otx:tag="notepad++"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-698dadc46c71569240154489-4204167586
+  type: domain
+  value: dronemaker.org
+  category: network_activity
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Employee Monitoring and SimpleHelp Software Abused in Ransomware
+    Operations | 关联: cryptocurrency, ransomware, voidcrypt, net monitor, employee
+    monitoring, remote access | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Employee Monitoring and SimpleHelp Software Abused in Ransomware Operations
+    threat_labels:
+    - cryptocurrency
+    - ransomware
+    - voidcrypt
+    - net monitor
+    - employee monitoring
+    - remote access
+    - vpn compromise
+    - crazy
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 698dadc46c71569240154489
+    narrative: IOC `dronemaker.org` 关联员工监控软件与 SimpleHelp 远程访问工具被滥用于勒索软件活动，威胁标签含勒索软件、加密货币、远程访问等。来源
+      OTX 单源判断为高置信度。建议立即封锁该域名通信，排查 VPN 异常与远程控制痕迹。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="cryptocurrency"
+  - otx:tag="ransomware"
+  - otx:tag="voidcrypt"
+  - otx:tag="net monitor"
+  - otx:tag="employee monitoring"
+  - otx:tag="remote access"
+  - otx:tag="vpn compromise"
+  - otx:tag="crazy"
+  - otx:tag="crazy ransomware"
+  - otx:tag="simplehelp"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-698dadc46c71569240154489-4165140687
+  type: domain
+  value: microuptime.com
+  category: network_activity
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Employee Monitoring and SimpleHelp Software Abused in Ransomware
+    Operations | 关联: cryptocurrency, ransomware, voidcrypt, net monitor, employee
+    monitoring, remote access | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Employee Monitoring and SimpleHelp Software Abused in Ransomware Operations
+    threat_labels:
+    - cryptocurrency
+    - ransomware
+    - voidcrypt
+    - net monitor
+    - employee monitoring
+    - remote access
+    - vpn compromise
+    - crazy
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 698dadc46c71569240154489
+    narrative: "**威胁性质**：域名 microuptime.com 与滥用员工监控及 SimpleHelp 软件的勒索软件活动相关，涉及远程访问、VPN\
+      \ 泄露风险。  \n**判定依据**：来自 OTX 的单一高置信度情报，标记为 ransomware、voidcrypt 等。  \n**建议处置**：排查与该域名的通信记录，阻断访问，检查相关终端是否存在异常远程控制行为。"
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="cryptocurrency"
+  - otx:tag="ransomware"
+  - otx:tag="voidcrypt"
+  - otx:tag="net monitor"
+  - otx:tag="employee monitoring"
+  - otx:tag="remote access"
+  - otx:tag="vpn compromise"
+  - otx:tag="crazy"
+  - otx:tag="crazy ransomware"
+  - otx:tag="simplehelp"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-698dadc46c71569240154489-4137335132
+  type: domain
+  value: telesupportgroup.com
+  category: network_activity
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Employee Monitoring and SimpleHelp Software Abused in Ransomware
+    Operations | 关联: cryptocurrency, ransomware, voidcrypt, net monitor, employee
+    monitoring, remote access | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Employee Monitoring and SimpleHelp Software Abused in Ransomware Operations
+    threat_labels:
+    - cryptocurrency
+    - ransomware
+    - voidcrypt
+    - net monitor
+    - employee monitoring
+    - remote access
+    - vpn compromise
+    - crazy
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 698dadc46c71569240154489
+    narrative: 基于OTX高置信度情报，域名 `telesupportgroup.com` 关联员工监控及远程访问软件滥用，用于勒索与加密货币活动，涉及VoidCrypt等标签。建议立即阻断对该域名的访问并排查相关通信。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="cryptocurrency"
+  - otx:tag="ransomware"
+  - otx:tag="voidcrypt"
+  - otx:tag="net monitor"
+  - otx:tag="employee monitoring"
+  - otx:tag="remote access"
+  - otx:tag="vpn compromise"
+  - otx:tag="crazy"
+  - otx:tag="crazy ransomware"
+  - otx:tag="simplehelp"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-698dadc46c71569240154489-1817786966
+  type: domain
+  value: networklookout.com
+  category: network_activity
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Employee Monitoring and SimpleHelp Software Abused in Ransomware
+    Operations | 关联: cryptocurrency, ransomware, voidcrypt, net monitor, employee
+    monitoring, remote access | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Employee Monitoring and SimpleHelp Software Abused in Ransomware Operations
+    threat_labels:
+    - cryptocurrency
+    - ransomware
+    - voidcrypt
+    - net monitor
+    - employee monitoring
+    - remote access
+    - vpn compromise
+    - crazy
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 698dadc46c71569240154489
+    narrative: 该域名被关联到利用员工监控与 SimpleHelp 软件的勒索软件活动，涉及加密货币及 VoidCrypt 等勒索家族。基于 OTX
+      高置信度情报，判定为恶意。建议立即阻断对该域名的访问，并排查内网终端是否存在相关远程控制或监控软件异常行为。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="cryptocurrency"
+  - otx:tag="ransomware"
+  - otx:tag="voidcrypt"
+  - otx:tag="net monitor"
+  - otx:tag="employee monitoring"
+  - otx:tag="remote access"
+  - otx:tag="vpn compromise"
+  - otx:tag="crazy"
+  - otx:tag="crazy ransomware"
+  - otx:tag="simplehelp"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69b18928a9cb5b794dd0e2cb-4261001689
+  type: domain
+  value: denika.se
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Iran conflict drives heightened espionage activity against Middle
+    East targets | 关联: rust backdoor, iran conflict, cobalt strike, phishing, cyber
+    espionage, state-sponsored actors | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Iran conflict drives heightened espionage activity against Middle East
+      targets
+    threat_labels:
+    - rust backdoor
+    - iran conflict
+    - cobalt strike
+    - phishing
+    - cyber espionage
+    - state-sponsored actors
+    - government targets
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69b18928a9cb5b794dd0e2cb
+    narrative: "【SOC 告警通告】  \n检测到与域名 denika.se 相关的流量。该域名关联威胁活动：伊朗冲突背景下针对中东目标的网络间谍行动。威胁标签含：Rust\
+      \ 后门、Cobalt Strike、钓鱼、国家级攻击者。来源 OTX，置信度\"high\"。建议立即阻断该域名访问，并对受影响主机进行取证排查，检查是否出现后门驻留或数据外传迹象。"
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rust backdoor"
+  - otx:tag="iran conflict"
+  - otx:tag="cobalt strike"
+  - otx:tag="phishing"
+  - otx:tag="cyber espionage"
+  - otx:tag="state-sponsored actors"
+  - otx:tag="government targets"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69b18928a9cb5b794dd0e2cb-4261001688
+  type: domain
+  value: mofa.gov.iq
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Iran conflict drives heightened espionage activity against Middle
+    East targets | 关联: rust backdoor, iran conflict, cobalt strike, phishing, cyber
+    espionage, state-sponsored actors | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Iran conflict drives heightened espionage activity against Middle East
+      targets
+    threat_labels:
+    - rust backdoor
+    - iran conflict
+    - cobalt strike
+    - phishing
+    - cyber espionage
+    - state-sponsored actors
+    - government targets
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69b18928a9cb5b794dd0e2cb
+    narrative: '【威胁性质】发现域名 mofa.gov.iq 关联高置信度网络间谍活动，涉及 Rust 后门、Cobalt Strike、钓鱼，针对政府目标，背景为伊朗冲突。
+
+
+      【判定依据】OTX 情报源标记为国家级间谍行为，融合“rust backdoor”“cobalt strike”“phishing”等标签，无交叉验证但置信度评为
+      high。
+
+
+      【建议处置】立即隔离该域名通信，检查相关流量与受感染主机，并启动内部调查。'
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rust backdoor"
+  - otx:tag="iran conflict"
+  - otx:tag="cobalt strike"
+  - otx:tag="phishing"
+  - otx:tag="cyber espionage"
+  - otx:tag="state-sponsored actors"
+  - otx:tag="government targets"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69b18928a9cb5b794dd0e2cb-4261001687
+  type: domain
+  value: med.gov.sy
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Iran conflict drives heightened espionage activity against Middle
+    East targets | 关联: rust backdoor, iran conflict, cobalt strike, phishing, cyber
+    espionage, state-sponsored actors | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Iran conflict drives heightened espionage activity against Middle East
+      targets
+    threat_labels:
+    - rust backdoor
+    - iran conflict
+    - cobalt strike
+    - phishing
+    - cyber espionage
+    - state-sponsored actors
+    - government targets
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69b18928a9cb5b794dd0e2cb
+    narrative: 根据情报源 OTX 标记，IOC med.gov.sy 关联伊朗冲突背景下的网络间谍活动，涉及后门、Cobalt Strike 及钓鱼等威胁，目标为政府相关实体。判定依据为单源高置信度情报。建议立即在流量侧封禁该域名，并排查相关通信记录。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rust backdoor"
+  - otx:tag="iran conflict"
+  - otx:tag="cobalt strike"
+  - otx:tag="phishing"
+  - otx:tag="cyber espionage"
+  - otx:tag="state-sponsored actors"
+  - otx:tag="government targets"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69b18928a9cb5b794dd0e2cb-4260994277
+  type: domain
+  value: war.analyse.ltd
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Iran conflict drives heightened espionage activity against Middle
+    East targets | 关联: rust backdoor, iran conflict, cobalt strike, phishing, cyber
+    espionage, state-sponsored actors | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Iran conflict drives heightened espionage activity against Middle East
+      targets
+    threat_labels:
+    - rust backdoor
+    - iran conflict
+    - cobalt strike
+    - phishing
+    - cyber espionage
+    - state-sponsored actors
+    - government targets
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69b18928a9cb5b794dd0e2cb
+    narrative: 流量告警：检测到与已知恶意域名 war.analyse.ltd 的通信。该域名关联伊朗冲突背景下的国家级网络间谍活动，涉及 Rust
+      后门、Cobalt Strike 及钓鱼攻击，主要针对中东政府目标。依据 OTX 高置信度情报。建议立即阻断该域名，排查受感染主机，并关注横向移动迹象。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rust backdoor"
+  - otx:tag="iran conflict"
+  - otx:tag="cobalt strike"
+  - otx:tag="phishing"
+  - otx:tag="cyber espionage"
+  - otx:tag="state-sponsored actors"
+  - otx:tag="government targets"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69b18928a9cb5b794dd0e2cb-4260994276
+  type: domain
+  value: support.almersalstore.com
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Iran conflict drives heightened espionage activity against Middle
+    East targets | 关联: rust backdoor, iran conflict, cobalt strike, phishing, cyber
+    espionage, state-sponsored actors | 交叉验证: WhoisXML=malware, seen 2026-03-11~2026-07-12
+    | 来源: otx · 置信: high (2 sources) | TLP:WHITE'
+  evidence:
+    activity: Iran conflict drives heightened espionage activity against Middle East
+      targets
+    threat_labels:
+    - rust backdoor
+    - iran conflict
+    - cobalt strike
+    - phishing
+    - cyber espionage
+    - state-sponsored actors
+    - government targets
+    source: otx
+    cross_check: WhoisXML=malware, seen 2026-03-11~2026-07-12
+    confidence: high (2 sources)
+    tlp: white
+    misp_event_id: 69b18928a9cb5b794dd0e2cb
+    narrative: 告警：域名 support.almersalstore.com 关联伊朗冲突背景下的中东间谍活动，标签含 Rust 后门、Cobalt
+      Strike 及钓鱼。OTX 情报源标记为恶意，WhoisXML 交叉验证为 malware 且活跃于 2026-03-11 至 2026-07-12，置信度高。建议立即阻断对该域名的
+      DNS 解析和网络连接，并排查相关访问记录。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rust backdoor"
+  - otx:tag="iran conflict"
+  - otx:tag="cobalt strike"
+  - otx:tag="phishing"
+  - otx:tag="cyber espionage"
+  - otx:tag="state-sponsored actors"
+  - otx:tag="government targets"
+  - whoisxml:enriched
+  - whoisxml:threat="malware"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69b18928a9cb5b794dd0e2cb-4260994275
+  type: domain
+  value: mail.iwsmailserver.com
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Iran conflict drives heightened espionage activity against Middle
+    East targets | 关联: rust backdoor, iran conflict, cobalt strike, phishing, cyber
+    espionage, state-sponsored actors | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Iran conflict drives heightened espionage activity against Middle East
+      targets
+    threat_labels:
+    - rust backdoor
+    - iran conflict
+    - cobalt strike
+    - phishing
+    - cyber espionage
+    - state-sponsored actors
+    - government targets
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69b18928a9cb5b794dd0e2cb
+    narrative: 经OTX情报认定，域名 mail.iwsmailserver.com 关联伊朗冲突背景下的国家级网络间谍活动，涉及Rust后门、Cobalt
+      Strike及钓鱼攻击，针对中东政府目标。建议立即封锁该域名并排查相关通信记录。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rust backdoor"
+  - otx:tag="iran conflict"
+  - otx:tag="cobalt strike"
+  - otx:tag="phishing"
+  - otx:tag="cyber espionage"
+  - otx:tag="state-sponsored actors"
+  - otx:tag="government targets"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69b18928a9cb5b794dd0e2cb-4260994274
+  type: domain
+  value: iran.dashboard.1drvms.store
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Iran conflict drives heightened espionage activity against Middle
+    East targets | 关联: rust backdoor, iran conflict, cobalt strike, phishing, cyber
+    espionage, state-sponsored actors | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Iran conflict drives heightened espionage activity against Middle East
+      targets
+    threat_labels:
+    - rust backdoor
+    - iran conflict
+    - cobalt strike
+    - phishing
+    - cyber espionage
+    - state-sponsored actors
+    - government targets
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69b18928a9cb5b794dd0e2cb
+    narrative: 【威胁告警】域名iran.dashboard.1drvms.store关联伊朗冲突背景下的网络间谍活动，被标记为Rust后门、Cobalt
+      Strike等恶意工具，用于针对政府目标的钓鱼及间谍攻击。依据OTX单一信源判定为高风险，建议立即阻断对该域名的解析与访问。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rust backdoor"
+  - otx:tag="iran conflict"
+  - otx:tag="cobalt strike"
+  - otx:tag="phishing"
+  - otx:tag="cyber espionage"
+  - otx:tag="state-sponsored actors"
+  - otx:tag="government targets"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69b18928a9cb5b794dd0e2cb-4260994273
+  type: domain
+  value: deepdive.hypernas.com
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Iran conflict drives heightened espionage activity against Middle
+    East targets | 关联: rust backdoor, iran conflict, cobalt strike, phishing, cyber
+    espionage, state-sponsored actors | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Iran conflict drives heightened espionage activity against Middle East
+      targets
+    threat_labels:
+    - rust backdoor
+    - iran conflict
+    - cobalt strike
+    - phishing
+    - cyber espionage
+    - state-sponsored actors
+    - government targets
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69b18928a9cb5b794dd0e2cb
+    narrative: 检测到域名 deepdive.hypernas.com 为伊朗冲突相关网络间谍活动指标，关联 Rust 后门、Cobalt Strike
+      及钓鱼攻击，目标指向政府机构（高置信度，源：otx）。建议立即阻截该域名，并排查受影响系统是否存在入侵迹象。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rust backdoor"
+  - otx:tag="iran conflict"
+  - otx:tag="cobalt strike"
+  - otx:tag="phishing"
+  - otx:tag="cyber espionage"
+  - otx:tag="state-sponsored actors"
+  - otx:tag="government targets"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69b18928a9cb5b794dd0e2cb-4260994268
+  type: domain
+  value: transfergocompany.com
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Iran conflict drives heightened espionage activity against Middle
+    East targets | 关联: rust backdoor, iran conflict, cobalt strike, phishing, cyber
+    espionage, state-sponsored actors | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Iran conflict drives heightened espionage activity against Middle East
+      targets
+    threat_labels:
+    - rust backdoor
+    - iran conflict
+    - cobalt strike
+    - phishing
+    - cyber espionage
+    - state-sponsored actors
+    - government targets
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69b18928a9cb5b794dd0e2cb
+    narrative: "**威胁通告**  \n发现与 transfergocompany.com 的通信流量，该域名关联伊朗冲突背景下的国家支持网络间谍活动（Rust后门、Cobalt\
+      \ Strike、钓鱼攻击），目标为政府等中东实体。依据 OTX 高置信度情报，应立即阻断该域名，排查受影响主机。"
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rust backdoor"
+  - otx:tag="iran conflict"
+  - otx:tag="cobalt strike"
+  - otx:tag="phishing"
+  - otx:tag="cyber espionage"
+  - otx:tag="state-sponsored actors"
+  - otx:tag="government targets"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69b18928a9cb5b794dd0e2cb-4260994267
+  type: domain
+  value: iwsmailserver.com
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Iran conflict drives heightened espionage activity against Middle
+    East targets | 关联: rust backdoor, iran conflict, cobalt strike, phishing, cyber
+    espionage, state-sponsored actors | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Iran conflict drives heightened espionage activity against Middle East
+      targets
+    threat_labels:
+    - rust backdoor
+    - iran conflict
+    - cobalt strike
+    - phishing
+    - cyber espionage
+    - state-sponsored actors
+    - government targets
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69b18928a9cb5b794dd0e2cb
+    narrative: 流量告警：发现与域名 iwsmailserver.com 的通信。该域名在 OTX 情报中被标记为伊朗冲突驱动的网络间谍活动，关联钓鱼、Rust
+      后门、Cobalt Strike 等威胁标签，目标针对中东政府实体，置信度为高。建议立即阻断该域名，排查内部主机 DNS 查询与网络连接记录，并检查是否收到相关钓鱼邮件。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rust backdoor"
+  - otx:tag="iran conflict"
+  - otx:tag="cobalt strike"
+  - otx:tag="phishing"
+  - otx:tag="cyber espionage"
+  - otx:tag="state-sponsored actors"
+  - otx:tag="government targets"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69b18928a9cb5b794dd0e2cb-4260994266
+  type: domain
+  value: 1drvms.store
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Iran conflict drives heightened espionage activity against Middle
+    East targets | 关联: rust backdoor, iran conflict, cobalt strike, phishing, cyber
+    espionage, state-sponsored actors | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Iran conflict drives heightened espionage activity against Middle East
+      targets
+    threat_labels:
+    - rust backdoor
+    - iran conflict
+    - cobalt strike
+    - phishing
+    - cyber espionage
+    - state-sponsored actors
+    - government targets
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69b18928a9cb5b794dd0e2cb
+    narrative: 检测到域名 `1drvms.store` 关联高置信度伊朗冲突背景下的网络间谍活动，涉及 Rust 后门与 Cobalt Strike
+      投放，主要针对中东政府目标实施钓鱼攻击。依据开源威胁情报关联分析，建议立即阻断该域名通信并排查相关 DNS 请求记录。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rust backdoor"
+  - otx:tag="iran conflict"
+  - otx:tag="cobalt strike"
+  - otx:tag="phishing"
+  - otx:tag="cyber espionage"
+  - otx:tag="state-sponsored actors"
+  - otx:tag="government targets"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69b18928a9cb5b794dd0e2cb-4260994265
+  type: url
+  value: https://unityprogressall.org/imagecontent/getimgcontent.php?id=
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Iran conflict drives heightened espionage activity against Middle
+    East targets | 关联: rust backdoor, iran conflict, cobalt strike, phishing, cyber
+    espionage, state-sponsored actors | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Iran conflict drives heightened espionage activity against Middle East
+      targets
+    threat_labels:
+    - rust backdoor
+    - iran conflict
+    - cobalt strike
+    - phishing
+    - cyber espionage
+    - state-sponsored actors
+    - government targets
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69b18928a9cb5b794dd0e2cb
+    narrative: 该IOC关联高置信度（OTX单源）钓鱼及网络间谍活动，威胁标签涉及Rust后门、Cobalt Strike，背景与伊朗冲突驱动的中东目标间谍行动有关。建议立即封锁该URL，排查相关通信记录。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rust backdoor"
+  - otx:tag="iran conflict"
+  - otx:tag="cobalt strike"
+  - otx:tag="phishing"
+  - otx:tag="cyber espionage"
+  - otx:tag="state-sponsored actors"
+  - otx:tag="government targets"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69b18928a9cb5b794dd0e2cb-4260994264
+  type: url
+  value: https://mail.iwsmailserver.com/owa/auth/logon.aspx?uid=
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Iran conflict drives heightened espionage activity against Middle
+    East targets | 关联: rust backdoor, iran conflict, cobalt strike, phishing, cyber
+    espionage, state-sponsored actors | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Iran conflict drives heightened espionage activity against Middle East
+      targets
+    threat_labels:
+    - rust backdoor
+    - iran conflict
+    - cobalt strike
+    - phishing
+    - cyber espionage
+    - state-sponsored actors
+    - government targets
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69b18928a9cb5b794dd0e2cb
+    narrative: 检测到高置信度钓鱼URL，该URL关联伊朗冲突背景下针对中东目标的网络间谍活动。OTX标记含钓鱼、Cobalt Strike、Rust后门等威胁标签。建议立即阻断对该URL的访问，并排查内部相关请求日志。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rust backdoor"
+  - otx:tag="iran conflict"
+  - otx:tag="cobalt strike"
+  - otx:tag="phishing"
+  - otx:tag="cyber espionage"
+  - otx:tag="state-sponsored actors"
+  - otx:tag="government targets"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69b18928a9cb5b794dd0e2cb-4260994263
+  type: url
+  value: https://iran.dashboard.1drvms.store/errors/sessionerrors/expire?client=[redacted]
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Iran conflict drives heightened espionage activity against Middle
+    East targets | 关联: rust backdoor, iran conflict, cobalt strike, phishing, cyber
+    espionage, state-sponsored actors | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Iran conflict drives heightened espionage activity against Middle East
+      targets
+    threat_labels:
+    - rust backdoor
+    - iran conflict
+    - cobalt strike
+    - phishing
+    - cyber espionage
+    - state-sponsored actors
+    - government targets
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69b18928a9cb5b794dd0e2cb
+    narrative: 告警：检测到与伊朗冲突相关的网络间谍活动IOC，标签包含Rust后门、Cobalt Strike、钓鱼及国家级攻击者，目标指向中东政府机构。依据为OTX威胁情报（高置信度）。建议立即阻断该URL，排查相关主机会话，并加强邮件及端点监控。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rust backdoor"
+  - otx:tag="iran conflict"
+  - otx:tag="cobalt strike"
+  - otx:tag="phishing"
+  - otx:tag="cyber espionage"
+  - otx:tag="state-sponsored actors"
+  - otx:tag="government targets"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69b18928a9cb5b794dd0e2cb-4260994262
+  type: url
+  value: https://iran.dashboard.1drvms.store/errors/sessionerrors/expire?client=
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Iran conflict drives heightened espionage activity against Middle
+    East targets | 关联: rust backdoor, iran conflict, cobalt strike, phishing, cyber
+    espionage, state-sponsored actors | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Iran conflict drives heightened espionage activity against Middle East
+      targets
+    threat_labels:
+    - rust backdoor
+    - iran conflict
+    - cobalt strike
+    - phishing
+    - cyber espionage
+    - state-sponsored actors
+    - government targets
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69b18928a9cb5b794dd0e2cb
+    narrative: 【威胁告警】高置信度恶意域名（OTX 情报），关联“伊朗冲突”背景下的网络间谍活动。IOC 标记涉及 Rust 后门、Cobalt Strike
+      及钓鱼手法，疑似针对中东政府目标的间谍行动。建议立即阻断对该域名的访问，排查受感染主机，并加强相关网络监控。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rust backdoor"
+  - otx:tag="iran conflict"
+  - otx:tag="cobalt strike"
+  - otx:tag="phishing"
+  - otx:tag="cyber espionage"
+  - otx:tag="state-sponsored actors"
+  - otx:tag="government targets"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69b18928a9cb5b794dd0e2cb-4260994261
+  type: url
+  value: https://defenceprodindia.site/server.php?file=Reader_en_install
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Iran conflict drives heightened espionage activity against Middle
+    East targets | 关联: rust backdoor, iran conflict, cobalt strike, phishing, cyber
+    espionage, state-sponsored actors | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Iran conflict drives heightened espionage activity against Middle East
+      targets
+    threat_labels:
+    - rust backdoor
+    - iran conflict
+    - cobalt strike
+    - phishing
+    - cyber espionage
+    - state-sponsored actors
+    - government targets
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69b18928a9cb5b794dd0e2cb
+    narrative: "**告警通告**  \n该 URL 被标记为伊朗冲突背景下的网络间谍活动，涉及 Rust 后门与 Cobalt Strike 载荷，用于针对中东政府目标的钓鱼攻击。依据单一情报源（OTX）的高置信度判定。建议立即在边界阻断该域名，并对受影响的资产进行威胁狩猎。"
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rust backdoor"
+  - otx:tag="iran conflict"
+  - otx:tag="cobalt strike"
+  - otx:tag="phishing"
+  - otx:tag="cyber espionage"
+  - otx:tag="state-sponsored actors"
+  - otx:tag="government targets"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69b18928a9cb5b794dd0e2cb-4260994260
+  type: url
+  value: https://deepdive.hypernas.com/hypernas/api/page.php?uid=
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Iran conflict drives heightened espionage activity against Middle
+    East targets | 关联: rust backdoor, iran conflict, cobalt strike, phishing, cyber
+    espionage, state-sponsored actors | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Iran conflict drives heightened espionage activity against Middle East
+      targets
+    threat_labels:
+    - rust backdoor
+    - iran conflict
+    - cobalt strike
+    - phishing
+    - cyber espionage
+    - state-sponsored actors
+    - government targets
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69b18928a9cb5b794dd0e2cb
+    narrative: 基于OTX高置信度情报，该URL被标记为针对中东政府目标的网络间谍活动载荷，关联Rust后门、Cobalt Strike及钓鱼攻击，攻击背景与伊朗冲突有关。建议立即阻断此URL的访问与通信，排查近期域内访问记录，并关注相关州际威胁行为。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rust backdoor"
+  - otx:tag="iran conflict"
+  - otx:tag="cobalt strike"
+  - otx:tag="phishing"
+  - otx:tag="cyber espionage"
+  - otx:tag="state-sponsored actors"
+  - otx:tag="government targets"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69b18928a9cb5b794dd0e2cb-4260882329
+  type: domain
+  value: almersalstore.com
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Iran conflict drives heightened espionage activity against Middle
+    East targets | 关联: rust backdoor, iran conflict, cobalt strike, phishing, cyber
+    espionage, state-sponsored actors | 交叉验证: WhoisXML=malware, seen 2026-03-11~2026-07-12
+    | 来源: otx · 置信: high (2 sources) | TLP:WHITE'
+  evidence:
+    activity: Iran conflict drives heightened espionage activity against Middle East
+      targets
+    threat_labels:
+    - rust backdoor
+    - iran conflict
+    - cobalt strike
+    - phishing
+    - cyber espionage
+    - state-sponsored actors
+    - government targets
+    source: otx
+    cross_check: WhoisXML=malware, seen 2026-03-11~2026-07-12
+    confidence: high (2 sources)
+    tlp: white
+    misp_event_id: 69b18928a9cb5b794dd0e2cb
+    narrative: 检测到与恶意域名 almersalstore.com 的流量。该域名关联 Rust 后门、Cobalt Strike 及网络间谍活动，指向国家级攻击者针对中东政府目标的钓鱼与情报窃取。依据
+      OTX 及 WhoisXML 交叉验证（高置信度），建议立即阻断该域名通信，排查受影响主机。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rust backdoor"
+  - otx:tag="iran conflict"
+  - otx:tag="cobalt strike"
+  - otx:tag="phishing"
+  - otx:tag="cyber espionage"
+  - otx:tag="state-sponsored actors"
+  - otx:tag="government targets"
+  - whoisxml:enriched
+  - whoisxml:threat="malware"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69b18928a9cb5b794dd0e2cb-4224453072
+  type: domain
+  value: unityprogressall.org
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Iran conflict drives heightened espionage activity against Middle
+    East targets | 关联: rust backdoor, iran conflict, cobalt strike, phishing, cyber
+    espionage, state-sponsored actors | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Iran conflict drives heightened espionage activity against Middle East
+      targets
+    threat_labels:
+    - rust backdoor
+    - iran conflict
+    - cobalt strike
+    - phishing
+    - cyber espionage
+    - state-sponsored actors
+    - government targets
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69b18928a9cb5b794dd0e2cb
+    narrative: 检测到域名 unityprogressall.org 关联伊朗冲突背景下的网络间谍活动，标签包括国家支持行为体、政府目标、钓鱼攻击、Rust
+      后门与 Cobalt Strike。来源为 OTX，置信度评定为高。建议立即阻断该域名通信，排查受影响的端点。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rust backdoor"
+  - otx:tag="iran conflict"
+  - otx:tag="cobalt strike"
+  - otx:tag="phishing"
+  - otx:tag="cyber espionage"
+  - otx:tag="state-sponsored actors"
+  - otx:tag="government targets"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69b18928a9cb5b794dd0e2cb-4173668260
+  type: domain
+  value: defenceprodindia.site
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Iran conflict drives heightened espionage activity against Middle
+    East targets | 关联: rust backdoor, iran conflict, cobalt strike, phishing, cyber
+    espionage, state-sponsored actors | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Iran conflict drives heightened espionage activity against Middle East
+      targets
+    threat_labels:
+    - rust backdoor
+    - iran conflict
+    - cobalt strike
+    - phishing
+    - cyber espionage
+    - state-sponsored actors
+    - government targets
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69b18928a9cb5b794dd0e2cb
+    narrative: 基于开源威胁情报，域名 `defenceprodindia.site` 关联伊朗冲突下的网络间谍活动，相关标签包含 Rust 后门、Cobalt
+      Strike、钓鱼及政府目标。建议边界阻断该域名通信并加强流量监控。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rust backdoor"
+  - otx:tag="iran conflict"
+  - otx:tag="cobalt strike"
+  - otx:tag="phishing"
+  - otx:tag="cyber espionage"
+  - otx:tag="state-sponsored actors"
+  - otx:tag="government targets"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69b18928a9cb5b794dd0e2cb-3779485701
+  type: domain
+  value: elcat.kg
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Iran conflict drives heightened espionage activity against Middle
+    East targets | 关联: rust backdoor, iran conflict, cobalt strike, phishing, cyber
+    espionage, state-sponsored actors | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Iran conflict drives heightened espionage activity against Middle East
+      targets
+    threat_labels:
+    - rust backdoor
+    - iran conflict
+    - cobalt strike
+    - phishing
+    - cyber espionage
+    - state-sponsored actors
+    - government targets
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69b18928a9cb5b794dd0e2cb
+    narrative: 告警：域名 elcat.kg 关联伊朗冲突背景下的网络间谍活动，涉及 Rust 后门、Cobalt Strike 及钓鱼攻击，疑似针对中东政府目标的国家支持行为。判定依据为
+      OTX 单一来源的高置信度情报。建议立即阻断该域名的流量并排查相关主机。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rust backdoor"
+  - otx:tag="iran conflict"
+  - otx:tag="cobalt strike"
+  - otx:tag="phishing"
+  - otx:tag="cyber espionage"
+  - otx:tag="state-sponsored actors"
+  - otx:tag="government targets"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69b91a3de2106fb26b3bff52-4268244675
+  type: url
+  value: http://telegram.me/pr55ii
+  category: network_activity
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Hacked sites deliver Vidar infostealer to Windows users | 关联:
+    vidar, fake captcha, wordpress, golang loader, infostealer, windows | 来源: otx
+    · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Hacked sites deliver Vidar infostealer to Windows users
+    threat_labels:
+    - vidar
+    - fake captcha
+    - wordpress
+    - golang loader
+    - infostealer
+    - windows
+    - msi installer
+    - hta script
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69b91a3de2106fb26b3bff52
+    narrative: 检测到与 Vidar 窃密木马分发活动相关的 IOC：`http://telegram.me/pr55ii`。该 IOC 关联被黑网站投放虚假验证页面、诱导
+      Windows 用户下载运行 Vidar 的载荷（MSI/HTA 等）。依据 OTX 威胁情报，置信度“高”。建议立即阻断该 URL 的访问，并排查受影响终端是否存在信息窃取行为。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="vidar"
+  - otx:tag="fake captcha"
+  - otx:tag="wordpress"
+  - otx:tag="golang loader"
+  - otx:tag="infostealer"
+  - otx:tag="windows"
+  - otx:tag="msi installer"
+  - otx:tag="hta script"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69b91a3de2106fb26b3bff52-4268244674
+  type: url
+  value: http://steamcommunity.com/profiles/76561198742377525
+  category: network_activity
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Hacked sites deliver Vidar infostealer to Windows users | 关联:
+    vidar, fake captcha, wordpress, golang loader, infostealer, windows | 来源: otx
+    · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Hacked sites deliver Vidar infostealer to Windows users
+    threat_labels:
+    - vidar
+    - fake captcha
+    - wordpress
+    - golang loader
+    - infostealer
+    - windows
+    - msi installer
+    - hta script
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69b91a3de2106fb26b3bff52
+    narrative: 告警：该 Steam 社区资料页 URL 被关联至 Vidar 信息窃取器传播活动。证据显示，攻击者利用被入侵站点（含 WordPress）通过虚假验证码投放
+      Golang 加载器，进而下发 MSI 安装包或 HTA 脚本，针对 Windows 用户窃取信息。判定依据为 OTX 开源情报（高置信度）。建议立即阻断该
+      IOC 的网络访问，并对近期访问该 URL 的主机进行失陷排查。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="vidar"
+  - otx:tag="fake captcha"
+  - otx:tag="wordpress"
+  - otx:tag="golang loader"
+  - otx:tag="infostealer"
+  - otx:tag="windows"
+  - otx:tag="msi installer"
+  - otx:tag="hta script"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69b91a3de2106fb26b3bff52-4268244673
+  type: url
+  value: http://steamcommunity.com/profiles/76561198735736086
+  category: network_activity
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Hacked sites deliver Vidar infostealer to Windows users | 关联:
+    vidar, fake captcha, wordpress, golang loader, infostealer, windows | 来源: otx
+    · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Hacked sites deliver Vidar infostealer to Windows users
+    threat_labels:
+    - vidar
+    - fake captcha
+    - wordpress
+    - golang loader
+    - infostealer
+    - windows
+    - msi installer
+    - hta script
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69b91a3de2106fb26b3bff52
+    narrative: 发现 Steam 社区个人资料页面被劫持用于投递 Vidar 窃密木马。该页面利用伪造验证码诱导用户下载 MSI 安装程序或 HTA
+      脚本，通过 Golang 加载器部署信息窃取器。此告警基于 OSINT 高置信度情报。建议立即封禁该 URL 并排查访问记录，对受感染主机进行取证与清除。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="vidar"
+  - otx:tag="fake captcha"
+  - otx:tag="wordpress"
+  - otx:tag="golang loader"
+  - otx:tag="infostealer"
+  - otx:tag="windows"
+  - otx:tag="msi installer"
+  - otx:tag="hta script"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69b91a3de2106fb26b3bff52-4268244634
+  type: domain
+  value: woopresscdn.com
+  category: network_activity
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Hacked sites deliver Vidar infostealer to Windows users | 关联:
+    vidar, fake captcha, wordpress, golang loader, infostealer, windows | 来源: otx
+    · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Hacked sites deliver Vidar infostealer to Windows users
+    threat_labels:
+    - vidar
+    - fake captcha
+    - wordpress
+    - golang loader
+    - infostealer
+    - windows
+    - msi installer
+    - hta script
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69b91a3de2106fb26b3bff52
+    narrative: 根据OTX情报，域名 woopresscdn.com 涉及通过被入侵网站分发 Vidar 窃密木马，利用伪造验证码诱导用户执行MSI安装包或HTA脚本。判定依据为高置信度单源威胁标签匹配。建议立即封锁该域名，排查主机是否存在相关木马程序。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="vidar"
+  - otx:tag="fake captcha"
+  - otx:tag="wordpress"
+  - otx:tag="golang loader"
+  - otx:tag="infostealer"
+  - otx:tag="windows"
+  - otx:tag="msi installer"
+  - otx:tag="hta script"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69b91a3de2106fb26b3bff52-4241131118
+  type: domain
+  value: cdnwoopress.com
+  category: network_activity
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Hacked sites deliver Vidar infostealer to Windows users | 关联:
+    vidar, fake captcha, wordpress, golang loader, infostealer, windows | 来源: otx
+    · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Hacked sites deliver Vidar infostealer to Windows users
+    threat_labels:
+    - vidar
+    - fake captcha
+    - wordpress
+    - golang loader
+    - infostealer
+    - windows
+    - msi installer
+    - hta script
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69b91a3de2106fb26b3bff52
+    narrative: 监测域名 `cdnwoopress.com` 涉及被黑WordPress站点伪装假验证码分发Vidar窃密木马，通过MSI安装程序或HTA脚本加载Golang加载器，目标为Windows用户。依据OTX高置信度情报关联标签。建议立即阻断该域名，核查主机是否感染。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="vidar"
+  - otx:tag="fake captcha"
+  - otx:tag="wordpress"
+  - otx:tag="golang loader"
+  - otx:tag="infostealer"
+  - otx:tag="windows"
+  - otx:tag="msi installer"
+  - otx:tag="hta script"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69b91a3de2106fb26b3bff52-4227974702
+  type: domain
+  value: walwood.be
+  category: network_activity
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Hacked sites deliver Vidar infostealer to Windows users | 关联:
+    vidar, fake captcha, wordpress, golang loader, infostealer, windows | 来源: otx
+    · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Hacked sites deliver Vidar infostealer to Windows users
+    threat_labels:
+    - vidar
+    - fake captcha
+    - wordpress
+    - golang loader
+    - infostealer
+    - windows
+    - msi installer
+    - hta script
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69b91a3de2106fb26b3bff52
+    narrative: 根据开源情报（OTX），域名 `walwood.be` 被用于被入侵网站分发 Vidar 窃密木马，通过伪造验证码诱导 Windows
+      用户执行。建议立即在边界阻断对该域名的访问，并排查终端日志，确认是否已有感染迹象。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="vidar"
+  - otx:tag="fake captcha"
+  - otx:tag="wordpress"
+  - otx:tag="golang loader"
+  - otx:tag="infostealer"
+  - otx:tag="windows"
+  - otx:tag="msi installer"
+  - otx:tag="hta script"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69b91a3de2106fb26b3bff52-4201107588
+  type: url
+  value: http://telegram.me/dikkh0k
+  category: network_activity
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Hacked sites deliver Vidar infostealer to Windows users | 关联:
+    vidar, fake captcha, wordpress, golang loader, infostealer, windows | 来源: otx
+    · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Hacked sites deliver Vidar infostealer to Windows users
+    threat_labels:
+    - vidar
+    - fake captcha
+    - wordpress
+    - golang loader
+    - infostealer
+    - windows
+    - msi installer
+    - hta script
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69b91a3de2106fb26b3bff52
+    narrative: 根据OTX开源情报，该域名关联利用被入侵网站传播Vidar窃密木马的活动，目标为Windows用户，可能涉及伪造验证码、WordPress站点、Golang加载器、MSI安装程序或HTA脚本。建议立刻封禁该域名并回溯DNS及HTTP访问日志。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="vidar"
+  - otx:tag="fake captcha"
+  - otx:tag="wordpress"
+  - otx:tag="golang loader"
+  - otx:tag="infostealer"
+  - otx:tag="windows"
+  - otx:tag="msi installer"
+  - otx:tag="hta script"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69b933387cae1fdd763ccb36-4268261432
+  type: domain
+  value: playtogga.com
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Endgame Harvesting: Inside ACRStealer''s Modern Infrastructure
+    | 关联: hijackloader, data-theft, gaming-malware, acrstealer, evasion, browser-exploitation
+    | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'Endgame Harvesting: Inside ACRStealer''s Modern Infrastructure'
+    threat_labels:
+    - hijackloader
+    - data-theft
+    - gaming-malware
+    - acrstealer
+    - evasion
+    - browser-exploitation
+    - c2-communication
+    - maas
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69b933387cae1fdd763ccb36
+    narrative: '检测到与域名 `playtogga.com` 的通信。OTX 威胁情报将其关联至 ACRStealer 基础设施，活动描述为“Endgame
+      Harvesting: Inside ACRStealer''s Modern Infrastructure”，标签包括数据窃取、劫持加载、游戏类恶意软件及
+      C2 通信。置信度为高（单一来源）。建议立即阻断该域名，并对受影响主机进行失陷排查。'
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="hijackloader"
+  - otx:tag="data-theft"
+  - otx:tag="gaming-malware"
+  - otx:tag="acrstealer"
+  - otx:tag="evasion"
+  - otx:tag="browser-exploitation"
+  - otx:tag="c2-communication"
+  - otx:tag="maas"
+  - otx:tag="lummastealer"
+  - otx:tag="syscalls"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69b933387cae1fdd763ccb36-4268261431
+  type: url
+  value: https://pivigames.blog/adbuho
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Endgame Harvesting: Inside ACRStealer''s Modern Infrastructure
+    | 关联: hijackloader, data-theft, gaming-malware, acrstealer, evasion, browser-exploitation
+    | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'Endgame Harvesting: Inside ACRStealer''s Modern Infrastructure'
+    threat_labels:
+    - hijackloader
+    - data-theft
+    - gaming-malware
+    - acrstealer
+    - evasion
+    - browser-exploitation
+    - c2-communication
+    - maas
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69b933387cae1fdd763ccb36
+    narrative: 根据 OTX 高置信度情报，该 URL 关联 ACRStealer 活动，具备 hijackloader、data-theft 等恶意标签。建议立即阻断对该
+      URL 的访问，并排查相关主机是否存在浏览器数据窃取迹象。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="hijackloader"
+  - otx:tag="data-theft"
+  - otx:tag="gaming-malware"
+  - otx:tag="acrstealer"
+  - otx:tag="evasion"
+  - otx:tag="browser-exploitation"
+  - otx:tag="c2-communication"
+  - otx:tag="maas"
+  - otx:tag="lummastealer"
+  - otx:tag="syscalls"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-6996efa6c7a901cbcb67660e-4218417420
+  type: domain
+  value: adobe.caladzy.com
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: (Don''t) TrustConnect: It''s a RAT in an RMM hat | 关联: rmm abuse,
+    cybercrime, email campaigns, trustconnect, c2 infrastructure, trustconnect rat
+    | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: '(Don''t) TrustConnect: It''s a RAT in an RMM hat'
+    threat_labels:
+    - rmm abuse
+    - cybercrime
+    - email campaigns
+    - trustconnect
+    - c2 infrastructure
+    - trustconnect rat
+    - digital signatures
+    - docconnect
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6996efa6c7a901cbcb67660e
+    narrative: 检测到域名 adobe.caladzy.com 访问行为。该域名被 OTX 标记为 TrustConnect RAT 的 C2 基础设施，涉及利用合法远程管理工具逃避检测的恶意活动。判定为高置信度
+      C2 通信。建议立即阻断该域名解析与连接，排查受影响主机是否存在 TrustConnect RAT 痕迹，并检查相关邮件收发记录。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rmm abuse"
+  - otx:tag="cybercrime"
+  - otx:tag="email campaigns"
+  - otx:tag="trustconnect"
+  - otx:tag="c2 infrastructure"
+  - otx:tag="trustconnect rat"
+  - otx:tag="digital signatures"
+  - otx:tag="docconnect"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="remote access trojan"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-6996efa6c7a901cbcb67660e-4218417419
+  type: domain
+  value: vurul.click
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: (Don''t) TrustConnect: It''s a RAT in an RMM hat | 关联: rmm abuse,
+    cybercrime, email campaigns, trustconnect, c2 infrastructure, trustconnect rat
+    | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: '(Don''t) TrustConnect: It''s a RAT in an RMM hat'
+    threat_labels:
+    - rmm abuse
+    - cybercrime
+    - email campaigns
+    - trustconnect
+    - c2 infrastructure
+    - trustconnect rat
+    - digital signatures
+    - docconnect
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6996efa6c7a901cbcb67660e
+    narrative: 告警：发现与 RMM 滥用活动关联的 C2 域名 vurul.click，证据显示为“TrustConnect” RAT，伪装成合法远程管理工具。依据
+      OTX 高置信度（1源）情报，标签包含 RMM 滥用、邮件传播、数字签名滥用等。建议立即隔离该域名相关流量，排查是否已安装可疑 RMM 软件，并检查邮件网关历史记录。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rmm abuse"
+  - otx:tag="cybercrime"
+  - otx:tag="email campaigns"
+  - otx:tag="trustconnect"
+  - otx:tag="c2 infrastructure"
+  - otx:tag="trustconnect rat"
+  - otx:tag="digital signatures"
+  - otx:tag="docconnect"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="remote access trojan"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-6996efa6c7a901cbcb67660e-4218417418
+  type: domain
+  value: stewise.top
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: (Don''t) TrustConnect: It''s a RAT in an RMM hat | 关联: rmm abuse,
+    cybercrime, email campaigns, trustconnect, c2 infrastructure, trustconnect rat
+    | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: '(Don''t) TrustConnect: It''s a RAT in an RMM hat'
+    threat_labels:
+    - rmm abuse
+    - cybercrime
+    - email campaigns
+    - trustconnect
+    - c2 infrastructure
+    - trustconnect rat
+    - digital signatures
+    - docconnect
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6996efa6c7a901cbcb67660e
+    narrative: "告警通告：  \n域名 `stewise.top` 被OTX高置信度标记为 TrustConnect RAT 的 C2 基础设施，涉及\
+      \ RMM 滥用、网络犯罪及邮件钓鱼活动（标签含 rmm abuse、trustconnect rat、email campaigns 等）。建议立即阻断对该域名的\
+      \ DNS 解析与网络访问，排查已产生通信的内网主机，并检查相关邮箱账户是否有异常登录或邮件转发规则。"
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rmm abuse"
+  - otx:tag="cybercrime"
+  - otx:tag="email campaigns"
+  - otx:tag="trustconnect"
+  - otx:tag="c2 infrastructure"
+  - otx:tag="trustconnect rat"
+  - otx:tag="digital signatures"
+  - otx:tag="docconnect"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="remote access trojan"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-6996efa6c7a901cbcb67660e-4218417417
+  type: domain
+  value: statementstview.online
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: (Don''t) TrustConnect: It''s a RAT in an RMM hat | 关联: rmm abuse,
+    cybercrime, email campaigns, trustconnect, c2 infrastructure, trustconnect rat
+    | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: '(Don''t) TrustConnect: It''s a RAT in an RMM hat'
+    threat_labels:
+    - rmm abuse
+    - cybercrime
+    - email campaigns
+    - trustconnect
+    - c2 infrastructure
+    - trustconnect rat
+    - digital signatures
+    - docconnect
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6996efa6c7a901cbcb67660e
+    narrative: '告警：检测到与域名 statementstview.online 的通信。关联活动“(Don''t) TrustConnect: It''s
+      a RAT in an RMM hat”，涉及远程访问木马伪装为合法远程管理软件（RMM abuse），用于网络犯罪邮件传播。该域名被标记为TrustConnect
+      RAT的C2基础设施。判定依据为OTX单一来源，置信度高。建议立即阻断对该域名的访问，并排查受影响主机的异常连接与进程。'
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rmm abuse"
+  - otx:tag="cybercrime"
+  - otx:tag="email campaigns"
+  - otx:tag="trustconnect"
+  - otx:tag="c2 infrastructure"
+  - otx:tag="trustconnect rat"
+  - otx:tag="digital signatures"
+  - otx:tag="docconnect"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="remote access trojan"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-6996efa6c7a901cbcb67660e-4218417416
+  type: domain
+  value: smallmartdirectintense.com
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: (Don''t) TrustConnect: It''s a RAT in an RMM hat | 关联: rmm abuse,
+    cybercrime, email campaigns, trustconnect, c2 infrastructure, trustconnect rat
+    | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: '(Don''t) TrustConnect: It''s a RAT in an RMM hat'
+    threat_labels:
+    - rmm abuse
+    - cybercrime
+    - email campaigns
+    - trustconnect
+    - c2 infrastructure
+    - trustconnect rat
+    - digital signatures
+    - docconnect
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6996efa6c7a901cbcb67660e
+    narrative: "**告警通告**  \n该域名 `smallmartdirectintense.com[.]com` 被识别为 TrustConnect\
+      \ RAT 的 C2 基础设施，属于伪装成远程管理工具的远控木马滥用。依据 OTX 情报（高置信度），相关活动涉及邮件传播、数字签名滥用等。建议立即封禁该域名，排查内网\
+      \ DNS 解析及出站连接记录，并关注 TrustConnect 相关进程与通信特征。"
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rmm abuse"
+  - otx:tag="cybercrime"
+  - otx:tag="email campaigns"
+  - otx:tag="trustconnect"
+  - otx:tag="c2 infrastructure"
+  - otx:tag="trustconnect rat"
+  - otx:tag="digital signatures"
+  - otx:tag="docconnect"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="remote access trojan"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-6996efa6c7a901cbcb67660e-4218417415
+  type: domain
+  value: memphiswawu.com
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: (Don''t) TrustConnect: It''s a RAT in an RMM hat | 关联: rmm abuse,
+    cybercrime, email campaigns, trustconnect, c2 infrastructure, trustconnect rat
+    | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: '(Don''t) TrustConnect: It''s a RAT in an RMM hat'
+    threat_labels:
+    - rmm abuse
+    - cybercrime
+    - email campaigns
+    - trustconnect
+    - c2 infrastructure
+    - trustconnect rat
+    - digital signatures
+    - docconnect
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6996efa6c7a901cbcb67660e
+    narrative: 检测到域名 memphiswawu.com 涉及 TrustConnect RAT 活动，利用 RMM 工具伪装远控，被用作 C2 基础设施进行网络犯罪邮件分发。研判依据为
+      OTX 情报，威胁标签含 RMM 滥用、数字签名滥用等，置信度高。建议立即封锁该域名，排查内网相关通信，并结合数字签名异常开展关联分析。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rmm abuse"
+  - otx:tag="cybercrime"
+  - otx:tag="email campaigns"
+  - otx:tag="trustconnect"
+  - otx:tag="c2 infrastructure"
+  - otx:tag="trustconnect rat"
+  - otx:tag="digital signatures"
+  - otx:tag="docconnect"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="remote access trojan"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-6996efa6c7a901cbcb67660e-4218417414
+  type: domain
+  value: elev8souvenirs.com
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: (Don''t) TrustConnect: It''s a RAT in an RMM hat | 关联: rmm abuse,
+    cybercrime, email campaigns, trustconnect, c2 infrastructure, trustconnect rat
+    | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: '(Don''t) TrustConnect: It''s a RAT in an RMM hat'
+    threat_labels:
+    - rmm abuse
+    - cybercrime
+    - email campaigns
+    - trustconnect
+    - c2 infrastructure
+    - trustconnect rat
+    - digital signatures
+    - docconnect
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6996efa6c7a901cbcb67660e
+    narrative: "**告警通告**  \n基于 OTX 高置信度情报，域名 `elev8souvenirs.com` 被标记为 TrustConnect\
+      \ RAT 的 C2 基础设施，涉及 RMM 滥用与邮件攻击活动。该域名用于远控木马通信。建议立即阻断该域名，排查内网与该域名的交互记录，并隔离受影响主机。"
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rmm abuse"
+  - otx:tag="cybercrime"
+  - otx:tag="email campaigns"
+  - otx:tag="trustconnect"
+  - otx:tag="c2 infrastructure"
+  - otx:tag="trustconnect rat"
+  - otx:tag="digital signatures"
+  - otx:tag="docconnect"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="remote access trojan"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-6996efa6c7a901cbcb67660e-4218417413
+  type: domain
+  value: ametax.net
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: (Don''t) TrustConnect: It''s a RAT in an RMM hat | 关联: rmm abuse,
+    cybercrime, email campaigns, trustconnect, c2 infrastructure, trustconnect rat
+    | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: '(Don''t) TrustConnect: It''s a RAT in an RMM hat'
+    threat_labels:
+    - rmm abuse
+    - cybercrime
+    - email campaigns
+    - trustconnect
+    - c2 infrastructure
+    - trustconnect rat
+    - digital signatures
+    - docconnect
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6996efa6c7a901cbcb67660e
+    narrative: 根据开源情报（OTX），域名 ametax.net 被识别为 TrustConnect RAT 的 C2 基础设施，关联 RMM 滥用和网络犯罪邮件活动。建议立即在边界阻断该域名的解析与通信，回溯相关日志以排查失陷主机。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rmm abuse"
+  - otx:tag="cybercrime"
+  - otx:tag="email campaigns"
+  - otx:tag="trustconnect"
+  - otx:tag="c2 infrastructure"
+  - otx:tag="trustconnect rat"
+  - otx:tag="digital signatures"
+  - otx:tag="docconnect"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="remote access trojan"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-6996efa6c7a901cbcb67660e-4218417412
+  type: domain
+  value: aerobickarlaurbanovas.top
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: (Don''t) TrustConnect: It''s a RAT in an RMM hat | 关联: rmm abuse,
+    cybercrime, email campaigns, trustconnect, c2 infrastructure, trustconnect rat
+    | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: '(Don''t) TrustConnect: It''s a RAT in an RMM hat'
+    threat_labels:
+    - rmm abuse
+    - cybercrime
+    - email campaigns
+    - trustconnect
+    - c2 infrastructure
+    - trustconnect rat
+    - digital signatures
+    - docconnect
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6996efa6c7a901cbcb67660e
+    narrative: 根据 OTX 威胁情报，域名 aerobickarlaurbanovas.top 被标记为 TrustConnect RAT 相关 C2
+      基础设施，涉及远程管理工具滥用、邮件活动与数字签名滥用。综合标签判定其为高置信度恶意控制信道。建议立即阻断对该域名的访问，检查 DNS 解析记录，并在端点追溯与该域名的通信行为。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rmm abuse"
+  - otx:tag="cybercrime"
+  - otx:tag="email campaigns"
+  - otx:tag="trustconnect"
+  - otx:tag="c2 infrastructure"
+  - otx:tag="trustconnect rat"
+  - otx:tag="digital signatures"
+  - otx:tag="docconnect"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="remote access trojan"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-6996efa6c7a901cbcb67660e-4218417410
+  type: url
+  value: http://stewise.top/Bin/ScreenConnect.ClientSetup.msi?e=Access&y=Guest
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: (Don''t) TrustConnect: It''s a RAT in an RMM hat | 关联: rmm abuse,
+    cybercrime, email campaigns, trustconnect, c2 infrastructure, trustconnect rat
+    | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: '(Don''t) TrustConnect: It''s a RAT in an RMM hat'
+    threat_labels:
+    - rmm abuse
+    - cybercrime
+    - email campaigns
+    - trustconnect
+    - c2 infrastructure
+    - trustconnect rat
+    - digital signatures
+    - docconnect
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6996efa6c7a901cbcb67660e
+    narrative: 基于OTX高可信度情报，该URL指向的ScreenConnect安装包实为TrustConnect RAT，属RMM滥用攻击。建议立即阻断对该域名的访问，并排查相关下载记录。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rmm abuse"
+  - otx:tag="cybercrime"
+  - otx:tag="email campaigns"
+  - otx:tag="trustconnect"
+  - otx:tag="c2 infrastructure"
+  - otx:tag="trustconnect rat"
+  - otx:tag="digital signatures"
+  - otx:tag="docconnect"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="remote access trojan"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-6996efa6c7a901cbcb67660e-4218417409
+  type: url
+  value: http://smallmartdirectintense.com/Bin/ScreenConnect.ClientSetup.msi?e=Access&y=Guest=
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: (Don''t) TrustConnect: It''s a RAT in an RMM hat | 关联: rmm abuse,
+    cybercrime, email campaigns, trustconnect, c2 infrastructure, trustconnect rat
+    | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: '(Don''t) TrustConnect: It''s a RAT in an RMM hat'
+    threat_labels:
+    - rmm abuse
+    - cybercrime
+    - email campaigns
+    - trustconnect
+    - c2 infrastructure
+    - trustconnect rat
+    - digital signatures
+    - docconnect
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6996efa6c7a901cbcb67660e
+    narrative: '告警：发现高度可疑的远端监控管理（RMM）滥用行为，IOC为 `http://smallmartdirectintense.com/Bin/ScreenConnect.ClientSetup.msi?e=Access&y=Guest`。威胁情报将此活动标记为“(Don''t)
+      TrustConnect: It''s a RAT in an RMM hat”，结合标签 `trustconnect rat`、`rmm abuse`，判为伪装的远控木马。建议立即阻断该URL，排查受影响主机是否存在对应安装或通信记录。'
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rmm abuse"
+  - otx:tag="cybercrime"
+  - otx:tag="email campaigns"
+  - otx:tag="trustconnect"
+  - otx:tag="c2 infrastructure"
+  - otx:tag="trustconnect rat"
+  - otx:tag="digital signatures"
+  - otx:tag="docconnect"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="remote access trojan"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-6996efa6c7a901cbcb67660e-4218417408
+  type: url
+  value: http://memphiswawu.com/Bin/ScreenConnect.ClientSetup.msi?e=Access&y=Guest
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: (Don''t) TrustConnect: It''s a RAT in an RMM hat | 关联: rmm abuse,
+    cybercrime, email campaigns, trustconnect, c2 infrastructure, trustconnect rat
+    | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: '(Don''t) TrustConnect: It''s a RAT in an RMM hat'
+    threat_labels:
+    - rmm abuse
+    - cybercrime
+    - email campaigns
+    - trustconnect
+    - c2 infrastructure
+    - trustconnect rat
+    - digital signatures
+    - docconnect
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6996efa6c7a901cbcb67660e
+    narrative: 告警：发现高置信度恶意软件投递链接，伪装为 ScreenConnect 客户端安装包，实际下发的载荷为 TrustConnect RAT。该威胁利用
+      RMM 工具滥用手段，通过邮件活动传播，具备有效数字签名。建议立即封禁该 URL，排查是否已有主机下载执行，并清理相关进程与持久化。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rmm abuse"
+  - otx:tag="cybercrime"
+  - otx:tag="email campaigns"
+  - otx:tag="trustconnect"
+  - otx:tag="c2 infrastructure"
+  - otx:tag="trustconnect rat"
+  - otx:tag="digital signatures"
+  - otx:tag="docconnect"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="remote access trojan"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-6996efa6c7a901cbcb67660e-4218417407
+  type: url
+  value: http://aerobickarlaurbanovas.top/Bin/ScreenConnect.ClientSetup.msi?e=Access&y=Guest=
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: (Don''t) TrustConnect: It''s a RAT in an RMM hat | 关联: rmm abuse,
+    cybercrime, email campaigns, trustconnect, c2 infrastructure, trustconnect rat
+    | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: '(Don''t) TrustConnect: It''s a RAT in an RMM hat'
+    threat_labels:
+    - rmm abuse
+    - cybercrime
+    - email campaigns
+    - trustconnect
+    - c2 infrastructure
+    - trustconnect rat
+    - digital signatures
+    - docconnect
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6996efa6c7a901cbcb67660e
+    narrative: 告警：发现高置信度 RMM 滥用型 RAT 活动。域名 aerobickarlaurbanovas.top 托管文件 ScreenConnect.ClientSetup.msi，关联
+      TrustConnect RAT 与邮件社工。判定基于 OTX 开源情报，标记为 RMM 滥用、C2 基础设施。建议立即阻断该域名及下载 URL，排查是否有终端访问或执行此
+      MSI。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rmm abuse"
+  - otx:tag="cybercrime"
+  - otx:tag="email campaigns"
+  - otx:tag="trustconnect"
+  - otx:tag="c2 infrastructure"
+  - otx:tag="trustconnect rat"
+  - otx:tag="digital signatures"
+  - otx:tag="docconnect"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="remote access trojan"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-6996efa6c7a901cbcb67660e-4218417406
+  type: url
+  value: http://192.227.211.41:8040/Bin/ScreenConnect.ClientSetup.msi?e=Access&y=Guest
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: (Don''t) TrustConnect: It''s a RAT in an RMM hat | 关联: rmm abuse,
+    cybercrime, email campaigns, trustconnect, c2 infrastructure, trustconnect rat
+    | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: '(Don''t) TrustConnect: It''s a RAT in an RMM hat'
+    threat_labels:
+    - rmm abuse
+    - cybercrime
+    - email campaigns
+    - trustconnect
+    - c2 infrastructure
+    - trustconnect rat
+    - digital signatures
+    - docconnect
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6996efa6c7a901cbcb67660e
+    narrative: 检测到与已知 TrustConnect RAT 活动相关的 C2 通信。该 IOC (ScreenConnect 安装文件 URL)
+      根据 OTX 情报被标记为“伪装成 RMM 的 RAT”，关联远程管理工具滥用、网络犯罪及电子邮件攻击等标签，置信度高。建议立即阻断该域名及 URL，排查受信主机是否下载或执行此
+      MSI 文件，并检查与 192.227.211.41 的异常连接。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rmm abuse"
+  - otx:tag="cybercrime"
+  - otx:tag="email campaigns"
+  - otx:tag="trustconnect"
+  - otx:tag="c2 infrastructure"
+  - otx:tag="trustconnect rat"
+  - otx:tag="digital signatures"
+  - otx:tag="docconnect"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="remote access trojan"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-6996efa6c7a901cbcb67660e-4218417405
+  type: url
+  value: http://192.159.99.83/Bin/ScreenConnect.ClientSetup.msi?e=Access&y=Guest
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: (Don''t) TrustConnect: It''s a RAT in an RMM hat | 关联: rmm abuse,
+    cybercrime, email campaigns, trustconnect, c2 infrastructure, trustconnect rat
+    | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: '(Don''t) TrustConnect: It''s a RAT in an RMM hat'
+    threat_labels:
+    - rmm abuse
+    - cybercrime
+    - email campaigns
+    - trustconnect
+    - c2 infrastructure
+    - trustconnect rat
+    - digital signatures
+    - docconnect
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6996efa6c7a901cbcb67660e
+    narrative: "**威胁性质**  \n该 IOC 指向通过滥用 ScreenConnect RMM 软件分发的 TrustConnect RAT，属于\
+      \ RMM 滥用类网络犯罪活动。  \n\n**判定依据**  \n威胁情报源标记为“trustconnect rat”“rmm abuse”“cybercrime”，活动描述明确指出是“披着\
+      \ RMM 外衣的 RAT”。  \n\n**建议处置**  \n立即阻断该 URL 的访问与下载，排查终端是否已执行此 MSI，若已安装则进行隔离并清除相关持久化项。"
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rmm abuse"
+  - otx:tag="cybercrime"
+  - otx:tag="email campaigns"
+  - otx:tag="trustconnect"
+  - otx:tag="c2 infrastructure"
+  - otx:tag="trustconnect rat"
+  - otx:tag="digital signatures"
+  - otx:tag="docconnect"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="remote access trojan"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-6996efa6c7a901cbcb67660e-4214848007
+  type: domain
+  value: networkservice.cyou
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: (Don''t) TrustConnect: It''s a RAT in an RMM hat | 关联: rmm abuse,
+    cybercrime, email campaigns, trustconnect, c2 infrastructure, trustconnect rat
+    | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: '(Don''t) TrustConnect: It''s a RAT in an RMM hat'
+    threat_labels:
+    - rmm abuse
+    - cybercrime
+    - email campaigns
+    - trustconnect
+    - c2 infrastructure
+    - trustconnect rat
+    - digital signatures
+    - docconnect
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6996efa6c7a901cbcb67660e
+    narrative: 【SOC 告警】IOC：networkservice.cyou 被 OTX 标记为高置信度 C2 基础设施，关联 TrustConnect
+      RAT（伪装成 RMM 工具滥用）。威胁活动涉及邮件攻击与网络犯罪，利用数字签名规避检测。建议立即阻断该域名通信，排查 DNS 及流量日志中相关连接，并追溯邮件渠道。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rmm abuse"
+  - otx:tag="cybercrime"
+  - otx:tag="email campaigns"
+  - otx:tag="trustconnect"
+  - otx:tag="c2 infrastructure"
+  - otx:tag="trustconnect rat"
+  - otx:tag="digital signatures"
+  - otx:tag="docconnect"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="remote access trojan"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69972ba4edeee60b22933086-4218420736
+  type: url
+  value: https://gasrobariokley.com/work/?counter=0&type=1&guid=3B7FFFF7F331576B6FA3479BDF43&os=6&arch=1&username=JohnDoe&group=2201209746&ver=2.3&up=7&direction=gasrobariokley.com
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: ClickFix in action: how fake captcha can encrypt an entire company
+    | 关联: fake captcha, latrodectus, c2 communication, side-loading, clickfix, malware
+    analysis | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'ClickFix in action: how fake captcha can encrypt an entire company'
+    threat_labels:
+    - fake captcha
+    - latrodectus
+    - c2 communication
+    - side-loading
+    - clickfix
+    - malware analysis
+    - supper
+    - ransomware
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69972ba4edeee60b22933086
+    narrative: 基于 OTX 高置信度情报，该 URL 关联 ClickFix 活动，用于伪造验证码诱导用户交互，可能下载 Latrodectus 木马并建立
+      C2 通信。建议立即封禁域名 gasrobariokley.com，排查主机侧是否已出现 sideloading 及加密行为。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="fake captcha"
+  - otx:tag="latrodectus"
+  - otx:tag="c2 communication"
+  - otx:tag="side-loading"
+  - otx:tag="clickfix"
+  - otx:tag="malware analysis"
+  - otx:tag="supper"
+  - otx:tag="ransomware"
+  - otx:tag="persistence"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69972ba4edeee60b22933086-4218420735
+  type: url
+  value: https://gasrobariokley.com/work/
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: ClickFix in action: how fake captcha can encrypt an entire company
+    | 关联: fake captcha, latrodectus, c2 communication, side-loading, clickfix, malware
+    analysis | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'ClickFix in action: how fake captcha can encrypt an entire company'
+    threat_labels:
+    - fake captcha
+    - latrodectus
+    - c2 communication
+    - side-loading
+    - clickfix
+    - malware analysis
+    - supper
+    - ransomware
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69972ba4edeee60b22933086
+    narrative: "**威胁名称：** 疑似Latrodectus木马C2通信（ClickFix活动）  \n**判定依据：** 该URL（gasrobariokley.com/work）被OTX标记为高置信度恶意，关联标签包括“fake\
+      \ captcha”“latrodectus”“c2 communication”“ransomware”，活动描述指向通过虚假验证码传播并可能导致全公司加密。\
+      \  \n**建议处置：** 立即阻断对该域名的访问，排查已解析或发起连接的主机，结合侧加载行为特征进行深度检查。"
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="fake captcha"
+  - otx:tag="latrodectus"
+  - otx:tag="c2 communication"
+  - otx:tag="side-loading"
+  - otx:tag="clickfix"
+  - otx:tag="malware analysis"
+  - otx:tag="supper"
+  - otx:tag="ransomware"
+  - otx:tag="persistence"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69972ba4edeee60b22933086-4218420734
+  type: url
+  value: https://fadoklismokley.com/work/?counter=0&type=1&guid=3B7FFFF7F331576B6FA3479BDF43&os=6&arch=1&username=JohnDoe&group=2201209746&ver=2.3&up=7&direction=fadoklismokley.com
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: ClickFix in action: how fake captcha can encrypt an entire company
+    | 关联: fake captcha, latrodectus, c2 communication, side-loading, clickfix, malware
+    analysis | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'ClickFix in action: how fake captcha can encrypt an entire company'
+    threat_labels:
+    - fake captcha
+    - latrodectus
+    - c2 communication
+    - side-loading
+    - clickfix
+    - malware analysis
+    - supper
+    - ransomware
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69972ba4edeee60b22933086
+    narrative: 检测到高置信度 ClickFix 活动，与 Latrodectus 木马 C2 通信及伪 captcha 页面相关。依据 OTX 情报，域名
+      fadoklismokley.com 用于投递虚假验证码，可能导致组织加密勒索。建议立即阻断该域名及相关 IOC，排查受害终端，重点关注侧加载及勒索行为迹象。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="fake captcha"
+  - otx:tag="latrodectus"
+  - otx:tag="c2 communication"
+  - otx:tag="side-loading"
+  - otx:tag="clickfix"
+  - otx:tag="malware analysis"
+  - otx:tag="supper"
+  - otx:tag="ransomware"
+  - otx:tag="persistence"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69972ba4edeee60b22933086-4218420733
+  type: url
+  value: https://fadoklismokley.com/work/
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: ClickFix in action: how fake captcha can encrypt an entire company
+    | 关联: fake captcha, latrodectus, c2 communication, side-loading, clickfix, malware
+    analysis | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'ClickFix in action: how fake captcha can encrypt an entire company'
+    threat_labels:
+    - fake captcha
+    - latrodectus
+    - c2 communication
+    - side-loading
+    - clickfix
+    - malware analysis
+    - supper
+    - ransomware
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69972ba4edeee60b22933086
+    narrative: 检测到主机与高危C2域名通信：`https://fadoklismokley.com/work/`。该域名关联虚假验证码（fake captcha）攻击活动，已知投递Latrodectus恶意软件，并通过侧加载技术最终部署勒索软件。判定依据为OTX威胁情报，置信度高。建议立即隔离受影响主机，阻断相关域名和IP，并启动恶意软件扫描与事件调查。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="fake captcha"
+  - otx:tag="latrodectus"
+  - otx:tag="c2 communication"
+  - otx:tag="side-loading"
+  - otx:tag="clickfix"
+  - otx:tag="malware analysis"
+  - otx:tag="supper"
+  - otx:tag="ransomware"
+  - otx:tag="persistence"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69972ba4edeee60b22933086-4218420732
+  type: url
+  value: http://naintn.com/amazoncdn.com/oeiich37874cj30dkk43885j10vj38h38jd/nrs/opn/ca/
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: ClickFix in action: how fake captcha can encrypt an entire company
+    | 关联: fake captcha, latrodectus, c2 communication, side-loading, clickfix, malware
+    analysis | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'ClickFix in action: how fake captcha can encrypt an entire company'
+    threat_labels:
+    - fake captcha
+    - latrodectus
+    - c2 communication
+    - side-loading
+    - clickfix
+    - malware analysis
+    - supper
+    - ransomware
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69972ba4edeee60b22933086
+    narrative: 基于OTX高置信度情报，该URL关联ClickFix虚假验证码活动，涉及Latrodectus等恶意软件家族，具备C2通信、侧加载及勒索软件特征。建议立即封锁此IOC，排查内网与该URL的通信记录，对相关主机进行隔离与恶意软件扫描。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="fake captcha"
+  - otx:tag="latrodectus"
+  - otx:tag="c2 communication"
+  - otx:tag="side-loading"
+  - otx:tag="clickfix"
+  - otx:tag="malware analysis"
+  - otx:tag="supper"
+  - otx:tag="ransomware"
+  - otx:tag="persistence"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69972ba4edeee60b22933086-4218420731
+  type: url
+  value: http://jzluw.com/cdn-dynmedia-1.microsoft.com/is/n03ufh3k003jdhkg99fhhas/is/content/
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: ClickFix in action: how fake captcha can encrypt an entire company
+    | 关联: fake captcha, latrodectus, c2 communication, side-loading, clickfix, malware
+    analysis | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'ClickFix in action: how fake captcha can encrypt an entire company'
+    threat_labels:
+    - fake captcha
+    - latrodectus
+    - c2 communication
+    - side-loading
+    - clickfix
+    - malware analysis
+    - supper
+    - ransomware
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69972ba4edeee60b22933086
+    narrative: '监测到与恶意URL的通信，该域名涉及“ClickFix in action: how fake captcha can encrypt
+      an entire company”活动，威胁标签包括虚假验证码、latrodectus、C2通信及勒索软件。来源为OTX，置信度为高。建议立即阻断此IOC，回溯相关访问记录，并提醒员工防范虚假验证码攻击。'
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="fake captcha"
+  - otx:tag="latrodectus"
+  - otx:tag="c2 communication"
+  - otx:tag="side-loading"
+  - otx:tag="clickfix"
+  - otx:tag="malware analysis"
+  - otx:tag="supper"
+  - otx:tag="ransomware"
+  - otx:tag="persistence"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69972ba4edeee60b22933086-4135327450
+  type: domain
+  value: jzluw.com
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: ClickFix in action: how fake captcha can encrypt an entire company
+    | 关联: fake captcha, latrodectus, c2 communication, side-loading, clickfix, malware
+    analysis | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'ClickFix in action: how fake captcha can encrypt an entire company'
+    threat_labels:
+    - fake captcha
+    - latrodectus
+    - c2 communication
+    - side-loading
+    - clickfix
+    - malware analysis
+    - supper
+    - ransomware
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69972ba4edeee60b22933086
+    narrative: '根据威胁情报，域名 jzluw.com 涉及恶意活动“ClickFix in action: how fake captcha can
+      encrypt an entire company”，关联 fake captcha、latrodectus、c2 通信、勒索软件等标签。该情报来自 OTX，置信度为高。建议立即在边界阻断对该域名的访问，排查内网主机相关的
+      DNS 解析或通信记录。'
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="fake captcha"
+  - otx:tag="latrodectus"
+  - otx:tag="c2 communication"
+  - otx:tag="side-loading"
+  - otx:tag="clickfix"
+  - otx:tag="malware analysis"
+  - otx:tag="supper"
+  - otx:tag="ransomware"
+  - otx:tag="persistence"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69972ba4edeee60b22933086-4127041085
+  type: domain
+  value: fadoklismokley.com
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: ClickFix in action: how fake captcha can encrypt an entire company
+    | 关联: fake captcha, latrodectus, c2 communication, side-loading, clickfix, malware
+    analysis | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'ClickFix in action: how fake captcha can encrypt an entire company'
+    threat_labels:
+    - fake captcha
+    - latrodectus
+    - c2 communication
+    - side-loading
+    - clickfix
+    - malware analysis
+    - supper
+    - ransomware
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69972ba4edeee60b22933086
+    narrative: 检测到与已知恶意域名 fadoklismokley.com 的通信。该域名关联 ClickFix 虚假验证码活动，用于分发 Latrodectus
+      木马，并涉及 C2 通信、侧加载及勒索软件投递。判定基于 OTX 高置信度情报。建议立即阻断该域名解析与连接，并对受影响主机进行恶意软件排查。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="fake captcha"
+  - otx:tag="latrodectus"
+  - otx:tag="c2 communication"
+  - otx:tag="side-loading"
+  - otx:tag="clickfix"
+  - otx:tag="malware analysis"
+  - otx:tag="supper"
+  - otx:tag="ransomware"
+  - otx:tag="persistence"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69972ba4edeee60b22933086-4127036023
+  type: domain
+  value: naintn.com
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: ClickFix in action: how fake captcha can encrypt an entire company
+    | 关联: fake captcha, latrodectus, c2 communication, side-loading, clickfix, malware
+    analysis | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'ClickFix in action: how fake captcha can encrypt an entire company'
+    threat_labels:
+    - fake captcha
+    - latrodectus
+    - c2 communication
+    - side-loading
+    - clickfix
+    - malware analysis
+    - supper
+    - ransomware
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69972ba4edeee60b22933086
+    narrative: "【SOC 流量告警】  \n域名 naintn.com 被 OTX 标记为高置信度威胁，关联 ClickFix 活动，通过伪装验证码（fake\
+      \ captcha）实施载荷投递，涉及 Latrodectus 恶意软件、C2 通信及勒索行为。建议立即阻断该域名的 DNS 解析与网络连接，并排查内网对该域名的访问记录，检查是否存在侧加载（side-loading）迹象。"
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="fake captcha"
+  - otx:tag="latrodectus"
+  - otx:tag="c2 communication"
+  - otx:tag="side-loading"
+  - otx:tag="clickfix"
+  - otx:tag="malware analysis"
+  - otx:tag="supper"
+  - otx:tag="ransomware"
+  - otx:tag="persistence"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69972ba4edeee60b22933086-4127036022
+  type: domain
+  value: gasrobariokley.com
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: ClickFix in action: how fake captcha can encrypt an entire company
+    | 关联: fake captcha, latrodectus, c2 communication, side-loading, clickfix, malware
+    analysis | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'ClickFix in action: how fake captcha can encrypt an entire company'
+    threat_labels:
+    - fake captcha
+    - latrodectus
+    - c2 communication
+    - side-loading
+    - clickfix
+    - malware analysis
+    - supper
+    - ransomware
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69972ba4edeee60b22933086
+    narrative: 根据 high 置信度的威胁情报，域名 gasrobariokley.com 关联 ClickFix 虚假验证码活动，用于 Latrodectus
+      恶意软件 C2 通信，涉及侧加载与勒索软件。判定依据为 OTX 单一来源。建议立即阻断对该域名的访问，并排查受影响主机是否存在相关通信。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="fake captcha"
+  - otx:tag="latrodectus"
+  - otx:tag="c2 communication"
+  - otx:tag="side-loading"
+  - otx:tag="clickfix"
+  - otx:tag="malware analysis"
+  - otx:tag="supper"
+  - otx:tag="ransomware"
+  - otx:tag="persistence"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-699a6ee1425f8f4a6e583f31-4224091034
+  type: domain
+  value: twmoi2002.tos-cn-shanghai.volces.com
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Massive Winos 4.0 Campaigns Target Taiwan | 关联: dll sideloading,
+    valleyrat, byovd, taiwan, apt, uac bypass | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Massive Winos 4.0 Campaigns Target Taiwan
+    threat_labels:
+    - dll sideloading
+    - valleyrat
+    - byovd
+    - taiwan
+    - apt
+    - uac bypass
+    - winos 4.0
+    - phishing
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 699a6ee1425f8f4a6e583f31
+    narrative: 检测到与高置信度威胁指标 twmoi2002.tos-cn-shanghai.volces.com 的通信。该域名关联 OTX 情报中标记的
+      “Massive Winos 4.0 Campaigns Target Taiwan” 活动，威胁标签包括 DLL 侧加载、ValleyRat、BYOVD、UAC
+      绕过及钓鱼，属 APT 级别。建议立即阻断相关流量，排查受影响主机是否存在异常 DLL 加载或提权行为，并采取隔离与深度分析。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="dll sideloading"
+  - otx:tag="valleyrat"
+  - otx:tag="byovd"
+  - otx:tag="taiwan"
+  - otx:tag="apt"
+  - otx:tag="uac bypass"
+  - otx:tag="winos 4.0"
+  - otx:tag="phishing"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-699a6ee1425f8f4a6e583f31-4224091033
+  type: domain
+  value: sdfw2026024.tos-cn-shanghai.volces.com
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Massive Winos 4.0 Campaigns Target Taiwan | 关联: dll sideloading,
+    valleyrat, byovd, taiwan, apt, uac bypass | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Massive Winos 4.0 Campaigns Target Taiwan
+    threat_labels:
+    - dll sideloading
+    - valleyrat
+    - byovd
+    - taiwan
+    - apt
+    - uac bypass
+    - winos 4.0
+    - phishing
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 699a6ee1425f8f4a6e583f31
+    narrative: 告警：检测到与大规模 Winos 4.0 活动关联的域名 sdfw2026024.tos-cn-shanghai.volces.com。依据
+      OTX 高置信度情报，该活动针对台湾地区，涉及 DLL 侧加载、Valleyrat、BYOVD、UAC 绕过及钓鱼等 APT 手法。建议立即阻断该域名解析与通信，排查受影响主机是否存在异常进程或加载项。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="dll sideloading"
+  - otx:tag="valleyrat"
+  - otx:tag="byovd"
+  - otx:tag="taiwan"
+  - otx:tag="apt"
+  - otx:tag="uac bypass"
+  - otx:tag="winos 4.0"
+  - otx:tag="phishing"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-699a6ee1425f8f4a6e583f31-4224091031
+  type: domain
+  value: zbyq.cn
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Massive Winos 4.0 Campaigns Target Taiwan | 关联: dll sideloading,
+    valleyrat, byovd, taiwan, apt, uac bypass | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Massive Winos 4.0 Campaigns Target Taiwan
+    threat_labels:
+    - dll sideloading
+    - valleyrat
+    - byovd
+    - taiwan
+    - apt
+    - uac bypass
+    - winos 4.0
+    - phishing
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 699a6ee1425f8f4a6e583f31
+    narrative: 根据 OTX 高置信度情报，域名 `zbyq.cn` 关联大规模 Winos 4.0 活动，目标为台湾地区，涉及 DLL 侧加载、ValleyRat、BYOVD、UAC
+      绕过及钓鱼等威胁标签。判定依据为单一来源 OTX，暂无交叉验证。建议立即阻断对该域名的访问，并加强终端侧 DLL 侧加载与 UAC 绕过行为的监控。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="dll sideloading"
+  - otx:tag="valleyrat"
+  - otx:tag="byovd"
+  - otx:tag="taiwan"
+  - otx:tag="apt"
+  - otx:tag="uac bypass"
+  - otx:tag="winos 4.0"
+  - otx:tag="phishing"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-699a6ee1425f8f4a6e583f31-4224091030
+  type: domain
+  value: twtaxgo.cn
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Massive Winos 4.0 Campaigns Target Taiwan | 关联: dll sideloading,
+    valleyrat, byovd, taiwan, apt, uac bypass | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Massive Winos 4.0 Campaigns Target Taiwan
+    threat_labels:
+    - dll sideloading
+    - valleyrat
+    - byovd
+    - taiwan
+    - apt
+    - uac bypass
+    - winos 4.0
+    - phishing
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 699a6ee1425f8f4a6e583f31
+    narrative: "【告警通告】  \n检测到与“Winos 4.0”大规模攻击活动相关的域名 twtaxgo.cn，活动目标指向台湾地区，标签包含 DLL\
+      \ 侧加载、ValleyRat、BYOVD、UAC 绕过及鱼叉钓鱼等 APT 技术。该 IOC 源于 OTX 情报源，置信度为高（仅单源）。建议立即封锁该域名，对相关\
+      \ DNS 查询及网络流量进行监控回溯，并检查终端是否存在 DLL 侧加载等异常行为。"
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="dll sideloading"
+  - otx:tag="valleyrat"
+  - otx:tag="byovd"
+  - otx:tag="taiwan"
+  - otx:tag="apt"
+  - otx:tag="uac bypass"
+  - otx:tag="winos 4.0"
+  - otx:tag="phishing"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-699a6ee1425f8f4a6e583f31-4224091029
+  type: domain
+  value: twswsb.cn
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Massive Winos 4.0 Campaigns Target Taiwan | 关联: dll sideloading,
+    valleyrat, byovd, taiwan, apt, uac bypass | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Massive Winos 4.0 Campaigns Target Taiwan
+    threat_labels:
+    - dll sideloading
+    - valleyrat
+    - byovd
+    - taiwan
+    - apt
+    - uac bypass
+    - winos 4.0
+    - phishing
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 699a6ee1425f8f4a6e583f31
+    narrative: 【威胁告警】监测到与 Winos 4.0 大规模攻击活动关联的 IOC：twswsb.cn。该域名出现在针对台湾的目标攻击中，涉及 DLL
+      侧加载、ValleyRat、BYOVD 及 UAC 绕过等 APT 技术。OTX 源判定为高置信度。建议立即阻断对该域名的访问，排查相关 DNS 解析记录与终端侧加载行为。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="dll sideloading"
+  - otx:tag="valleyrat"
+  - otx:tag="byovd"
+  - otx:tag="taiwan"
+  - otx:tag="apt"
+  - otx:tag="uac bypass"
+  - otx:tag="winos 4.0"
+  - otx:tag="phishing"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-699a6ee1425f8f4a6e583f31-4224091028
+  type: domain
+  value: tkooyvff.cn
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Massive Winos 4.0 Campaigns Target Taiwan | 关联: dll sideloading,
+    valleyrat, byovd, taiwan, apt, uac bypass | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Massive Winos 4.0 Campaigns Target Taiwan
+    threat_labels:
+    - dll sideloading
+    - valleyrat
+    - byovd
+    - taiwan
+    - apt
+    - uac bypass
+    - winos 4.0
+    - phishing
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 699a6ee1425f8f4a6e583f31
+    narrative: 基于OTX情报源确认，域名 tkooyvff.cn 关联大规模Winos 4.0针对台湾的攻击活动，涉及DLL侧加载、ValleyRat、BYOVD、UAC绕过等APT手法。置信度较高（单一来源）。建议立即阻断相关域名解析与访问，排查终端侧加载与进程行为。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="dll sideloading"
+  - otx:tag="valleyrat"
+  - otx:tag="byovd"
+  - otx:tag="taiwan"
+  - otx:tag="apt"
+  - otx:tag="uac bypass"
+  - otx:tag="winos 4.0"
+  - otx:tag="phishing"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-699a6ee1425f8f4a6e583f31-4224091027
+  type: domain
+  value: taxpro.tw
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Massive Winos 4.0 Campaigns Target Taiwan | 关联: dll sideloading,
+    valleyrat, byovd, taiwan, apt, uac bypass | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Massive Winos 4.0 Campaigns Target Taiwan
+    threat_labels:
+    - dll sideloading
+    - valleyrat
+    - byovd
+    - taiwan
+    - apt
+    - uac bypass
+    - winos 4.0
+    - phishing
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 699a6ee1425f8f4a6e583f31
+    narrative: 检测到高置信度 IOC taxpro.tw，关联大规模 Winos 4.0 攻击活动，目标台湾地区。攻击使用 DLL 侧加载、ValleyRAT、BYOVD
+      及 UAC 绕过等技术，通过钓鱼投递。建议立即封禁该域名，排查终端侧相关进程与侧加载迹象。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="dll sideloading"
+  - otx:tag="valleyrat"
+  - otx:tag="byovd"
+  - otx:tag="taiwan"
+  - otx:tag="apt"
+  - otx:tag="uac bypass"
+  - otx:tag="winos 4.0"
+  - otx:tag="phishing"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-699a6ee1425f8f4a6e583f31-4224091026
+  type: domain
+  value: taxhub.tw
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Massive Winos 4.0 Campaigns Target Taiwan | 关联: dll sideloading,
+    valleyrat, byovd, taiwan, apt, uac bypass | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Massive Winos 4.0 Campaigns Target Taiwan
+    threat_labels:
+    - dll sideloading
+    - valleyrat
+    - byovd
+    - taiwan
+    - apt
+    - uac bypass
+    - winos 4.0
+    - phishing
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 699a6ee1425f8f4a6e583f31
+    narrative: 根据OTX高可信情报，域名taxhub.tw关联大规模Winos 4.0攻击活动，针对台湾地区，涉及DLL侧加载、ValleyRAT、BYOVD和UAC绕过等手法。建议立即封禁该域名，并排查终端侧加载及提权异常。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="dll sideloading"
+  - otx:tag="valleyrat"
+  - otx:tag="byovd"
+  - otx:tag="taiwan"
+  - otx:tag="apt"
+  - otx:tag="uac bypass"
+  - otx:tag="winos 4.0"
+  - otx:tag="phishing"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-699a6ee1425f8f4a6e583f31-4224091025
+  type: domain
+  value: taxfnat.tw
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Massive Winos 4.0 Campaigns Target Taiwan | 关联: dll sideloading,
+    valleyrat, byovd, taiwan, apt, uac bypass | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Massive Winos 4.0 Campaigns Target Taiwan
+    threat_labels:
+    - dll sideloading
+    - valleyrat
+    - byovd
+    - taiwan
+    - apt
+    - uac bypass
+    - winos 4.0
+    - phishing
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 699a6ee1425f8f4a6e583f31
+    narrative: 根据威胁情报，域名 `taxfnat.tw` 关联大规模 Winos 4.0 攻击活动（面向台湾地区的 APT 行动），涉及 DLL
+      侧加载、ValleyRAT、BYOVD 及 UAC 绕过等恶意技术。该 IOC 源自 OTX，置信度为高。建议立即阻断对该域名的访问，并排查内部系统与该域名的历史通信记录，防范后续加载与横向移动。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="dll sideloading"
+  - otx:tag="valleyrat"
+  - otx:tag="byovd"
+  - otx:tag="taiwan"
+  - otx:tag="apt"
+  - otx:tag="uac bypass"
+  - otx:tag="winos 4.0"
+  - otx:tag="phishing"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-699a6ee1425f8f4a6e583f31-4224091024
+  type: domain
+  value: taukeny.com
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Massive Winos 4.0 Campaigns Target Taiwan | 关联: dll sideloading,
+    valleyrat, byovd, taiwan, apt, uac bypass | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Massive Winos 4.0 Campaigns Target Taiwan
+    threat_labels:
+    - dll sideloading
+    - valleyrat
+    - byovd
+    - taiwan
+    - apt
+    - uac bypass
+    - winos 4.0
+    - phishing
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 699a6ee1425f8f4a6e583f31
+    narrative: 根据OTX高可信度情报，域名taukeny.com与针对台湾的大规模Winos 4.0攻击活动关联，涉及DLL侧加载、ValleyRAT、BYOVD、UAC绕过及钓鱼等APT手法。建议立即阻断该域名访问，排查相关DNS与网络连接记录，并加强终端侧载点监控。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="dll sideloading"
+  - otx:tag="valleyrat"
+  - otx:tag="byovd"
+  - otx:tag="taiwan"
+  - otx:tag="apt"
+  - otx:tag="uac bypass"
+  - otx:tag="winos 4.0"
+  - otx:tag="phishing"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-699a6ee1425f8f4a6e583f31-4224091023
+  type: domain
+  value: njhwuyklw.com
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Massive Winos 4.0 Campaigns Target Taiwan | 关联: dll sideloading,
+    valleyrat, byovd, taiwan, apt, uac bypass | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Massive Winos 4.0 Campaigns Target Taiwan
+    threat_labels:
+    - dll sideloading
+    - valleyrat
+    - byovd
+    - taiwan
+    - apt
+    - uac bypass
+    - winos 4.0
+    - phishing
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 699a6ee1425f8f4a6e583f31
+    narrative: 发现与 Winos 4.0 大规模攻击活动关联的域名 njhwuyklw.com。威胁标签含银狐变种 ValleyRAT、DLL 侧加载、BYOVD
+      及 UAC 绕过，且针对台湾地区，疑似 APT 攻击。建议立即阻断该域名解析与通信，排查相关主机侧加载迹象。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="dll sideloading"
+  - otx:tag="valleyrat"
+  - otx:tag="byovd"
+  - otx:tag="taiwan"
+  - otx:tag="apt"
+  - otx:tag="uac bypass"
+  - otx:tag="winos 4.0"
+  - otx:tag="phishing"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-699a6ee1425f8f4a6e583f31-4224091022
+  type: domain
+  value: lmaxjuyh.cn
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Massive Winos 4.0 Campaigns Target Taiwan | 关联: dll sideloading,
+    valleyrat, byovd, taiwan, apt, uac bypass | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Massive Winos 4.0 Campaigns Target Taiwan
+    threat_labels:
+    - dll sideloading
+    - valleyrat
+    - byovd
+    - taiwan
+    - apt
+    - uac bypass
+    - winos 4.0
+    - phishing
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 699a6ee1425f8f4a6e583f31
+    narrative: 依据 OTX 高置信度情报，域名 lmaxjuyh.cn 关联大规模 Winos 4.0 攻击活动，涉及 DLL 侧加载、ValleyRat
+      后门、BYOVD 及 UAC 绕过等 APT 技术，目标指向台湾地区。建议立即阻断该域名通信，检查终端侧可疑 DLL 加载及进程行为。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="dll sideloading"
+  - otx:tag="valleyrat"
+  - otx:tag="byovd"
+  - otx:tag="taiwan"
+  - otx:tag="apt"
+  - otx:tag="uac bypass"
+  - otx:tag="winos 4.0"
+  - otx:tag="phishing"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-699a6ee1425f8f4a6e583f31-4224091021
+  type: domain
+  value: etaxtw.cn
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Massive Winos 4.0 Campaigns Target Taiwan | 关联: dll sideloading,
+    valleyrat, byovd, taiwan, apt, uac bypass | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Massive Winos 4.0 Campaigns Target Taiwan
+    threat_labels:
+    - dll sideloading
+    - valleyrat
+    - byovd
+    - taiwan
+    - apt
+    - uac bypass
+    - winos 4.0
+    - phishing
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 699a6ee1425f8f4a6e583f31
+    narrative: 发现与大规模恶意活动关联的域名 etaxtw.cn ，涉及 Winos 4.0 工具集。威胁标签显示采用 DLL 侧加载、ValleyRat、BYOVD、UAC
+      绕过等技术，针对台湾地区，被标记为 APT 攻击。判定依据为 OTX 高置信度情报，MISP 事件 ID 已关联。建议立即封禁该域名，排查 DNS 解析记录及出站连接，防止后续投递与横向移动。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="dll sideloading"
+  - otx:tag="valleyrat"
+  - otx:tag="byovd"
+  - otx:tag="taiwan"
+  - otx:tag="apt"
+  - otx:tag="uac bypass"
+  - otx:tag="winos 4.0"
+  - otx:tag="phishing"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-699a6ee1425f8f4a6e583f31-4224091020
+  type: domain
+  value: bqdrzbyq.cn
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Massive Winos 4.0 Campaigns Target Taiwan | 关联: dll sideloading,
+    valleyrat, byovd, taiwan, apt, uac bypass | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Massive Winos 4.0 Campaigns Target Taiwan
+    threat_labels:
+    - dll sideloading
+    - valleyrat
+    - byovd
+    - taiwan
+    - apt
+    - uac bypass
+    - winos 4.0
+    - phishing
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 699a6ee1425f8f4a6e583f31
+    narrative: 该域名关联大规模 Winos 4.0 攻击活动，针对台湾地区，具备 APT 属性，涉及 DLL 侧加载、ValleyRAT、BYOVD、UAC
+      绕过及钓鱼等手法。判定依据为 OTX 单一高置信度情报源。建议监控或阻断对该域名的访问，排查相关主机侧加载及异常进程行为。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="dll sideloading"
+  - otx:tag="valleyrat"
+  - otx:tag="byovd"
+  - otx:tag="taiwan"
+  - otx:tag="apt"
+  - otx:tag="uac bypass"
+  - otx:tag="winos 4.0"
+  - otx:tag="phishing"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-699a6ee1425f8f4a6e583f31-4224091019
+  type: url
+  value: https://twtaxgo.cn/uploads/20260129/taxIs_RX3001.7z.
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Massive Winos 4.0 Campaigns Target Taiwan | 关联: dll sideloading,
+    valleyrat, byovd, taiwan, apt, uac bypass | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Massive Winos 4.0 Campaigns Target Taiwan
+    threat_labels:
+    - dll sideloading
+    - valleyrat
+    - byovd
+    - taiwan
+    - apt
+    - uac bypass
+    - winos 4.0
+    - phishing
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 699a6ee1425f8f4a6e583f31
+    narrative: 告警：发现高置信度恶意 URL `https://twtaxgo.cn/uploads/20260129/taxIs_RX3001.7z`，关联大规模
+      Winos 4.0 攻击活动，威胁标签含 DLL 侧加载、ValleyRAT、BYOVD 及钓鱼，目标为台湾。依据 OTX 情报判定。建议立即阻断该域名或
+      URL，排查下载行为。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="dll sideloading"
+  - otx:tag="valleyrat"
+  - otx:tag="byovd"
+  - otx:tag="taiwan"
+  - otx:tag="apt"
+  - otx:tag="uac bypass"
+  - otx:tag="winos 4.0"
+  - otx:tag="phishing"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-699a6ee1425f8f4a6e583f31-4224091018
+  type: url
+  value: https://twtaxgo.cn/uploads/20260129/taxIs_RX3001.7z
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Massive Winos 4.0 Campaigns Target Taiwan | 关联: dll sideloading,
+    valleyrat, byovd, taiwan, apt, uac bypass | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Massive Winos 4.0 Campaigns Target Taiwan
+    threat_labels:
+    - dll sideloading
+    - valleyrat
+    - byovd
+    - taiwan
+    - apt
+    - uac bypass
+    - winos 4.0
+    - phishing
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 699a6ee1425f8f4a6e583f31
+    narrative: 根据 OTX 情报，发现高置信度恶意活动“大规模 Winos 4.0 攻击台湾”。相关 IOC 为 hxxps://twtaxgo[.]cn/uploads/20260129/taxIs_RX3001.7z，涉及
+      DLL 侧加载、ValleyRAT、BYOVD、UAC 绕过等威胁标签，属 APT 钓鱼攻击。建议立即阻断该域名及文件，排查是否已有下载执行。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="dll sideloading"
+  - otx:tag="valleyrat"
+  - otx:tag="byovd"
+  - otx:tag="taiwan"
+  - otx:tag="apt"
+  - otx:tag="uac bypass"
+  - otx:tag="winos 4.0"
+  - otx:tag="phishing"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-699a6ee1425f8f4a6e583f31-4224091017
+  type: url
+  value: https://sdfw2026024.tos-cn-shanghai.volces.com/E-Invoice.rar.
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Massive Winos 4.0 Campaigns Target Taiwan | 关联: dll sideloading,
+    valleyrat, byovd, taiwan, apt, uac bypass | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Massive Winos 4.0 Campaigns Target Taiwan
+    threat_labels:
+    - dll sideloading
+    - valleyrat
+    - byovd
+    - taiwan
+    - apt
+    - uac bypass
+    - winos 4.0
+    - phishing
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 699a6ee1425f8f4a6e583f31
+    narrative: '**告警通告**
+
+      检测到高风险威胁：该URL关联大规模钓鱼活动，投递Winos 4.0木马，利用DLL侧加载、UAC绕过及BYOVD技术部署ValleyRat远控，目标针对台湾地区。判定依据为OTX情报源，置信度“高”。建议立即阻断该IOC，检查内网主机是否已下载并执行此RAR文件，隔离可疑进程。'
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="dll sideloading"
+  - otx:tag="valleyrat"
+  - otx:tag="byovd"
+  - otx:tag="taiwan"
+  - otx:tag="apt"
+  - otx:tag="uac bypass"
+  - otx:tag="winos 4.0"
+  - otx:tag="phishing"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-699a6ee1425f8f4a6e583f31-4224091016
+  type: url
+  value: https://sdfw2026024.tos-cn-shanghai.volces.com/E-Invoice.rar
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Massive Winos 4.0 Campaigns Target Taiwan | 关联: dll sideloading,
+    valleyrat, byovd, taiwan, apt, uac bypass | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Massive Winos 4.0 Campaigns Target Taiwan
+    threat_labels:
+    - dll sideloading
+    - valleyrat
+    - byovd
+    - taiwan
+    - apt
+    - uac bypass
+    - winos 4.0
+    - phishing
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 699a6ee1425f8f4a6e583f31
+    narrative: 检测到与 Winos 4.0 大规模攻击活动相关的恶意 URL：https://sdfw2026024.tos-cn-shanghai.volces.com/E-Invoice.rar。该
+      IOC 出现在针对台湾地区的钓鱼活动中，涉及 DLL 侧加载、ValleyRat 后门、BYOVD 及 UAC 绕过等技术。高置信度（单一来源）。建议立即阻断该域名及
+      URL，排查网络内是否已有对该压缩包的下载或执行痕迹。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="dll sideloading"
+  - otx:tag="valleyrat"
+  - otx:tag="byovd"
+  - otx:tag="taiwan"
+  - otx:tag="apt"
+  - otx:tag="uac bypass"
+  - otx:tag="winos 4.0"
+  - otx:tag="phishing"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-699a6ee1425f8f4a6e583f31-4224091015
+  type: url
+  value: https://njhwuyklw.com/
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Massive Winos 4.0 Campaigns Target Taiwan | 关联: dll sideloading,
+    valleyrat, byovd, taiwan, apt, uac bypass | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Massive Winos 4.0 Campaigns Target Taiwan
+    threat_labels:
+    - dll sideloading
+    - valleyrat
+    - byovd
+    - taiwan
+    - apt
+    - uac bypass
+    - winos 4.0
+    - phishing
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 699a6ee1425f8f4a6e583f31
+    narrative: 检测到与域名 `njhwuyklw.com` 相关的流量，该域名关联高置信度 WinOS 4.0 大规模攻击活动，已知针对台湾地区，采用
+      DLL 侧加载、ValleyRat、BYOVD 及 UAC 绕过等技术，标签含 APT 与网络钓鱼。依据 OTX 情报判定为恶意。建议立即阻断对该域名的访问，并排查受影响主机。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="dll sideloading"
+  - otx:tag="valleyrat"
+  - otx:tag="byovd"
+  - otx:tag="taiwan"
+  - otx:tag="apt"
+  - otx:tag="uac bypass"
+  - otx:tag="winos 4.0"
+  - otx:tag="phishing"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-699a6ee1425f8f4a6e583f31-4224091014
+  type: url
+  value: http://zbyq.cn/Set^up^64.e^x^e
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Massive Winos 4.0 Campaigns Target Taiwan | 关联: dll sideloading,
+    valleyrat, byovd, taiwan, apt, uac bypass | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Massive Winos 4.0 Campaigns Target Taiwan
+    threat_labels:
+    - dll sideloading
+    - valleyrat
+    - byovd
+    - taiwan
+    - apt
+    - uac bypass
+    - winos 4.0
+    - phishing
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 699a6ee1425f8f4a6e583f31
+    narrative: 检测到指向 `http://zbyq.cn/Set^up^64.e^x^e` 的流量，关联大规模 Winos 4.0 活动，目标为台湾区域。OTX
+      情报判定为高置信度 APT 事件，涉及 DLL 侧加载、ValleyRAT、BYOVD 及 UAC 绕过等技术。建议立即隔离主机，阻断相关域名与 IOC，并排查是否已被植入恶意载荷。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="dll sideloading"
+  - otx:tag="valleyrat"
+  - otx:tag="byovd"
+  - otx:tag="taiwan"
+  - otx:tag="apt"
+  - otx:tag="uac bypass"
+  - otx:tag="winos 4.0"
+  - otx:tag="phishing"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-699a6ee1425f8f4a6e583f31-4224091013
+  type: url
+  value: http://taxfnat.tw/
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Massive Winos 4.0 Campaigns Target Taiwan | 关联: dll sideloading,
+    valleyrat, byovd, taiwan, apt, uac bypass | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Massive Winos 4.0 Campaigns Target Taiwan
+    threat_labels:
+    - dll sideloading
+    - valleyrat
+    - byovd
+    - taiwan
+    - apt
+    - uac bypass
+    - winos 4.0
+    - phishing
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 699a6ee1425f8f4a6e583f31
+    narrative: 根据 OTX 情报，IOC `http://taxfnat.tw/` 关联大规模 Winos 4.0 活动，目标指向台湾地区，涉及 DLL
+      侧加载、BYOVD、UAC 绕过等多种技术，置信度高。建议立即封禁该域名，排查内网访问记录，并对相关主机进行深入检查。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="dll sideloading"
+  - otx:tag="valleyrat"
+  - otx:tag="byovd"
+  - otx:tag="taiwan"
+  - otx:tag="apt"
+  - otx:tag="uac bypass"
+  - otx:tag="winos 4.0"
+  - otx:tag="phishing"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-699a6ee1425f8f4a6e583f31-4205208350
+  type: url
+  value: https://twmoi2002.tos-cn-shanghai.volces.com/E-Invoice.rar
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Massive Winos 4.0 Campaigns Target Taiwan | 关联: dll sideloading,
+    valleyrat, byovd, taiwan, apt, uac bypass | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Massive Winos 4.0 Campaigns Target Taiwan
+    threat_labels:
+    - dll sideloading
+    - valleyrat
+    - byovd
+    - taiwan
+    - apt
+    - uac bypass
+    - winos 4.0
+    - phishing
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 699a6ee1425f8f4a6e583f31
+    narrative: 根据 OTX 单一情报源（置信度高），检测到疑似 Winos 4.0 针对台湾的大规模钓鱼活动。该载荷利用 DLL 侧加载、BYOVD
+      及 UAC 绕过技术投递 ValleyRAT。建议立即阻断下载并隔离受影响主机。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="dll sideloading"
+  - otx:tag="valleyrat"
+  - otx:tag="byovd"
+  - otx:tag="taiwan"
+  - otx:tag="apt"
+  - otx:tag="uac bypass"
+  - otx:tag="winos 4.0"
+  - otx:tag="phishing"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-699a6ee1425f8f4a6e583f31-3084359323
+  type: domain
+  value: zju.edu.cn
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: Massive Winos 4.0 Campaigns Target Taiwan | 关联: dll sideloading,
+    valleyrat, byovd, taiwan, apt, uac bypass | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Massive Winos 4.0 Campaigns Target Taiwan
+    threat_labels:
+    - dll sideloading
+    - valleyrat
+    - byovd
+    - taiwan
+    - apt
+    - uac bypass
+    - winos 4.0
+    - phishing
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 699a6ee1425f8f4a6e583f31
+    narrative: 【威胁告警】经OTX单源高置信度情报，观测到域名 zju.edu.cn 关联“Winos 4.0”大规模钓鱼攻击活动，攻击目标为台湾地区。该活动利用
+      DLL 侧加载、ValleyRAT、BYOVD、UAC 绕过等技术实施 APT 级入侵。建议在 SOC 侧对该域名实施监控或封禁，并核查相关访问与下载行为。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="dll sideloading"
+  - otx:tag="valleyrat"
+  - otx:tag="byovd"
+  - otx:tag="taiwan"
+  - otx:tag="apt"
+  - otx:tag="uac bypass"
+  - otx:tag="winos 4.0"
+  - otx:tag="phishing"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69c26c92be4a06388a97f328-4280316055
+  type: domain
+  value: souls-entire-defined-routes.trycloudflare.com
+  category: network_activity
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: CanisterWorm Gets Teeth: TeamPCP''s Kubernetes Wiper Targets
+    Iran | 关联: docker api, canisterworm, kubernetes, daemonset, wiper | 来源: otx ·
+    置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'CanisterWorm Gets Teeth: TeamPCP''s Kubernetes Wiper Targets Iran'
+    threat_labels:
+    - docker api
+    - canisterworm
+    - kubernetes
+    - daemonset
+    - wiper
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69c26c92be4a06388a97f328
+    narrative: 根据 OTX 高置信度告警，域名 `souls-entire-defined-routes.trycloudflare.com` 关联
+      **CanisterWorm 蠕虫** 的 Kubernetes 擦除器活动，涉及 Docker API 入侵、DaemonSet 部署及数据擦除。建议立即阻断该域名，排查集群中异常
+      DaemonSet，并收敛 Docker API 暴露面。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="docker api"
+  - otx:tag="canisterworm"
+  - otx:tag="kubernetes"
+  - otx:tag="daemonset"
+  - otx:tag="wiper"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+- id: otx-69c26c92be4a06388a97f328-4280316054
+  type: domain
+  value: investigation-launches-hearings-copying.trycloudflare.com
+  category: network_activity
+  severity: high
+  source: Threat Intel Hub
+  description: '命中威胁: CanisterWorm Gets Teeth: TeamPCP''s Kubernetes Wiper Targets
+    Iran | 关联: docker api, canisterworm, kubernetes, daemonset, wiper | 来源: otx ·
+    置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'CanisterWorm Gets Teeth: TeamPCP''s Kubernetes Wiper Targets Iran'
+    threat_labels:
+    - docker api
+    - canisterworm
+    - kubernetes
+    - daemonset
+    - wiper
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69c26c92be4a06388a97f328
+    narrative: '已发现高置信度威胁 IOC：`investigation-launches-hearings-copying.trycloudflare.com`。判定与“CanisterWorm
+      Gets Teeth: TeamPCP''s Kubernetes Wiper Targets Iran”活动关联，涉及 Docker API、Kubernetes、DaemonSet
+      及 Wiper 标签（来源：OTX）。建议立即封锁该域名，并排查 Kubernetes 集群中是否存在未授权 DaemonSet 部署或异常容器活动。'
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="docker api"
+  - otx:tag="canisterworm"
+  - otx:tag="kubernetes"
+  - otx:tag="daemonset"
+  - otx:tag="wiper"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250

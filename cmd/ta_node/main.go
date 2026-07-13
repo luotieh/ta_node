@@ -69,6 +69,7 @@ func runNode(cfg config.Config, configPath string) error {
 		return fmt.Errorf("open event queue: %w", err)
 	}
 	defer q.Close()
+	q.SetMaxRetry(cfg.Event.MaxPushRetry)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()

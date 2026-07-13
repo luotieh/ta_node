@@ -564,6 +564,7 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
         <div class="row"><label for="event.push_batch_size">推送批量</label><input id="event.push_batch_size" type="number" min="1" value="{{.Config.Event.PushBatchSize}}"></div>
         <div class="row"><label for="event.retry_interval_sec">重试间隔</label><input id="event.retry_interval_sec" type="number" min="1" value="{{.Config.Event.RetryIntervalSec}}"></div>
         <div class="row"><label for="event.push_timeout_sec">推送超时</label><input id="event.push_timeout_sec" type="number" min="1" value="{{.Config.Event.PushTimeoutSec}}"></div>
+        <div class="row"><label for="event.max_push_retry">最大推送重试</label><input id="event.max_push_retry" type="number" min="0" value="{{.Config.Event.MaxPushRetry}}"></div>
       </fieldset>
       <fieldset>
         <legend>本地服务</legend>
@@ -610,7 +611,7 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
       "patterns.enable", "patterns.pattern_dir",
       "intel.intel_file", "intel.reload_interval_sec", "intel.enable_hot_reload", "intel.prune_expired_interval_sec", "intel.accept_stix", "intel.default_source", "intel.max_items",
       "evidence.enable_pcap_save", "evidence.pcap_dir",
-      "event.enable_push", "event.queue_db", "event.push_batch_size", "event.retry_interval_sec", "event.push_timeout_sec",
+      "event.enable_push", "event.queue_db", "event.push_batch_size", "event.retry_interval_sec", "event.push_timeout_sec", "event.max_push_retry",
       "server.enable", "server.listen", "server.token"
     ];
     const statusEl = document.getElementById("status");
