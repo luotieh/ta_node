@@ -10,41 +10,21 @@ import (
 	"github.com/google/uuid"
 )
 
-// Store holds the active IOC set. It separates two sources:
-//
-//   - primary: the writable file at path. Add/Delete/Sync/SyncSource/
-//     UpsertMany/PruneExpired all mutate this set and persist it atomically.
-//   - overlay: read-only files loaded from dir (intel_dir). These are bulk or
-//     incremental feeds dropped in as separate files and loaded concurrently;
-//     splitting a large IOC list across many files keeps each one small and
-//     lets a new file be added without editing the others.
-//
-// items is the merged read view used for matching, List and Stats. On an ID
-// collision the primary (locally managed) entry wins over an overlay feed.
+// Store holds the active IOC set, backed by a single writable file at path.
+// Add/Delete/Sync/SyncSource/UpsertMany/UpsertDedup/PruneExpired all mutate the
+// set and persist it atomically. items is the read view used for matching,
+// List and Stats.
 type Store struct {
 	mu      sync.RWMutex
 	items   map[string]ThreatIntel
-	primary map[string]ThreatIntel
-	overlay map[string]ThreatIntel
 	path    string
-	dir     string
 	version int64
 }
 
-// NewStore opens a store backed by a single writable file.
-func NewStore(path string) (*Store, error) { return NewStoreWithDir(path, "") }
-
-// NewStoreWithDir opens a store backed by a writable file plus a read-only
-// overlay directory of additional IOC files (either may be empty).
-func NewStoreWithDir(path, dir string) (*Store, error) {
-	s := &Store{
-		items:   map[string]ThreatIntel{},
-		primary: map[string]ThreatIntel{},
-		overlay: map[string]ThreatIntel{},
-		path:    path,
-		dir:     dir,
-	}
-	if path != "" || dir != "" {
+// NewStore opens a store backed by a single writable file (path may be "").
+func NewStore(path string) (*Store, error) {
+	s := &Store{items: map[string]ThreatIntel{}, path: path}
+	if path != "" {
 		if err := s.Reload(); err != nil {
 			return nil, err
 		}
@@ -53,35 +33,25 @@ func NewStoreWithDir(path, dir string) (*Store, error) {
 }
 
 func (s *Store) Reload() error {
-	overlayItems, err := LoadDir(s.dir)
-	if err != nil {
-		return err
-	}
-	var primaryItems []ThreatIntel
+	var loaded []ThreatIntel
 	if s.path != "" {
-		primaryItems, err = LoadFile(s.path)
+		var err error
+		loaded, err = LoadFile(s.path)
 		if err != nil {
 			if !os.IsNotExist(err) {
 				return err
 			}
-			primaryItems = nil
+			loaded = nil
 		}
 	}
 	now := time.Now().Unix()
-	overlay := make(map[string]ThreatIntel, len(overlayItems))
-	for _, it := range overlayItems {
+	items := make(map[string]ThreatIntel, len(loaded))
+	for _, it := range loaded {
 		normalize(&it, now)
-		overlay[it.ID] = it
-	}
-	primary := make(map[string]ThreatIntel, len(primaryItems))
-	for _, it := range primaryItems {
-		normalize(&it, now)
-		primary[it.ID] = it
+		items[it.ID] = it
 	}
 	s.mu.Lock()
-	s.overlay = overlay
-	s.primary = primary
-	s.rebuildItemsLocked()
+	s.items = items
 	s.version++
 	s.mu.Unlock()
 	return nil
@@ -114,34 +84,28 @@ func (s *Store) Add(it ThreatIntel) (ThreatIntel, error) {
 	now := time.Now().Unix()
 	normalize(&it, now)
 	s.mu.Lock()
-	s.primary[it.ID] = it
-	s.rebuildItemsLocked()
+	s.items[it.ID] = it
 	s.version++
-	items := s.snapshotLocked()
+	saved := s.snapshotLocked()
 	s.mu.Unlock()
 	if s.path != "" {
-		return it, SaveFileAtomic(s.path, items)
+		return it, SaveFileAtomic(s.path, saved)
 	}
 	return it, nil
 }
 
 func (s *Store) Delete(id string) error {
 	s.mu.Lock()
-	if _, ok := s.primary[id]; !ok {
-		_, inOverlay := s.overlay[id]
+	if _, ok := s.items[id]; !ok {
 		s.mu.Unlock()
-		if inOverlay {
-			return errors.New("intel is provided by a read-only overlay file; edit the file in intel_dir to remove it")
-		}
 		return errors.New("intel not found")
 	}
-	delete(s.primary, id)
-	s.rebuildItemsLocked()
+	delete(s.items, id)
 	s.version++
-	items := s.snapshotLocked()
+	saved := s.snapshotLocked()
 	s.mu.Unlock()
 	if s.path != "" {
-		return SaveFileAtomic(s.path, items)
+		return SaveFileAtomic(s.path, saved)
 	}
 	return nil
 }
@@ -154,8 +118,7 @@ func (s *Store) Sync(items []ThreatIntel) error {
 		next[it.ID] = it
 	}
 	s.mu.Lock()
-	s.primary = next
-	s.rebuildItemsLocked()
+	s.items = next
 	s.version++
 	saved := s.snapshotLocked()
 	s.mu.Unlock()
@@ -174,9 +137,8 @@ func (s *Store) UpsertMany(items []ThreatIntel) error {
 		if existing, ok := s.items[it.ID]; ok && createdAt == 0 {
 			it.CreatedAt = existing.CreatedAt
 		}
-		s.primary[it.ID] = it
+		s.items[it.ID] = it
 	}
-	s.rebuildItemsLocked()
 	s.version++
 	saved := s.snapshotLocked()
 	s.mu.Unlock()
@@ -199,15 +161,14 @@ func (s *Store) SyncSource(source string, items []ThreatIntel) error {
 		normalized = append(normalized, it)
 	}
 	s.mu.Lock()
-	for id, it := range s.primary {
+	for id, it := range s.items {
 		if it.Source == source {
-			delete(s.primary, id)
+			delete(s.items, id)
 		}
 	}
 	for _, it := range normalized {
-		s.primary[it.ID] = it
+		s.items[it.ID] = it
 	}
-	s.rebuildItemsLocked()
 	s.version++
 	saved := s.snapshotLocked()
 	s.mu.Unlock()
@@ -246,18 +207,9 @@ func (s *Store) Stats() StoreStats {
 func (s *Store) PruneExpired(now int64) int {
 	s.mu.Lock()
 	deleted := 0
-	for id, it := range s.primary {
+	for id, it := range s.items {
 		if it.ExpireAt > 0 && it.ExpireAt < now {
-			delete(s.primary, id)
-			deleted++
-		}
-	}
-	// Drop expired overlay items from the in-memory view too. This is not
-	// persisted (overlay files are read-only and re-read on the next reload),
-	// but keeps the active set and stats accurate between reloads.
-	for id, it := range s.overlay {
-		if it.ExpireAt > 0 && it.ExpireAt < now {
-			delete(s.overlay, id)
+			delete(s.items, id)
 			deleted++
 		}
 	}
@@ -265,7 +217,6 @@ func (s *Store) PruneExpired(now int64) int {
 		s.mu.Unlock()
 		return 0
 	}
-	s.rebuildItemsLocked()
 	s.version++
 	saved := s.snapshotLocked()
 	s.mu.Unlock()
@@ -277,24 +228,9 @@ func (s *Store) PruneExpired(now int64) int {
 	return deleted
 }
 
-// rebuildItemsLocked refreshes the merged read view. Primary (writable) entries
-// win over overlay feeds on an ID collision.
-func (s *Store) rebuildItemsLocked() {
-	items := make(map[string]ThreatIntel, len(s.overlay)+len(s.primary))
-	for id, it := range s.overlay {
-		items[id] = it
-	}
-	for id, it := range s.primary {
-		items[id] = it
-	}
-	s.items = items
-}
-
-// snapshotLocked returns the writable (primary) items for persistence. Overlay
-// feeds are never written back to the primary file.
 func (s *Store) snapshotLocked() []ThreatIntel {
-	items := make([]ThreatIntel, 0, len(s.primary))
-	for _, item := range s.primary {
+	items := make([]ThreatIntel, 0, len(s.items))
+	for _, item := range s.items {
 		items = append(items, item)
 	}
 	return items
@@ -334,13 +270,14 @@ func canonicalValue(t, v string) string {
 	return strings.ToLower(strings.TrimSpace(v))
 }
 
-// canonicalKey identifies an IOC by (type, normalized value) rather than id, so
-// the same indicator delivered under different feed ids is deduped.
-func canonicalKey(it ThreatIntel) string {
+// CanonicalKey identifies an IOC by (type, normalized value) rather than id, so
+// the same indicator delivered under different feed ids is deduped. Exported so
+// the iocsync feed can dedup candidates against the store.
+func CanonicalKey(it ThreatIntel) string {
 	return strings.ToLower(strings.TrimSpace(it.Type)) + "|" + canonicalValue(it.Type, it.Value)
 }
 
-// UpsertDedup merges a feed batch into the primary set with (type,value) dedup:
+// UpsertDedup merges a feed batch into the set with (type,value) dedup:
 //   - within the batch, entries with the same canonical key collapse, keeping
 //     the one with the newest incoming updated_at;
 //   - against the existing set, an incoming entry whose canonical key already
@@ -352,7 +289,7 @@ func canonicalKey(it ThreatIntel) string {
 func (s *Store) UpsertDedup(items []ThreatIntel) error {
 	batch := map[string]ThreatIntel{}
 	for _, it := range items {
-		k := canonicalKey(it)
+		k := CanonicalKey(it)
 		if ex, ok := batch[k]; ok && ex.UpdatedAt >= it.UpdatedAt {
 			continue
 		}
@@ -365,7 +302,7 @@ func (s *Store) UpsertDedup(items []ThreatIntel) error {
 	s.mu.Lock()
 	existing := make(map[string]string, len(s.items))
 	for id, it := range s.items {
-		existing[canonicalKey(it)] = id
+		existing[CanonicalKey(it)] = id
 	}
 	for k, it := range batch {
 		if id, ok := existing[k]; ok {
@@ -376,9 +313,8 @@ func (s *Store) UpsertDedup(items []ThreatIntel) error {
 		if prev, ok := s.items[it.ID]; ok && createdAt == 0 {
 			it.CreatedAt = prev.CreatedAt
 		}
-		s.primary[it.ID] = it
+		s.items[it.ID] = it
 	}
-	s.rebuildItemsLocked()
 	s.version++
 	saved := s.snapshotLocked()
 	s.mu.Unlock()

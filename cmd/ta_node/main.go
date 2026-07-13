@@ -51,7 +51,7 @@ func runNode(cfg config.Config, configPath string) error {
 		return fmt.Errorf("load patterns: %w", err)
 	}
 	fpEngine := fingerprint.New(rules)
-	intelStore, err := intel.NewStoreWithDir(cfg.Intel.IntelFile, cfg.Intel.IntelDir)
+	intelStore, err := intel.NewStore(cfg.Intel.IntelFile)
 	if err != nil {
 		return fmt.Errorf("load intel: %w", err)
 	}
@@ -219,7 +219,7 @@ func runIntelCLI(cfg config.Config, args []string) error {
 	if len(args) == 0 {
 		return fmt.Errorf("usage: ta_node intel add|list|delete|reload")
 	}
-	store, err := intel.NewStoreWithDir(cfg.Intel.IntelFile, cfg.Intel.IntelDir)
+	store, err := intel.NewStore(cfg.Intel.IntelFile)
 	if err != nil {
 		return err
 	}
