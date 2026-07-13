@@ -582,16 +582,18 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
           <table>
             <thead>
               <tr>
-                <th>时间</th>
+                <th>发生时间</th>
                 <th>状态</th>
-                <th>事件</th>
-                <th>IOC</th>
+                <th>命中规则</th>
+                <th>命中流量</th>
+                <th>级别</th>
                 <th>重试</th>
+                <th>最近推送</th>
                 <th>错误</th>
               </tr>
             </thead>
             <tbody id="pushLogRows">
-              <tr><td colspan="6" class="muted">暂无数据</td></tr>
+              <tr><td colspan="8" class="muted">暂无数据</td></tr>
             </tbody>
           </table>
         </div>
@@ -679,22 +681,28 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
         if (!res.ok) throw new Error(data.error || res.statusText);
         const items = data.items || [];
         if (items.length === 0) {
-          rowsEl.innerHTML = '<tr><td colspan="6" class="muted">暂无数据</td></tr>';
+          rowsEl.innerHTML = '<tr><td colspan="8" class="muted">暂无数据</td></tr>';
         } else {
-          rowsEl.innerHTML = items.map((item) =>
-            '<tr>' +
-              '<td>' + escapeText(formatTime(item.updated_at)) + '</td>' +
+          rowsEl.innerHTML = items.map((item) => {
+            const rule = [item.ioc_type, item.ioc_value].filter(Boolean).join(": ") || item.event_name || item.event_id || "";
+            const src = item.src_ip ? item.src_ip + (item.src_port ? ":" + item.src_port : "") : "";
+            const dst = item.dst_ip ? item.dst_ip + (item.dst_port ? ":" + item.dst_port : "") : "";
+            const hit = src && dst ? src + " → " + dst : (src || dst);
+            return '<tr>' +
+              '<td>' + escapeText(formatTime(item.occurred_at)) + '</td>' +
               '<td><span class="badge ' + escapeText(item.status) + '">' + escapeText(item.status) + '</span></td>' +
-              '<td>' + escapeText(item.event_name || item.event_id || "") + '</td>' +
-              '<td>' + escapeText([item.ioc_type, item.ioc_value].filter(Boolean).join(": ")) + '</td>' +
+              '<td>' + escapeText(rule) + '</td>' +
+              '<td>' + escapeText(hit) + '</td>' +
+              '<td>' + escapeText(item.severity || "") + '</td>' +
               '<td>' + escapeText(item.retry_count) + '</td>' +
+              '<td>' + escapeText(formatTime(item.updated_at)) + '</td>' +
               '<td>' + escapeText(item.last_error || "") + '</td>' +
-            '</tr>'
-          ).join("");
+            '</tr>';
+          }).join("");
         }
         logStatus.textContent = data.error ? ("读取队列失败：" + data.error) : "最近 50 条队列推送状态";
       } catch (err) {
-        rowsEl.innerHTML = '<tr><td colspan="6" class="muted">读取失败</td></tr>';
+        rowsEl.innerHTML = '<tr><td colspan="8" class="muted">读取失败</td></tr>';
         logStatus.textContent = "读取推送日志失败：" + err.message;
       }
     }
