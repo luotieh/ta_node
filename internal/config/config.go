@@ -45,6 +45,10 @@ type CaptureConfig struct {
 }
 
 type PatternConfig struct {
+	// Enable turns on payload fingerprint (regex) detection from PatternDir.
+	// Disabled by default so only intel IOC matches generate events; the node
+	// then never pushes events from rules outside the intel store.
+	Enable     bool   `json:"enable" yaml:"enable"`
 	PatternDir string `json:"pattern_dir" yaml:"pattern_dir"`
 }
 

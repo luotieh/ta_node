@@ -537,6 +537,7 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
       </fieldset>
       <fieldset>
         <legend>规则与情报</legend>
+        <div class="row"><label for="patterns.enable">启用指纹规则</label><input id="patterns.enable" type="checkbox" {{if .Config.Patterns.Enable}}checked{{end}}></div>
         <div class="row"><label for="patterns.pattern_dir">规则目录</label><input id="patterns.pattern_dir" value="{{.Config.Patterns.PatternDir}}"></div>
         <div class="row"><label for="intel.intel_file">情报文件</label><input id="intel.intel_file" value="{{.Config.Intel.IntelFile}}"></div>
         <div class="row"><label for="intel.reload_interval_sec">热加载间隔</label><input id="intel.reload_interval_sec" type="number" min="1" value="{{.Config.Intel.ReloadIntervalSec}}"></div>
@@ -606,7 +607,7 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
     const ids = [
       "node.device_id", "node.management_url", "node.api_key",
       "capture.interface", "capture.pcap_file", "capture.bpf_filter", "capture.snaplen", "capture.promiscuous",
-      "patterns.pattern_dir",
+      "patterns.enable", "patterns.pattern_dir",
       "intel.intel_file", "intel.reload_interval_sec", "intel.enable_hot_reload", "intel.prune_expired_interval_sec", "intel.accept_stix", "intel.default_source", "intel.max_items",
       "evidence.enable_pcap_save", "evidence.pcap_dir",
       "event.enable_push", "event.queue_db", "event.push_batch_size", "event.retry_interval_sec", "event.push_timeout_sec",

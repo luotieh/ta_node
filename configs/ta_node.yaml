@@ -22,6 +22,9 @@ capture:
   promiscuous: true
 
 patterns:
+  # 指纹（payload 正则）检测开关。false 时不加载 pattern_dir，节点只推送
+  # intel IOC 命中产生的事件。
+  enable: false
   pattern_dir: "./patterns"
 
 intel:

@@ -46,9 +46,16 @@ func main() {
 
 func runNode(cfg config.Config, configPath string) error {
 	log.Printf("ta_node version %s (built %s)", buildinfo.Short(), buildinfo.Get().Time)
-	rules, err := fingerprint.LoadDir(cfg.Patterns.PatternDir)
-	if err != nil {
-		return fmt.Errorf("load patterns: %w", err)
+	var rules []fingerprint.PatternRule
+	if cfg.Patterns.Enable {
+		var err error
+		rules, err = fingerprint.LoadDir(cfg.Patterns.PatternDir)
+		if err != nil {
+			return fmt.Errorf("load patterns: %w", err)
+		}
+		log.Printf("loaded %d fingerprint rules (dir=%q)", len(rules), cfg.Patterns.PatternDir)
+	} else {
+		log.Printf("fingerprint rules disabled (patterns.enable=false); events come from intel matches only")
 	}
 	fpEngine := fingerprint.New(rules)
 	intelStore, err := intel.NewStore(cfg.Intel.IntelFile)
