@@ -29,7 +29,8 @@ func New(store *intel.Store, dir string, dailyLimit, retainDays, maxItems int) *
 // SyncOnce scans dir, imports up to dailyLimit "new" IOCs (canonical key not in
 // the main file) into the store, then prunes zips older than retainDays. It
 // returns the number of IOCs added. Bad/half-written zips are logged and
-// skipped; a scan error never shrinks the rule set.
+// skipped; a scan error never shrinks the rule set. A dailyLimit <= 0 disables
+// the cap and imports every new IOC found; retainDays <= 0 disables cleanup.
 func (s *Syncer) SyncOnce() (int, error) {
 	paths, err := filepath.Glob(filepath.Join(s.dir, "*.zip"))
 	if err != nil {
