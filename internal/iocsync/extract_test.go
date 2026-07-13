@@ -1,4 +1,4 @@
-package iocwatch
+package iocsync
 
 import (
 	"path/filepath"

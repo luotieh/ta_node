@@ -21,7 +21,7 @@ import (
 	"ta_node/internal/fingerprint"
 	"ta_node/internal/flow"
 	"ta_node/internal/intel"
-	"ta_node/internal/iocwatch"
+	"ta_node/internal/iocsync"
 	"ta_node/internal/parser"
 	"ta_node/internal/push"
 	"ta_node/internal/queue"
@@ -81,7 +81,7 @@ func runNode(cfg config.Config, configPath string) error {
 		go hotReload(ctx, intelStore, cfg.ReloadInterval())
 	}
 	if cfg.Intel.EnableIocWatch && cfg.Intel.IocWatchDir != "" {
-		w := iocwatch.New(intelStore, cfg.Intel.IocWatchDir, cfg.WatchInterval(), cfg.Intel.MaxItems)
+		w := iocsync.New(intelStore, cfg.Intel.IocWatchDir, cfg.WatchInterval(), cfg.Intel.MaxItems)
 		go w.Run(ctx)
 	}
 	if cfg.Intel.PruneExpiredIntervalSec > 0 {

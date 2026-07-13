@@ -1,4 +1,4 @@
-package iocwatch
+package iocsync
 
 import (
 	"context"
@@ -54,7 +54,7 @@ func (w *Watcher) Run(ctx context.Context) {
 func (w *Watcher) scanOnce() {
 	paths, err := filepath.Glob(filepath.Join(w.dir, "*.zip"))
 	if err != nil {
-		log.Printf("iocwatch: glob %s failed: %v", w.dir, err)
+		log.Printf("iocsync: glob %s failed: %v", w.dir, err)
 		return
 	}
 	sort.Strings(paths)
@@ -72,22 +72,22 @@ func (w *Watcher) processZip(path string) {
 		// Half-written: leave in place and retry — unless it has sat unreadable
 		// long enough to be considered corrupt.
 		if info, statErr := os.Stat(path); statErr == nil && time.Since(info.ModTime()) > w.staleAfter {
-			log.Printf("iocwatch: %s unreadable for >%s, moving to failed/", filepath.Base(path), w.staleAfter)
+			log.Printf("iocsync: %s unreadable for >%s, moving to failed/", filepath.Base(path), w.staleAfter)
 			w.moveTo(path, "failed")
 		}
 		return
 	}
 	if err != nil {
-		log.Printf("iocwatch: %s parse failed: %v", filepath.Base(path), err)
+		log.Printf("iocsync: %s parse failed: %v", filepath.Base(path), err)
 		w.moveTo(path, "failed")
 		return
 	}
 	if err := w.store.UpsertDedup(items); err != nil {
-		log.Printf("iocwatch: %s upsert failed: %v", filepath.Base(path), err)
+		log.Printf("iocsync: %s upsert failed: %v", filepath.Base(path), err)
 		w.moveTo(path, "failed")
 		return
 	}
-	log.Printf("iocwatch: imported %d IOC items from %s", len(items), filepath.Base(path))
+	log.Printf("iocsync: imported %d IOC items from %s", len(items), filepath.Base(path))
 	w.moveTo(path, "processed")
 }
 
@@ -96,7 +96,7 @@ func (w *Watcher) processZip(path string) {
 func (w *Watcher) moveTo(path, sub string) {
 	dst := filepath.Join(w.dir, sub)
 	if err := os.MkdirAll(dst, 0o755); err != nil {
-		log.Printf("iocwatch: mkdir %s failed: %v", dst, err)
+		log.Printf("iocsync: mkdir %s failed: %v", dst, err)
 		return
 	}
 	target := filepath.Join(dst, filepath.Base(path))
@@ -104,6 +104,6 @@ func (w *Watcher) moveTo(path, sub string) {
 		target = filepath.Join(dst, fmt.Sprintf("%d-%s", time.Now().UnixNano(), filepath.Base(path)))
 	}
 	if err := os.Rename(path, target); err != nil {
-		log.Printf("iocwatch: move %s -> %s failed: %v", path, target, err)
+		log.Printf("iocsync: move %s -> %s failed: %v", path, target, err)
 	}
 }
