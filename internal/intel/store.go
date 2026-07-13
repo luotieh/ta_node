@@ -14,7 +14,19 @@ import (
 // Add/Delete/Sync/SyncSource/UpsertMany/UpsertDedup/PruneExpired all mutate the
 // set and persist it atomically. items is the read view used for matching,
 // List and Stats.
+//
+// Two locks with a fixed order (opMu before mu, never the reverse):
+//
+//   - opMu serializes whole write/reload OPERATIONS, so a write's
+//     mutate-then-persist and Reload's read-then-swap can never interleave.
+//     Without it, Reload could read the file before a concurrent write's
+//     persist landed and then swap that stale snapshot in, transiently
+//     clobbering the write until the next reload.
+//   - mu guards only the in-memory items/version for fast matcher reads and is
+//     never held across disk I/O, so reloading a large file or persisting a
+//     write does not stall packet matching.
 type Store struct {
+	opMu    sync.Mutex
 	mu      sync.RWMutex
 	items   map[string]ThreatIntel
 	path    string
@@ -33,6 +45,8 @@ func NewStore(path string) (*Store, error) {
 }
 
 func (s *Store) Reload() error {
+	s.opMu.Lock()
+	defer s.opMu.Unlock()
 	var loaded []ThreatIntel
 	if s.path != "" {
 		var err error
@@ -81,6 +95,8 @@ func (s *Store) Version() int64 {
 }
 
 func (s *Store) Add(it ThreatIntel) (ThreatIntel, error) {
+	s.opMu.Lock()
+	defer s.opMu.Unlock()
 	now := time.Now().Unix()
 	normalize(&it, now)
 	s.mu.Lock()
@@ -95,6 +111,8 @@ func (s *Store) Add(it ThreatIntel) (ThreatIntel, error) {
 }
 
 func (s *Store) Delete(id string) error {
+	s.opMu.Lock()
+	defer s.opMu.Unlock()
 	s.mu.Lock()
 	if _, ok := s.items[id]; !ok {
 		s.mu.Unlock()
@@ -111,6 +129,8 @@ func (s *Store) Delete(id string) error {
 }
 
 func (s *Store) Sync(items []ThreatIntel) error {
+	s.opMu.Lock()
+	defer s.opMu.Unlock()
 	now := time.Now().Unix()
 	next := map[string]ThreatIntel{}
 	for _, it := range items {
@@ -129,6 +149,8 @@ func (s *Store) Sync(items []ThreatIntel) error {
 }
 
 func (s *Store) UpsertMany(items []ThreatIntel) error {
+	s.opMu.Lock()
+	defer s.opMu.Unlock()
 	now := time.Now().Unix()
 	s.mu.Lock()
 	for _, it := range items {
@@ -149,6 +171,8 @@ func (s *Store) UpsertMany(items []ThreatIntel) error {
 }
 
 func (s *Store) SyncSource(source string, items []ThreatIntel) error {
+	s.opMu.Lock()
+	defer s.opMu.Unlock()
 	source = strings.TrimSpace(source)
 	if source == "" {
 		return errors.New("source required")
@@ -205,6 +229,8 @@ func (s *Store) Stats() StoreStats {
 }
 
 func (s *Store) PruneExpired(now int64) int {
+	s.opMu.Lock()
+	defer s.opMu.Unlock()
 	s.mu.Lock()
 	deleted := 0
 	for id, it := range s.items {
@@ -287,6 +313,8 @@ func CanonicalKey(it ThreatIntel) string {
 // It bumps the version (matcher picks it up on the next packet) and persists
 // atomically. An empty effective batch is a no-op.
 func (s *Store) UpsertDedup(items []ThreatIntel) error {
+	s.opMu.Lock()
+	defer s.opMu.Unlock()
 	batch := map[string]ThreatIntel{}
 	for _, it := range items {
 		k := CanonicalKey(it)

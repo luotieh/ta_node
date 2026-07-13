@@ -1,7 +1,9 @@
 package intel
 
 import (
+	"fmt"
 	"path/filepath"
+	"sync"
 	"testing"
 	"time"
 )
@@ -112,5 +114,64 @@ func TestUpsertDedupEmptyNoop(t *testing.T) {
 	}
 	if s.Version() != v {
 		t.Errorf("empty upsert should not bump version: %d -> %d", v, s.Version())
+	}
+}
+
+// TestConcurrentWriteReloadNoClobber guards the hotReload race: a write that
+// has completed (persisted) must never be transiently removed from the
+// in-memory set by a concurrent Reload. With the operation lock, Reload cannot
+// interleave with a write, so an item is always present immediately after Add
+// returns. Run with -race to also catch data races / deadlocks.
+func TestConcurrentWriteReloadNoClobber(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "intel.yaml")
+	s, err := NewStore(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	const n = 300
+	var wg sync.WaitGroup
+
+	// Reloaders and readers hammer the store while the writer adds items.
+	for r := 0; r < 2; r++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for i := 0; i < n; i++ {
+				if err := s.Reload(); err != nil {
+					t.Errorf("reload: %v", err)
+					return
+				}
+				_ = s.List()
+				_ = s.Version()
+			}
+		}()
+	}
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for i := 0; i < n; i++ {
+			id := fmt.Sprintf("w-%d", i)
+			if _, err := s.Add(ThreatIntel{ID: id, Type: "ip", Value: fmt.Sprintf("10.%d.%d.1", i/256, i%256), Enabled: true}); err != nil {
+				t.Errorf("add %s: %v", id, err)
+				return
+			}
+			// A completed write must be visible in memory; a concurrent Reload
+			// must not have clobbered it with a pre-write file snapshot.
+			if _, ok := s.Get(id); !ok {
+				t.Errorf("item %s vanished from memory right after Add (reload clobbered a completed write)", id)
+				return
+			}
+		}
+	}()
+
+	wg.Wait()
+
+	// Final quiescent reload: memory must equal disk exactly (all writes durable).
+	if err := s.Reload(); err != nil {
+		t.Fatal(err)
+	}
+	if got := len(s.List()); got != n {
+		t.Fatalf("want %d durable items after run, got %d", n, got)
 	}
 }
