@@ -80,9 +80,9 @@ func runNode(cfg config.Config, configPath string) error {
 	if cfg.Intel.EnableHotReload {
 		go hotReload(ctx, intelStore, cfg.ReloadInterval())
 	}
-	if cfg.Intel.EnableIocWatch && cfg.Intel.IocWatchDir != "" {
-		w := iocsync.New(intelStore, cfg.Intel.IocWatchDir, cfg.WatchInterval(), cfg.Intel.MaxItems)
-		go w.Run(ctx)
+	if cfg.Intel.EnableIocSync && cfg.Intel.IocSyncDir != "" {
+		syncer := iocsync.New(intelStore, cfg.Intel.IocSyncDir, cfg.Intel.IocSyncDailyLimit, cfg.Intel.IocSyncRetainDays, cfg.Intel.MaxItems)
+		go runDailyIOCSync(ctx, syncer, cfg.Intel.IocSyncHour)
 	}
 	if cfg.Intel.PruneExpiredIntervalSec > 0 {
 		go pruneExpired(ctx, intelStore, cfg.PruneExpiredInterval())
@@ -170,6 +170,24 @@ func openSource(cfg config.Config) (capture.Source, error) {
 		return capture.NewPCAPReader(cfg.Capture.PCAPFile, cfg.Capture.BPFFilter)
 	}
 	return capture.NewInterfaceCapture(cfg.Capture.Interface, cfg.Capture.Snaplen, cfg.Capture.Promiscuous, cfg.Capture.BPFFilter)
+}
+
+// runDailyIOCSync fires Syncer.SyncOnce once per day at hour:00 (local time).
+func runDailyIOCSync(ctx context.Context, s *iocsync.Syncer, hour int) {
+	for {
+		timer := time.NewTimer(time.Until(iocsync.NextDailyTime(time.Now(), hour)))
+		select {
+		case <-ctx.Done():
+			timer.Stop()
+			return
+		case <-timer.C:
+			if added, err := s.SyncOnce(); err != nil {
+				log.Printf("iocsync failed: %v", err)
+			} else if added > 0 {
+				log.Printf("iocsync: added %d new IOC(s)", added)
+			}
+		}
+	}
 }
 
 func hotReload(ctx context.Context, store *intel.Store, interval time.Duration) {
