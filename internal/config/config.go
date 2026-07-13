@@ -50,16 +50,17 @@ type PatternConfig struct {
 
 type IntelConfig struct {
 	IntelFile               string `json:"intel_file" yaml:"intel_file"`
-	IntelDir                string `json:"intel_dir" yaml:"intel_dir"`
 	ReloadIntervalSec       int    `json:"reload_interval_sec" yaml:"reload_interval_sec"`
 	EnableHotReload         bool   `json:"enable_hot_reload" yaml:"enable_hot_reload"`
 	PruneExpiredIntervalSec int    `json:"prune_expired_interval_sec" yaml:"prune_expired_interval_sec"`
 	AcceptSTIX              bool   `json:"accept_stix" yaml:"accept_stix"`
 	DefaultSource           string `json:"default_source" yaml:"default_source"`
 	MaxItems                int    `json:"max_items" yaml:"max_items"`
-	IocWatchDir             string `json:"ioc_watch_dir" yaml:"ioc_watch_dir"`
-	IocWatchIntervalSec     int    `json:"ioc_watch_interval_sec" yaml:"ioc_watch_interval_sec"`
-	EnableIocWatch          bool   `json:"enable_ioc_watch" yaml:"enable_ioc_watch"`
+	IocSyncDir              string `json:"ioc_sync_dir" yaml:"ioc_sync_dir"`
+	EnableIocSync           bool   `json:"enable_ioc_sync" yaml:"enable_ioc_sync"`
+	IocSyncHour             int    `json:"ioc_sync_hour" yaml:"ioc_sync_hour"`
+	IocSyncDailyLimit       int    `json:"ioc_sync_daily_limit" yaml:"ioc_sync_daily_limit"`
+	IocSyncRetainDays       int    `json:"ioc_sync_retain_days" yaml:"ioc_sync_retain_days"`
 }
 
 type EvidenceConfig struct {
@@ -101,16 +102,17 @@ func Default() Config {
 		Patterns: PatternConfig{PatternDir: "./patterns"},
 		Intel: IntelConfig{
 			IntelFile:               "./configs/intel.yaml",
-			IntelDir:                "./configs/intel.d",
 			ReloadIntervalSec:       30,
 			EnableHotReload:         true,
 			PruneExpiredIntervalSec: 300,
 			AcceptSTIX:              true,
 			DefaultSource:           "Threat Intel Hub",
 			MaxItems:                100000,
-			IocWatchDir:             "/data/yt/ioc",
-			IocWatchIntervalSec:     5,
-			EnableIocWatch:          true,
+			IocSyncDir:              "/data/yt/ioc",
+			EnableIocSync:           true,
+			IocSyncHour:             1,
+			IocSyncDailyLimit:       10,
+			IocSyncRetainDays:       10,
 		},
 		Evidence: EvidenceConfig{EnablePCAPSave: true, PCAPDir: "./data/evidence"},
 		Event: EventConfig{
@@ -165,7 +167,6 @@ func LoadWithFlags(args []string) (Config, string, []string, error) {
 	managementURL := fs.String("management-url", "", "management event url")
 	patternDir := fs.String("pattern-dir", "", "pattern directory")
 	intelFile := fs.String("intel-file", "", "intel yaml file")
-	intelDir := fs.String("intel-dir", "", "intel overlay directory (*.yaml/*.yml)")
 	eventDB := fs.String("event-db", "", "event sqlite queue db")
 	enablePCAPSave := fs.Bool("enable-pcap-save", false, "save evidence pcap")
 	configOnly := fs.Bool("config-only", false, "start local config api without opening capture source")
@@ -194,9 +195,6 @@ func LoadWithFlags(args []string) (Config, string, []string, error) {
 	}
 	if *intelFile != "" {
 		cfg.Intel.IntelFile = *intelFile
-	}
-	if *intelDir != "" {
-		cfg.Intel.IntelDir = *intelDir
 	}
 	if *eventDB != "" {
 		cfg.Event.QueueDB = *eventDB
@@ -244,8 +242,4 @@ func (c Config) FlowCleanupInterval() time.Duration {
 		interval = 30
 	}
 	return time.Duration(interval) * time.Second
-}
-
-func (c Config) WatchInterval() time.Duration {
-	return time.Duration(c.Intel.IocWatchIntervalSec) * time.Second
 }

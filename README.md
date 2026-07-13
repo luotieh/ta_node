@@ -38,15 +38,12 @@ Intel CLI:
 ./ta_node --config ./configs/ta_node.yaml intel reload
 ```
 
-### Splitting and incrementally adding IOCs
+### 每日定时增量同步（网闸投递）
 
-`intel.intel_file` (`configs/intel.yaml`) is the primary writable file — API,
-CLI and Hub-sync changes are persisted there. To keep a large IOC set
-manageable, also drop `*.yaml`/`*.yml` files into `intel.intel_dir`
-(`configs/intel.d/`): they are loaded concurrently and merged by `id`, so a big
-feed can be split across files and new IOCs added by adding a new file (picked
-up on the next hot-reload — no restart). Overlay files are read-only; on an `id`
-conflict the primary file wins. See `configs/intel.d/README.md`.
+节点每天 `ioc_sync_hour`（默认 01:00）从 `ioc_sync_dir`（默认 `/data/yt/ioc`）下的
+`*.zip` 中，取最多 `ioc_sync_daily_limit`（默认 10）条“新”规则（按 type+value 判断，
+已在主文件的跳过）增量写入 `intel_file`，主文件即唯一规则来源与消费游标。随后删除该
+目录内 mtime 早于 `ioc_sync_retain_days`（默认 10）天的 zip。zip 从不被移动，仅按保留期清理。
 
 Local intel API listens on `server.listen`:
 

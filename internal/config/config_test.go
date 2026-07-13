@@ -2,7 +2,6 @@ package config
 
 import (
 	"testing"
-	"time"
 )
 
 func TestLoadConfig(t *testing.T) {
@@ -18,18 +17,21 @@ func TestLoadConfig(t *testing.T) {
 	}
 }
 
-func TestDefaultIocWatch(t *testing.T) {
+func TestDefaultIocSync(t *testing.T) {
 	c := Default()
-	if c.Intel.IocWatchDir != "/data/yt/ioc" {
-		t.Errorf("ioc_watch_dir default: %q", c.Intel.IocWatchDir)
+	if c.Intel.IocSyncDir != "/data/yt/ioc" {
+		t.Errorf("ioc_sync_dir default: %q", c.Intel.IocSyncDir)
 	}
-	if c.Intel.IocWatchIntervalSec != 5 {
-		t.Errorf("ioc_watch_interval_sec default: %d", c.Intel.IocWatchIntervalSec)
+	if !c.Intel.EnableIocSync {
+		t.Error("enable_ioc_sync default should be true")
 	}
-	if !c.Intel.EnableIocWatch {
-		t.Error("enable_ioc_watch default should be true")
+	if c.Intel.IocSyncHour != 1 {
+		t.Errorf("ioc_sync_hour default: %d", c.Intel.IocSyncHour)
 	}
-	if c.WatchInterval() != 5*time.Second {
-		t.Errorf("WatchInterval: %v", c.WatchInterval())
+	if c.Intel.IocSyncDailyLimit != 10 {
+		t.Errorf("ioc_sync_daily_limit default: %d", c.Intel.IocSyncDailyLimit)
+	}
+	if c.Intel.IocSyncRetainDays != 10 {
+		t.Errorf("ioc_sync_retain_days default: %d", c.Intel.IocSyncRetainDays)
 	}
 }

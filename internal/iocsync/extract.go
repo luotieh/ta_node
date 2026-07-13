@@ -1,4 +1,4 @@
-package iocwatch
+package iocsync
 
 import (
 	"archive/zip"
@@ -57,7 +57,7 @@ func extractItems(path string, maxItems int) ([]intel.ThreatIntel, error) {
 		}
 		items = append(items, fy.Items...)
 		if maxItems > 0 && len(items) > maxItems {
-			log.Printf("iocwatch: %s exceeds max_items=%d, truncating (kept %d, dropped %d)", path, maxItems, maxItems, len(items)-maxItems)
+			log.Printf("iocsync: %s exceeds max_items=%d, truncating (kept %d, dropped %d)", path, maxItems, maxItems, len(items)-maxItems)
 			items = items[:maxItems]
 			break
 		}

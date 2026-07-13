@@ -21,7 +21,7 @@ import (
 	"ta_node/internal/fingerprint"
 	"ta_node/internal/flow"
 	"ta_node/internal/intel"
-	"ta_node/internal/iocwatch"
+	"ta_node/internal/iocsync"
 	"ta_node/internal/parser"
 	"ta_node/internal/push"
 	"ta_node/internal/queue"
@@ -51,11 +51,11 @@ func runNode(cfg config.Config, configPath string) error {
 		return fmt.Errorf("load patterns: %w", err)
 	}
 	fpEngine := fingerprint.New(rules)
-	intelStore, err := intel.NewStoreWithDir(cfg.Intel.IntelFile, cfg.Intel.IntelDir)
+	intelStore, err := intel.NewStore(cfg.Intel.IntelFile)
 	if err != nil {
 		return fmt.Errorf("load intel: %w", err)
 	}
-	log.Printf("loaded %d IOCs (file=%q dir=%q)", intelStore.Stats().Total, cfg.Intel.IntelFile, cfg.Intel.IntelDir)
+	log.Printf("loaded %d IOCs (file=%q)", intelStore.Stats().Total, cfg.Intel.IntelFile)
 	intelMatcher := intel.NewMatcher(intelStore)
 	q, err := queue.NewSQLite(cfg.Event.QueueDB)
 	if err != nil {
@@ -80,9 +80,9 @@ func runNode(cfg config.Config, configPath string) error {
 	if cfg.Intel.EnableHotReload {
 		go hotReload(ctx, intelStore, cfg.ReloadInterval())
 	}
-	if cfg.Intel.EnableIocWatch && cfg.Intel.IocWatchDir != "" {
-		w := iocwatch.New(intelStore, cfg.Intel.IocWatchDir, cfg.WatchInterval(), cfg.Intel.MaxItems)
-		go w.Run(ctx)
+	if cfg.Intel.EnableIocSync && cfg.Intel.IocSyncDir != "" {
+		syncer := iocsync.New(intelStore, cfg.Intel.IocSyncDir, cfg.Intel.IocSyncDailyLimit, cfg.Intel.IocSyncRetainDays, cfg.Intel.MaxItems)
+		go runDailyIOCSync(ctx, syncer, cfg.Intel.IocSyncHour)
 	}
 	if cfg.Intel.PruneExpiredIntervalSec > 0 {
 		go pruneExpired(ctx, intelStore, cfg.PruneExpiredInterval())
@@ -172,6 +172,24 @@ func openSource(cfg config.Config) (capture.Source, error) {
 	return capture.NewInterfaceCapture(cfg.Capture.Interface, cfg.Capture.Snaplen, cfg.Capture.Promiscuous, cfg.Capture.BPFFilter)
 }
 
+// runDailyIOCSync fires Syncer.SyncOnce once per day at hour:00 (local time).
+func runDailyIOCSync(ctx context.Context, s *iocsync.Syncer, hour int) {
+	for {
+		timer := time.NewTimer(time.Until(iocsync.NextDailyTime(time.Now(), hour)))
+		select {
+		case <-ctx.Done():
+			timer.Stop()
+			return
+		case <-timer.C:
+			if added, err := s.SyncOnce(); err != nil {
+				log.Printf("iocsync failed: %v", err)
+			} else if added > 0 {
+				log.Printf("iocsync: added %d new IOC(s)", added)
+			}
+		}
+	}
+}
+
 func hotReload(ctx context.Context, store *intel.Store, interval time.Duration) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
@@ -219,7 +237,7 @@ func runIntelCLI(cfg config.Config, args []string) error {
 	if len(args) == 0 {
 		return fmt.Errorf("usage: ta_node intel add|list|delete|reload")
 	}
-	store, err := intel.NewStoreWithDir(cfg.Intel.IntelFile, cfg.Intel.IntelDir)
+	store, err := intel.NewStore(cfg.Intel.IntelFile)
 	if err != nil {
 		return err
 	}
