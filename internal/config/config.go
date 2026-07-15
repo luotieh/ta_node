@@ -59,7 +59,6 @@ type IntelConfig struct {
 	IocSyncDir              string `json:"ioc_sync_dir" yaml:"ioc_sync_dir"`
 	EnableIocSync           bool   `json:"enable_ioc_sync" yaml:"enable_ioc_sync"`
 	IocSyncHour             int    `json:"ioc_sync_hour" yaml:"ioc_sync_hour"`
-	IocSyncDailyLimit       int    `json:"ioc_sync_daily_limit" yaml:"ioc_sync_daily_limit"`
 	IocSyncRetainDays       int    `json:"ioc_sync_retain_days" yaml:"ioc_sync_retain_days"`
 }
 
@@ -111,7 +110,6 @@ func Default() Config {
 			IocSyncDir:              "/data/yt/ioc",
 			EnableIocSync:           true,
 			IocSyncHour:             1,
-			IocSyncDailyLimit:       10,
 			IocSyncRetainDays:       10,
 		},
 		Evidence: EvidenceConfig{EnablePCAPSave: true, PCAPDir: "./data/evidence"},

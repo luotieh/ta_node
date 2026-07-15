@@ -81,7 +81,7 @@ func runNode(cfg config.Config, configPath string) error {
 		go hotReload(ctx, intelStore, cfg.ReloadInterval())
 	}
 	if cfg.Intel.EnableIocSync && cfg.Intel.IocSyncDir != "" {
-		syncer := iocsync.New(intelStore, cfg.Intel.IocSyncDir, cfg.Intel.IocSyncDailyLimit, cfg.Intel.IocSyncRetainDays, cfg.Intel.MaxItems)
+		syncer := iocsync.New(intelStore, cfg.Intel.IocSyncDir, cfg.Intel.IocSyncRetainDays, cfg.Intel.MaxItems)
 		go runDailyIOCSync(ctx, syncer, cfg.Intel.IocSyncHour)
 	}
 	if cfg.Intel.PruneExpiredIntervalSec > 0 {

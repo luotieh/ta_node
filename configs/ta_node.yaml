@@ -37,8 +37,8 @@ intel:
   ioc_sync_dir: "/data/yt/ioc"    # 网闸投递的规则 zip 目录；设 "" 关闭
   enable_ioc_sync: true
   ioc_sync_hour: 1                # 每天触发时刻（本地时，0-23）
-  ioc_sync_daily_limit: 10        # 每天最多新增条数
   ioc_sync_retain_days: 10        # 删除该目录内早于 N 天的 zip
+  # 无每日条数上限：一次导入所有新规则，推送量由威胁聚合平台侧控制。
 
 evidence:
   enable_pcap_save: true

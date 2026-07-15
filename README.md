@@ -41,9 +41,10 @@ Intel CLI:
 ### 每日定时增量同步（网闸投递）
 
 节点每天 `ioc_sync_hour`（默认 01:00）从 `ioc_sync_dir`（默认 `/data/yt/ioc`）下的
-`*.zip` 中，取最多 `ioc_sync_daily_limit`（默认 10）条“新”规则（按 type+value 判断，
-已在主文件的跳过）增量写入 `intel_file`，主文件即唯一规则来源与消费游标。随后删除该
-目录内 mtime 早于 `ioc_sync_retain_days`（默认 10）天的 zip。zip 从不被移动，仅按保留期清理。
+`*.zip` 中，取全部“新”规则（按 type+value 判断，已在主文件的跳过）增量写入
+`intel_file`，主文件即唯一规则来源与消费游标。节点端不设每日条数上限——推送多少由
+威胁聚合平台侧控制。随后删除该目录内 mtime 早于 `ioc_sync_retain_days`（默认 10）天
+的 zip。zip 从不被移动，仅按保留期清理。
 
 Local intel API listens on `server.listen`:
 

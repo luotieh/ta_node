@@ -11,26 +11,25 @@ import (
 )
 
 // Syncer performs the daily incremental IOC sync: it scans dir for gateway
-// *.zip packs, adds up to dailyLimit rules not already in the store, then
-// removes zips older than retainDays. The store's own dedup (by canonical
-// type/value) makes the main file the consumption cursor.
+// *.zip packs, adds every rule not already in the store, then removes zips
+// older than retainDays. The store's own dedup (by canonical type/value) makes
+// the main file the consumption cursor. There is no per-day cap: how much the
+// gateway delivers is controlled upstream by the threat-aggregation platform.
 type Syncer struct {
 	store      *intel.Store
 	dir        string
-	dailyLimit int
 	retainDays int
 	maxItems   int
 }
 
-func New(store *intel.Store, dir string, dailyLimit, retainDays, maxItems int) *Syncer {
-	return &Syncer{store: store, dir: dir, dailyLimit: dailyLimit, retainDays: retainDays, maxItems: maxItems}
+func New(store *intel.Store, dir string, retainDays, maxItems int) *Syncer {
+	return &Syncer{store: store, dir: dir, retainDays: retainDays, maxItems: maxItems}
 }
 
-// SyncOnce scans dir, imports up to dailyLimit "new" IOCs (canonical key not in
-// the main file) into the store, then prunes zips older than retainDays. It
-// returns the number of IOCs added. Bad/half-written zips are logged and
-// skipped; a scan error never shrinks the rule set. A dailyLimit <= 0 disables
-// the cap and imports every new IOC found; retainDays <= 0 disables cleanup.
+// SyncOnce scans dir, imports every "new" IOC (canonical key not in the main
+// file) into the store, then prunes zips older than retainDays. It returns the
+// number of IOCs added. Bad/half-written zips are logged and skipped; a scan
+// error never shrinks the rule set. retainDays <= 0 disables cleanup.
 func (s *Syncer) SyncOnce() (int, error) {
 	paths, err := filepath.Glob(filepath.Join(s.dir, "*.zip"))
 	if err != nil {
@@ -47,9 +46,6 @@ func (s *Syncer) SyncOnce() (int, error) {
 	var candidates []intel.ThreatIntel
 	scanned := 0
 	for _, p := range paths {
-		if s.dailyLimit > 0 && len(candidates) >= s.dailyLimit {
-			break
-		}
 		if info, statErr := os.Stat(p); statErr != nil || info.IsDir() {
 			continue
 		}
@@ -60,9 +56,6 @@ func (s *Syncer) SyncOnce() (int, error) {
 		}
 		scanned++
 		for _, it := range items {
-			if s.dailyLimit > 0 && len(candidates) >= s.dailyLimit {
-				break
-			}
 			k := intel.CanonicalKey(it)
 			if seen[k] {
 				continue

@@ -28,9 +28,6 @@ func TestDefaultIocSync(t *testing.T) {
 	if c.Intel.IocSyncHour != 1 {
 		t.Errorf("ioc_sync_hour default: %d", c.Intel.IocSyncHour)
 	}
-	if c.Intel.IocSyncDailyLimit != 10 {
-		t.Errorf("ioc_sync_daily_limit default: %d", c.Intel.IocSyncDailyLimit)
-	}
 	if c.Intel.IocSyncRetainDays != 10 {
 		t.Errorf("ioc_sync_retain_days default: %d", c.Intel.IocSyncRetainDays)
 	}
