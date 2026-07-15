@@ -537,6 +537,7 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
       </fieldset>
       <fieldset>
         <legend>规则与情报</legend>
+        <div class="row"><label for="patterns.enable">启用指纹规则</label><input id="patterns.enable" type="checkbox" {{if .Config.Patterns.Enable}}checked{{end}}></div>
         <div class="row"><label for="patterns.pattern_dir">规则目录</label><input id="patterns.pattern_dir" value="{{.Config.Patterns.PatternDir}}"></div>
         <div class="row"><label for="intel.intel_file">情报文件</label><input id="intel.intel_file" value="{{.Config.Intel.IntelFile}}"></div>
         <div class="row"><label for="intel.reload_interval_sec">热加载间隔</label><input id="intel.reload_interval_sec" type="number" min="1" value="{{.Config.Intel.ReloadIntervalSec}}"></div>
@@ -563,6 +564,7 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
         <div class="row"><label for="event.push_batch_size">推送批量</label><input id="event.push_batch_size" type="number" min="1" value="{{.Config.Event.PushBatchSize}}"></div>
         <div class="row"><label for="event.retry_interval_sec">重试间隔</label><input id="event.retry_interval_sec" type="number" min="1" value="{{.Config.Event.RetryIntervalSec}}"></div>
         <div class="row"><label for="event.push_timeout_sec">推送超时</label><input id="event.push_timeout_sec" type="number" min="1" value="{{.Config.Event.PushTimeoutSec}}"></div>
+        <div class="row"><label for="event.max_push_retry">最大推送重试</label><input id="event.max_push_retry" type="number" min="0" value="{{.Config.Event.MaxPushRetry}}"></div>
       </fieldset>
       <fieldset>
         <legend>本地服务</legend>
@@ -580,16 +582,18 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
           <table>
             <thead>
               <tr>
-                <th>时间</th>
+                <th>发生时间</th>
                 <th>状态</th>
-                <th>事件</th>
-                <th>IOC</th>
+                <th>命中规则</th>
+                <th>命中流量</th>
+                <th>级别</th>
                 <th>重试</th>
+                <th>最近推送</th>
                 <th>错误</th>
               </tr>
             </thead>
             <tbody id="pushLogRows">
-              <tr><td colspan="6" class="muted">暂无数据</td></tr>
+              <tr><td colspan="8" class="muted">暂无数据</td></tr>
             </tbody>
           </table>
         </div>
@@ -606,10 +610,10 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
     const ids = [
       "node.device_id", "node.management_url", "node.api_key",
       "capture.interface", "capture.pcap_file", "capture.bpf_filter", "capture.snaplen", "capture.promiscuous",
-      "patterns.pattern_dir",
+      "patterns.enable", "patterns.pattern_dir",
       "intel.intel_file", "intel.reload_interval_sec", "intel.enable_hot_reload", "intel.prune_expired_interval_sec", "intel.accept_stix", "intel.default_source", "intel.max_items",
       "evidence.enable_pcap_save", "evidence.pcap_dir",
-      "event.enable_push", "event.queue_db", "event.push_batch_size", "event.retry_interval_sec", "event.push_timeout_sec",
+      "event.enable_push", "event.queue_db", "event.push_batch_size", "event.retry_interval_sec", "event.push_timeout_sec", "event.max_push_retry",
       "server.enable", "server.listen", "server.token"
     ];
     const statusEl = document.getElementById("status");
@@ -677,22 +681,28 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
         if (!res.ok) throw new Error(data.error || res.statusText);
         const items = data.items || [];
         if (items.length === 0) {
-          rowsEl.innerHTML = '<tr><td colspan="6" class="muted">暂无数据</td></tr>';
+          rowsEl.innerHTML = '<tr><td colspan="8" class="muted">暂无数据</td></tr>';
         } else {
-          rowsEl.innerHTML = items.map((item) =>
-            '<tr>' +
-              '<td>' + escapeText(formatTime(item.updated_at)) + '</td>' +
+          rowsEl.innerHTML = items.map((item) => {
+            const rule = [item.ioc_type, item.ioc_value].filter(Boolean).join(": ") || item.event_name || item.event_id || "";
+            const src = item.src_ip ? item.src_ip + (item.src_port ? ":" + item.src_port : "") : "";
+            const dst = item.dst_ip ? item.dst_ip + (item.dst_port ? ":" + item.dst_port : "") : "";
+            const hit = src && dst ? src + " → " + dst : (src || dst);
+            return '<tr>' +
+              '<td>' + escapeText(formatTime(item.occurred_at)) + '</td>' +
               '<td><span class="badge ' + escapeText(item.status) + '">' + escapeText(item.status) + '</span></td>' +
-              '<td>' + escapeText(item.event_name || item.event_id || "") + '</td>' +
-              '<td>' + escapeText([item.ioc_type, item.ioc_value].filter(Boolean).join(": ")) + '</td>' +
+              '<td>' + escapeText(rule) + '</td>' +
+              '<td>' + escapeText(hit) + '</td>' +
+              '<td>' + escapeText(item.severity || "") + '</td>' +
               '<td>' + escapeText(item.retry_count) + '</td>' +
+              '<td>' + escapeText(formatTime(item.updated_at)) + '</td>' +
               '<td>' + escapeText(item.last_error || "") + '</td>' +
-            '</tr>'
-          ).join("");
+            '</tr>';
+          }).join("");
         }
         logStatus.textContent = data.error ? ("读取队列失败：" + data.error) : "最近 50 条队列推送状态";
       } catch (err) {
-        rowsEl.innerHTML = '<tr><td colspan="6" class="muted">读取失败</td></tr>';
+        rowsEl.innerHTML = '<tr><td colspan="8" class="muted">读取失败</td></tr>';
         logStatus.textContent = "读取推送日志失败：" + err.message;
       }
     }

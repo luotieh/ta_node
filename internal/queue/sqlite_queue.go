@@ -12,7 +12,16 @@ import (
 	"ta_node/internal/event"
 )
 
-type SQLiteQueue struct{ db *sql.DB }
+type SQLiteQueue struct {
+	db *sql.DB
+	// maxRetry caps LoadPending to events with retry_count below it; events at
+	// or over the cap stay in the table for inspection but are never retried.
+	// 0 disables the cap.
+	maxRetry int
+}
+
+// SetMaxRetry sets the retry cap applied by LoadPending. 0 means unlimited.
+func (q *SQLiteQueue) SetMaxRetry(n int) { q.maxRetry = n }
 
 func NewSQLite(path string) (*SQLiteQueue, error) {
 	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
@@ -62,7 +71,7 @@ func (q *SQLiteQueue) LoadPending(limit int) ([]event.ThreatEvent, error) {
 	if limit <= 0 {
 		limit = 100
 	}
-	rows, err := q.db.Query(`SELECT payload FROM event_queue WHERE status IN (0,3) ORDER BY id LIMIT ?`, limit)
+	rows, err := q.db.Query(`SELECT payload FROM event_queue WHERE status IN (0,3) AND (? <= 0 OR retry_count < ?) ORDER BY id LIMIT ?`, q.maxRetry, q.maxRetry, limit)
 	if err != nil {
 		return nil, err
 	}

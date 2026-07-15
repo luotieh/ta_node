@@ -15,6 +15,9 @@ capture:
   promiscuous: true
 
 patterns:
+  # 指纹（payload 正则）检测开关。false 时不加载 pattern_dir，节点只推送
+  # intel IOC 命中产生的事件。
+  enable: false
   pattern_dir: "./patterns"
 
 intel:
@@ -42,6 +45,9 @@ event:
   push_batch_size: 100
   retry_interval_sec: 30
   push_timeout_sec: 5
+  # 单个事件推送失败的最大重试次数，超过后放弃（仍保留在队列中可查，
+  # 但不再重推）。0 表示不限。
+  max_push_retry: 20
 
 server:
   enable: true
