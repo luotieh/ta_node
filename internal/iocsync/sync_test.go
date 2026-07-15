@@ -31,66 +31,62 @@ func zipWith(t *testing.T, path string, from, n int) {
 	writeZip(t, path, map[string]string{"rules.yaml": b.String()})
 }
 
-func TestSyncOnceLimitsToDaily(t *testing.T) {
+func TestSyncOnceImportsAllNew(t *testing.T) {
 	dir := t.TempDir()
 	store := newStore(t)
 	zipWith(t, filepath.Join(dir, "a.zip"), 0, 25)
-	s := New(store, dir, 10, 10, 100000)
+	s := New(store, dir, 10, 100000)
 	added, err := s.SyncOnce()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if added != 10 || len(store.List()) != 10 {
-		t.Fatalf("want 10 added/total, got added=%d total=%d", added, len(store.List()))
+	// No per-day cap: every new rule is imported in one pass.
+	if added != 25 || len(store.List()) != 25 {
+		t.Fatalf("want 25 added/total, got added=%d total=%d", added, len(store.List()))
 	}
 }
 
-func TestSyncOnceCursorContinuesNextDay(t *testing.T) {
+func TestSyncOnceSkipsAlreadyPresent(t *testing.T) {
 	dir := t.TempDir()
 	store := newStore(t)
-	zipWith(t, filepath.Join(dir, "a.zip"), 0, 25)
-	s := New(store, dir, 10, 10, 100000)
-	// day 1: +10, day 2: +10 (next batch, since first 10 now in main file), day 3: +5
-	if a, _ := s.SyncOnce(); a != 10 {
-		t.Fatalf("day1 added=%d", a)
+	// Pre-seed the main file with d0..d4 (canonical keys already present).
+	for i := 0; i < 5; i++ {
+		if _, err := store.Add(intel.ThreatIntel{ID: fmt.Sprintf("local-%d", i), Type: "domain", Value: fmt.Sprintf("d%d.example.com", i), Enabled: true}); err != nil {
+			t.Fatal(err)
+		}
 	}
-	if a, _ := s.SyncOnce(); a != 10 {
-		t.Fatalf("day2 added=%d", a)
+	zipWith(t, filepath.Join(dir, "a.zip"), 0, 10) // d0..d9
+	s := New(store, dir, 10, 100000)
+
+	added, err := s.SyncOnce()
+	if err != nil {
+		t.Fatal(err)
 	}
-	if a, _ := s.SyncOnce(); a != 5 {
-		t.Fatalf("day3 added=%d", a)
+	if added != 5 || len(store.List()) != 10 { // only d5..d9 are new
+		t.Fatalf("want 5 added / 10 total, got added=%d total=%d", added, len(store.List()))
 	}
-	if a, _ := s.SyncOnce(); a != 0 {
-		t.Fatalf("day4 added=%d (all consumed)", a)
+	// Re-delivery of the same zip: main file is the cursor, so nothing new.
+	added2, err := s.SyncOnce()
+	if err != nil {
+		t.Fatal(err)
 	}
-	if len(store.List()) != 25 {
-		t.Fatalf("want 25 total, got %d", len(store.List()))
+	if added2 != 0 || len(store.List()) != 10 {
+		t.Fatalf("want 0 added on re-run, got added=%d total=%d", added2, len(store.List()))
 	}
 }
 
 func TestSyncOnceDedupsAcrossCandidates(t *testing.T) {
 	dir := t.TempDir()
 	store := newStore(t)
-	// same value under two ids -> counts as one toward the limit
+	// same value under two ids -> imported as one indicator
 	body := "items:\n" +
 		"- {id: a, type: domain, value: dup.example.com, enabled: true}\n" +
 		"- {id: b, type: domain, value: DUP.example.com., enabled: true}\n"
 	writeZip(t, filepath.Join(dir, "a.zip"), map[string]string{"r.yaml": body})
-	s := New(store, dir, 10, 10, 100000)
+	s := New(store, dir, 10, 100000)
 	added, _ := s.SyncOnce()
 	if added != 1 || len(store.List()) != 1 {
 		t.Fatalf("want 1 deduped, got added=%d total=%d", added, len(store.List()))
-	}
-}
-
-func TestSyncOnceInsufficient(t *testing.T) {
-	dir := t.TempDir()
-	store := newStore(t)
-	zipWith(t, filepath.Join(dir, "a.zip"), 0, 4)
-	s := New(store, dir, 10, 10, 100000)
-	added, _ := s.SyncOnce()
-	if added != 4 {
-		t.Fatalf("want 4 added, got %d", added)
 	}
 }
 
@@ -101,7 +97,7 @@ func TestSyncOnceBadZipSkipped(t *testing.T) {
 		t.Fatal(err)
 	}
 	zipWith(t, filepath.Join(dir, "good.zip"), 0, 3)
-	s := New(store, dir, 10, 10, 100000)
+	s := New(store, dir, 10, 100000)
 	added, err := s.SyncOnce()
 	if err != nil {
 		t.Fatalf("SyncOnce should not fail on a bad zip: %v", err)
@@ -130,7 +126,7 @@ func TestCleanupRemovesOldZips(t *testing.T) {
 	if err := os.Chtimes(recent, recentT, recentT); err != nil {
 		t.Fatal(err)
 	}
-	s := New(store, dir, 10, 10, 100000)
+	s := New(store, dir, 10, 100000)
 	if _, err := s.SyncOnce(); err != nil {
 		t.Fatal(err)
 	}
