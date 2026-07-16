@@ -62,7 +62,7 @@ type IntelConfig struct {
 	MaxItems                int    `json:"max_items" yaml:"max_items"`
 	IocSyncDir              string `json:"ioc_sync_dir" yaml:"ioc_sync_dir"`
 	EnableIocSync           bool   `json:"enable_ioc_sync" yaml:"enable_ioc_sync"`
-	IocSyncHour             int    `json:"ioc_sync_hour" yaml:"ioc_sync_hour"`
+	IocSyncIntervalMin      int    `json:"ioc_sync_interval_min" yaml:"ioc_sync_interval_min"`
 	IocSyncRetainDays       int    `json:"ioc_sync_retain_days" yaml:"ioc_sync_retain_days"`
 }
 
@@ -118,7 +118,7 @@ func Default() Config {
 			MaxItems:                100000,
 			IocSyncDir:              "/data/yt/ioc",
 			EnableIocSync:           true,
-			IocSyncHour:             1,
+			IocSyncIntervalMin:      60,
 			IocSyncRetainDays:       10,
 		},
 		Evidence: EvidenceConfig{EnablePCAPSave: true, PCAPDir: "./data/evidence"},
@@ -230,6 +230,10 @@ func (c Config) ReloadInterval() time.Duration {
 
 func (c Config) PruneExpiredInterval() time.Duration {
 	return time.Duration(c.Intel.PruneExpiredIntervalSec) * time.Second
+}
+
+func (c Config) IocSyncInterval() time.Duration {
+	return time.Duration(c.Intel.IocSyncIntervalMin) * time.Minute
 }
 
 func (c Config) RetryInterval() time.Duration {

@@ -90,7 +90,7 @@ func runNode(cfg config.Config, configPath string) error {
 	}
 	if cfg.Intel.EnableIocSync && cfg.Intel.IocSyncDir != "" {
 		syncer := iocsync.New(intelStore, cfg.Intel.IocSyncDir, cfg.Intel.IocSyncRetainDays, cfg.Intel.MaxItems)
-		go runDailyIOCSync(ctx, syncer, cfg.Intel.IocSyncHour)
+		go runIOCSync(ctx, syncer, cfg.IocSyncInterval())
 	}
 	if cfg.Intel.PruneExpiredIntervalSec > 0 {
 		go pruneExpired(ctx, intelStore, cfg.PruneExpiredInterval())
@@ -180,20 +180,27 @@ func openSource(cfg config.Config) (capture.Source, error) {
 	return capture.NewInterfaceCapture(cfg.Capture.Interface, cfg.Capture.Snaplen, cfg.Capture.Promiscuous, cfg.Capture.BPFFilter)
 }
 
-// runDailyIOCSync fires Syncer.SyncOnce once per day at hour:00 (local time).
-func runDailyIOCSync(ctx context.Context, s *iocsync.Syncer, hour int) {
+// runIOCSync syncs new IOC zips once at startup, then every interval. SyncOnce
+// logs its own summary. A non-positive interval falls back to 60m so a
+// misconfiguration never panics time.NewTicker.
+func runIOCSync(ctx context.Context, s *iocsync.Syncer, interval time.Duration) {
+	if interval <= 0 {
+		interval = 60 * time.Minute
+	}
+	syncOnce := func() {
+		if _, err := s.SyncOnce(); err != nil {
+			log.Printf("iocsync failed: %v", err)
+		}
+	}
+	syncOnce() // run once at startup
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
 	for {
-		timer := time.NewTimer(time.Until(iocsync.NextDailyTime(time.Now(), hour)))
 		select {
 		case <-ctx.Done():
-			timer.Stop()
 			return
-		case <-timer.C:
-			if added, err := s.SyncOnce(); err != nil {
-				log.Printf("iocsync failed: %v", err)
-			} else if added > 0 {
-				log.Printf("iocsync: added %d new IOC(s)", added)
-			}
+		case <-ticker.C:
+			syncOnce()
 		}
 	}
 }

@@ -137,23 +137,3 @@ func TestCleanupRemovesOldZips(t *testing.T) {
 		t.Error("5-day-old zip should remain")
 	}
 }
-
-func TestNextDailyTime(t *testing.T) {
-	loc := time.UTC
-	mk := func(h, m int) time.Time { return time.Date(2026, 7, 13, h, m, 0, 0, loc) }
-	cases := []struct {
-		now      time.Time
-		wantDay  int
-		wantHour int
-	}{
-		{mk(0, 30), 13, 1}, // before 1am -> today 1am
-		{mk(1, 0), 14, 1},  // exactly 1am -> next day (strictly after)
-		{mk(13, 0), 14, 1}, // after 1am -> next day
-	}
-	for _, c := range cases {
-		got := NextDailyTime(c.now, 1)
-		if got.Day() != c.wantDay || got.Hour() != c.wantHour || got.Minute() != 0 {
-			t.Errorf("NextDailyTime(%v,1)=%v, want day=%d hour=%d", c.now, got, c.wantDay, c.wantHour)
-		}
-	}
-}

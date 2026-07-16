@@ -101,13 +101,3 @@ func (s *Syncer) cleanupOldZips(now time.Time) int {
 	}
 	return removed
 }
-
-// NextDailyTime returns the next local time strictly after now at hour:00,
-// used by the scheduler to fire once per day.
-func NextDailyTime(now time.Time, hour int) time.Time {
-	next := time.Date(now.Year(), now.Month(), now.Day(), hour, 0, 0, 0, now.Location())
-	if !next.After(now) {
-		next = next.AddDate(0, 0, 1)
-	}
-	return next
-}
