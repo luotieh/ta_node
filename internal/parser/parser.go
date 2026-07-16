@@ -38,6 +38,11 @@ type PacketFeature struct {
 	DNSQType   uint16   `json:"dns_qtype,omitempty"`
 	DNSAnswers []string `json:"dns_answers,omitempty"`
 
+	// SNI is the TLS ClientHello server_name (a domain), extracted from HTTPS
+	// handshakes so encrypted flows can still match domain IOCs even when the
+	// preceding DNS query was not observed.
+	SNI string `json:"tls_sni,omitempty"`
+
 	ICMPPayloadLen uint32 `json:"icmp_payload_len,omitempty"`
 	ICMPSeq        uint32 `json:"icmp_seq,omitempty"`
 
@@ -83,6 +88,10 @@ func Parse(packet gopacket.Packet) (PacketFeature, error) {
 			pf.PayloadSample = samplePayload(pf.Payload)
 		}
 		parseHTTP(&pf)
+		parseTLS(&pf)
+		if pf.SrcPort == 53 || pf.DstPort == 53 {
+			parseDNSOverTCP(&pf)
+		}
 		return pf, nil
 	}
 	if udpLayer := packet.Layer(layers.LayerTypeUDP); udpLayer != nil {
@@ -114,7 +123,12 @@ func parseDNS(packet gopacket.Packet, pf *PacketFeature) {
 	if dnsLayer == nil {
 		return
 	}
-	dns := dnsLayer.(*layers.DNS)
+	fillDNS(dnsLayer.(*layers.DNS), pf)
+}
+
+// fillDNS copies query name/type and answers (IPs and CNAME targets) from a
+// decoded DNS message onto pf. Shared by the UDP and TCP/53 paths.
+func fillDNS(dns *layers.DNS, pf *PacketFeature) {
 	if len(dns.Questions) > 0 {
 		q := dns.Questions[0]
 		pf.DNSQuery = strings.TrimSuffix(string(q.Name), ".")
@@ -128,6 +142,120 @@ func parseDNS(packet gopacket.Packet, pf *PacketFeature) {
 			pf.DNSAnswers = append(pf.DNSAnswers, strings.TrimSuffix(string(a.CNAME), "."))
 		}
 	}
+}
+
+// parseDNSOverTCP decodes a DNS message carried over TCP (RFC 7766): a 2-byte
+// big-endian length prefix followed by the DNS message. Only a message fully
+// contained in this packet is parsed; one split across TCP segments is skipped.
+func parseDNSOverTCP(pf *PacketFeature) {
+	p := pf.Payload
+	if len(p) < 2 {
+		return
+	}
+	n := int(p[0])<<8 | int(p[1])
+	if n <= 0 || 2+n > len(p) {
+		return
+	}
+	var dns layers.DNS
+	if err := dns.DecodeFromBytes(p[2:2+n], gopacket.NilDecodeFeedback); err != nil {
+		return
+	}
+	fillDNS(&dns, pf)
+}
+
+// parseTLS extracts the SNI (server_name) from a TLS ClientHello if the TCP
+// payload begins with one, so domain IOCs can match encrypted flows.
+func parseTLS(pf *PacketFeature) {
+	if host, ok := tlsClientHelloSNI(pf.Payload); ok {
+		pf.SNI = host
+	}
+}
+
+// tlsClientHelloSNI parses a single-packet TLS ClientHello and returns the
+// server_name (host_name) extension value. Every field length is bounds-checked
+// so malformed or truncated input never panics; a ClientHello split across TCP
+// segments is not reassembled and yields (\"\", false).
+func tlsClientHelloSNI(p []byte) (string, bool) {
+	// TLS record header: content_type(1)=0x16 handshake, version(2), length(2).
+	if len(p) < 5 || p[0] != 0x16 {
+		return "", false
+	}
+	hs := p[5:]
+	// Handshake header: msg_type(1)=0x01 ClientHello, length(3).
+	if len(hs) < 4 || hs[0] != 0x01 {
+		return "", false
+	}
+	b := hs[4:]
+	// client_version(2) + random(32).
+	if len(b) < 34 {
+		return "", false
+	}
+	b = b[34:]
+	// session_id: length(1) + id.
+	if len(b) < 1 || len(b) < 1+int(b[0]) {
+		return "", false
+	}
+	b = b[1+int(b[0]):]
+	// cipher_suites: length(2) + suites.
+	if len(b) < 2 {
+		return "", false
+	}
+	csLen := int(b[0])<<8 | int(b[1])
+	if len(b) < 2+csLen {
+		return "", false
+	}
+	b = b[2+csLen:]
+	// compression_methods: length(1) + methods.
+	if len(b) < 1 || len(b) < 1+int(b[0]) {
+		return "", false
+	}
+	b = b[1+int(b[0]):]
+	// extensions: length(2) + extensions.
+	if len(b) < 2 {
+		return "", false
+	}
+	extTotal := int(b[0])<<8 | int(b[1])
+	b = b[2:]
+	if len(b) > extTotal {
+		b = b[:extTotal]
+	}
+	for len(b) >= 4 {
+		extType := int(b[0])<<8 | int(b[1])
+		extLen := int(b[2])<<8 | int(b[3])
+		b = b[4:]
+		if len(b) < extLen {
+			return "", false
+		}
+		ext := b[:extLen]
+		b = b[extLen:]
+		if extType != 0x0000 { // server_name
+			continue
+		}
+		// server_name_list: length(2), entries of name_type(1)+name_len(2)+name.
+		if len(ext) < 2 {
+			return "", false
+		}
+		listLen := int(ext[0])<<8 | int(ext[1])
+		ext = ext[2:]
+		if len(ext) > listLen {
+			ext = ext[:listLen]
+		}
+		for len(ext) >= 3 {
+			nameType := ext[0]
+			nameLen := int(ext[1])<<8 | int(ext[2])
+			ext = ext[3:]
+			if len(ext) < nameLen {
+				return "", false
+			}
+			name := ext[:nameLen]
+			ext = ext[nameLen:]
+			if nameType == 0x00 && nameLen > 0 { // host_name
+				return strings.TrimSuffix(string(name), "."), true
+			}
+		}
+		return "", false
+	}
+	return "", false
 }
 
 func parseHTTP(pf *PacketFeature) {

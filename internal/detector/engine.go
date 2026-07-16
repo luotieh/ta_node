@@ -236,13 +236,14 @@ func appContext(f flow.FlowFeature) *event.AppContext {
 		DNSQuery:      f.DNSQuery,
 		DNSQType:      f.DNSQType,
 		DNSAnswers:    f.DNSAnswers,
+		TLSSNI:        f.SNI,
 		PayloadSample: f.PayloadSample,
 		ICMPSeq:       f.ICMPSeq,
 	}
 	if app.HTTPMethod == "" && app.HTTPHost == "" && app.HTTPURL == "" &&
 		app.UserAgent == "" && len(app.HTTPHeaders) == 0 && app.HTTPBody == "" &&
 		app.DNSQuery == "" && app.DNSQType == 0 && len(app.DNSAnswers) == 0 &&
-		app.PayloadSample == "" && app.ICMPSeq == 0 {
+		app.TLSSNI == "" && app.PayloadSample == "" && app.ICMPSeq == 0 {
 		return nil
 	}
 	return app

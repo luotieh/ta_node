@@ -61,3 +61,24 @@ func TestIntelMatcherMatchesCNAMEAnswer(t *testing.T) {
 		t.Fatalf("expected CNAME answer to hit domain IOC, got %#v", hits)
 	}
 }
+
+func TestMatcherMatchesSNI(t *testing.T) {
+	store, err := NewStore("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := store.Add(ThreatIntel{ID: "d1", Type: "domain", Value: "evil.example.com", Category: "c2", Severity: "high", Enabled: true}); err != nil {
+		t.Fatal(err)
+	}
+	m := NewMatcher(store)
+
+	if hits := m.MatchPacket(parser.PacketFeature{SNI: "evil.example.com"}); len(hits) != 1 {
+		t.Fatalf("SNI exact: want 1 hit, got %d", len(hits))
+	}
+	if hits := m.MatchPacket(parser.PacketFeature{SNI: "a.b.evil.example.com"}); len(hits) != 1 {
+		t.Fatalf("SNI subdomain suffix: want 1 hit, got %d", len(hits))
+	}
+	if hits := m.MatchPacket(parser.PacketFeature{SNI: "good.example.com"}); len(hits) != 0 {
+		t.Fatalf("SNI non-match: want 0 hits, got %d", len(hits))
+	}
+}
