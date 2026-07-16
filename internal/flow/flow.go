@@ -22,6 +22,7 @@ type FlowFeature struct {
 	HTTPHost string `json:"http_host,omitempty"`
 	HTTPURL  string `json:"http_url,omitempty"`
 	DNSQuery string `json:"dns_query,omitempty"`
+	SNI      string `json:"tls_sni,omitempty"`
 
 	// Application-layer context from the triggering packet. These are attached
 	// only to the FlowFeature returned by Aggregator.Update (not persisted on

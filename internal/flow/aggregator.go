@@ -85,6 +85,7 @@ func (a *Aggregator) Update(pf parser.PacketFeature, fpHits []fingerprint.Finger
 	f.HTTPHost = firstNonEmpty(f.HTTPHost, pf.HTTPHost)
 	f.HTTPURL = firstNonEmpty(f.HTTPURL, pf.HTTPURL)
 	f.DNSQuery = firstNonEmpty(f.DNSQuery, pf.DNSQuery)
+	f.SNI = firstNonEmpty(f.SNI, pf.SNI)
 	f.EvidenceFile = firstNonEmpty(f.EvidenceFile, pf.EvidenceFile)
 	st.lastSeen = a.now()
 
@@ -114,6 +115,7 @@ func attachAppContext(out *FlowFeature, pf parser.PacketFeature) {
 	out.HTTPHost = firstNonEmpty(pf.HTTPHost, out.HTTPHost)
 	out.HTTPURL = firstNonEmpty(pf.HTTPURL, out.HTTPURL)
 	out.DNSQuery = firstNonEmpty(pf.DNSQuery, out.DNSQuery)
+	out.SNI = firstNonEmpty(pf.SNI, out.SNI)
 }
 
 // Cleanup removes flows that have been idle for longer than the idle timeout
@@ -158,6 +160,7 @@ func transientFeature(pf parser.PacketFeature, fpHits []fingerprint.FingerprintH
 		HTTPHost:        pf.HTTPHost,
 		HTTPURL:         pf.HTTPURL,
 		DNSQuery:        pf.DNSQuery,
+		SNI:             pf.SNI,
 		EvidenceFile:    pf.EvidenceFile,
 		FingerprintHits: fpHits,
 		IntelHits:       intelHits,

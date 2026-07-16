@@ -21,6 +21,10 @@ type AppContext struct {
 	DNSQType   uint16   `json:"dns_qtype,omitempty"`
 	DNSAnswers []string `json:"dns_answers,omitempty"`
 
+	// TLSSNI is the server_name from the TLS ClientHello of an HTTPS flow,
+	// carried so an analyst/AI can see which domain an encrypted hit was for.
+	TLSSNI string `json:"tls_sni,omitempty"`
+
 	PayloadSample string `json:"payload_sample,omitempty"`
 	ICMPSeq       uint32 `json:"icmp_seq,omitempty"`
 }
