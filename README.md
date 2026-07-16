@@ -38,13 +38,13 @@ Intel CLI:
 ./ta_node --config ./configs/ta_node.yaml intel reload
 ```
 
-### 每日定时增量同步（网闸投递）
+### 定时增量同步（网闸投递）
 
-节点每天 `ioc_sync_hour`（默认 01:00）从 `ioc_sync_dir`（默认 `/data/yt/ioc`）下的
-`*.zip` 中，取全部“新”规则（按 type+value 判断，已在主文件的跳过）增量写入
-`intel_file`，主文件即唯一规则来源与消费游标。节点端不设每日条数上限——推送多少由
-威胁聚合平台侧控制。随后删除该目录内 mtime 早于 `ioc_sync_retain_days`（默认 10）天
-的 zip。zip 从不被移动，仅按保留期清理。
+节点启动时先同步一次，之后每隔 `ioc_sync_interval_min`（默认 60）分钟，从
+`ioc_sync_dir`（默认 `/data/yt/ioc`）下的 `*.zip` 中取全部“新”规则（按 type+value
+判断，已在主文件的跳过）增量写入 `intel_file`，主文件即唯一规则来源与消费游标。
+节点端不设每次条数上限——推送多少由威胁聚合平台侧控制。随后删除该目录内 mtime 早于
+`ioc_sync_retain_days`（默认 10）天的 zip。zip 从不被移动，仅按保留期清理。
 
 Local intel API listens on `server.listen`:
 
