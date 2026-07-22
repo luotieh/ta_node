@@ -1,0 +1,120 @@
+name: Build ARM64 Image & Release
+
+on:
+  push:
+    tags:
+      - 'v*'               # 推送 v1.0.0 等 tag 时自动触发
+  workflow_dispatch:        # 允许手动触发
+    inputs:
+      tag:
+        description: 'Release tag (e.g. v1.3.1)'
+        required: false
+        default: ''
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}   # 即 <owner>/ta_node
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-24.04-arm64           # ARM64 原生 runner
+    permissions:
+      contents: write                     # 创建 Release
+      packages: write                     # 推送镜像到 ghcr.io
+      attestations: write
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Vendor dependencies
+        run: |
+          go mod tidy
+          go mod vendor
+          go mod verify
+
+      - name: Set release tag
+        id: tag
+        run: |
+          if [ -n "${{ github.event.inputs.tag }}" ]; then
+            echo "value=${{ github.event.inputs.tag }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.ref_type }}" = "tag" ]; then
+            echo "value=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=dev-$(date +%Y%m%d-%H%M%S)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up QEMU (multi-arch) — ensure ARM64 emulation if needed
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push ARM64 Docker image
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/arm64
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.value }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.version=${{ steps.tag.outputs.value }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          outputs: |
+            type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push=true
+            type=tar,dest=/tmp/ta_node-${{ steps.tag.outputs.value }}-arm64.tar
+
+      - name: Compress image tar
+        run: |
+          gzip -9 /tmp/ta_node-${{ steps.tag.outputs.value }}-arm64.tar
+          ls -lh /tmp/ta_node-${{ steps.tag.outputs.value }}-arm64.tar.gz
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.value }}
+          name: ${{ steps.tag.outputs.value }}
+          body: |
+            ## ARM64 Docker Image
+
+            ### Pull from GHCR
+            ```bash
+            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.value }}
+            ```
+
+            ### Load from tar
+            ```bash
+            gunzip -c ta_node-${{ steps.tag.outputs.value }}-arm64.tar.gz | docker load
+            ```
+
+            ### Run
+            ```bash
+            docker run -d --name ta_node \
+              -p 19090:19090 \
+              -v ta_node_data:/var/lib/ta_node/data \
+              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.value }}
+            ```
+          files: /tmp/ta_node-${{ steps.tag.outputs.value }}-arm64.tar.gz
+          draft: false
+          prerelease: ${{ !startsWith(steps.tag.outputs.value, 'v') }}
+          generate_release_notes: true
