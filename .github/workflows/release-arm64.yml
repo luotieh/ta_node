@@ -65,8 +65,8 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and push ARM64 Docker image
-        id: build
+      # ── Step A: 推送镜像到 ghcr.io ──
+      - name: Build and push to GHCR
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -80,9 +80,16 @@ jobs:
             org.opencontainers.image.version=${{ steps.tag.outputs.value }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          outputs: |
-            type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push=true
-            type=tar,dest=/tmp/ta_node-${{ steps.tag.outputs.value }}-arm64.tar
+
+      # ── Step B: 导出 docker 格式 tar（可供 docker load 使用）──
+      - name: Export Docker image tar
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/arm64
+          outputs: type=docker,dest=/tmp/ta_node-${{ steps.tag.outputs.value }}-arm64.tar
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Compress image tar
         run: |
