@@ -17,7 +17,7 @@ env:
 
 jobs:
   build-and-release:
-    runs-on: ubuntu-24.04-arm64           # ARM64 原生 runner
+    runs-on: ubuntu-latest
     permissions:
       contents: write                     # 创建 Release
       packages: write                     # 推送镜像到 ghcr.io
