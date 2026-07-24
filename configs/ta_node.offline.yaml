@@ -29,7 +29,7 @@ intel:
   default_source: "Threat Intel Hub"
   max_items: 100000
   # 每日定时从下述目录增量同步 IOC 规则到 intel_file(主文件即唯一规则来源)。
-  ioc_sync_dir: "/data/yt/ioc"    # 网闸投递的规则 zip 目录；设 "" 关闭
+  ioc_sync_dir: "/data/yt"        # 网闸投递的规则目录；设 "" 关闭
   enable_ioc_sync: true
   ioc_sync_interval_min: 60       # 每隔多少分钟取一次新规则（启动时先跑一次）
   ioc_sync_retain_days: 10        # 删除该目录内早于 N 天的 zip

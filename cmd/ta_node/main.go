@@ -78,7 +78,19 @@ func runNode(cfg config.Config, configPath string) error {
 	if cfg.Event.EnablePush {
 		go push.StartWorker(ctx, q, client, cfg.Event.PushBatchSize, cfg.RetryInterval())
 	}
-	if cfg.Server.Enable {
+	if cfg.Intel.EnableIocSync && cfg.Intel.IocSyncDir != "" {
+		syncer := iocsync.New(intelStore, cfg.Intel.IocSyncDir, cfg.Intel.IocSyncRetainDays, cfg.Intel.MaxItems)
+		go runIOCSync(ctx, syncer, cfg.IocSyncInterval())
+		if cfg.Server.Enable {
+			srv := server.New(intelStore, cfg, configPath)
+			srv.SetIOCSyncer(syncer)
+			go func() {
+				if err := srv.ListenAndServe(cfg.Server.Listen); err != nil {
+					log.Printf("intel api stopped: %v", err)
+				}
+			}()
+		}
+	} else if cfg.Server.Enable {
 		go func() {
 			if err := server.New(intelStore, cfg, configPath).ListenAndServe(cfg.Server.Listen); err != nil {
 				log.Printf("intel api stopped: %v", err)
@@ -87,10 +99,6 @@ func runNode(cfg config.Config, configPath string) error {
 	}
 	if cfg.Intel.EnableHotReload {
 		go hotReload(ctx, intelStore, cfg.ReloadInterval())
-	}
-	if cfg.Intel.EnableIocSync && cfg.Intel.IocSyncDir != "" {
-		syncer := iocsync.New(intelStore, cfg.Intel.IocSyncDir, cfg.Intel.IocSyncRetainDays, cfg.Intel.MaxItems)
-		go runIOCSync(ctx, syncer, cfg.IocSyncInterval())
 	}
 	if cfg.Intel.PruneExpiredIntervalSec > 0 {
 		go pruneExpired(ctx, intelStore, cfg.PruneExpiredInterval())

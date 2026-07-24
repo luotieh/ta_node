@@ -19,7 +19,7 @@ func TestLoadConfig(t *testing.T) {
 
 func TestDefaultIocSync(t *testing.T) {
 	c := Default()
-	if c.Intel.IocSyncDir != "/data/yt/ioc" {
+	if c.Intel.IocSyncDir != "/data/yt" {
 		t.Errorf("ioc_sync_dir default: %q", c.Intel.IocSyncDir)
 	}
 	if !c.Intel.EnableIocSync {

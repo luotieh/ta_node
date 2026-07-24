@@ -116,7 +116,7 @@ func Default() Config {
 			AcceptSTIX:              true,
 			DefaultSource:           "Threat Intel Hub",
 			MaxItems:                100000,
-			IocSyncDir:              "/data/yt/ioc",
+			IocSyncDir:              "/data/yt",
 			EnableIocSync:           true,
 			IocSyncIntervalMin:      60,
 			IocSyncRetainDays:       10,

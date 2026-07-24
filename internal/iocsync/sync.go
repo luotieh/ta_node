@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 	"time"
 
 	"ta_node/internal/intel"
@@ -26,16 +27,23 @@ func New(store *intel.Store, dir string, retainDays, maxItems int) *Syncer {
 	return &Syncer{store: store, dir: dir, retainDays: retainDays, maxItems: maxItems}
 }
 
-// SyncOnce scans dir, imports every "new" IOC (canonical key not in the main
-// file) into the store, then prunes zips older than retainDays. It returns the
-// number of IOCs added. Bad/half-written zips are logged and skipped; a scan
-// error never shrinks the rule set. retainDays <= 0 disables cleanup.
+// isYAML reports whether path has a .yaml or .yml extension.
+func isYAML(path string) bool {
+	n := strings.ToLower(path)
+	return strings.HasSuffix(n, ".yaml") || strings.HasSuffix(n, ".yml")
+}
+
+// SyncOnce scans dir for *.zip and *.yaml/*.yml files, imports every "new" IOC
+// (canonical key not in the main file) into the store, then prunes files older
+// than retainDays. It returns the number of IOCs added. Bad/half-written files
+// are logged and skipped; a scan error never shrinks the rule set. retainDays
+// <= 0 disables cleanup.
 func (s *Syncer) SyncOnce() (int, error) {
-	paths, err := filepath.Glob(filepath.Join(s.dir, "*.zip"))
-	if err != nil {
-		return 0, err
-	}
-	sort.Strings(paths)
+	zipPaths, _ := filepath.Glob(filepath.Join(s.dir, "*.zip"))
+	yamlPaths, _ := filepath.Glob(filepath.Join(s.dir, "*.yaml"))
+	ymlPaths, _ := filepath.Glob(filepath.Join(s.dir, "*.yml"))
+	allPaths := append(append(zipPaths, yamlPaths...), ymlPaths...)
+	sort.Strings(allPaths)
 
 	// The main file is the cursor: an IOC already present is not "new".
 	seen := map[string]bool{}
@@ -45,11 +53,17 @@ func (s *Syncer) SyncOnce() (int, error) {
 
 	var candidates []intel.ThreatIntel
 	scanned := 0
-	for _, p := range paths {
+	for _, p := range allPaths {
 		if info, statErr := os.Stat(p); statErr != nil || info.IsDir() {
 			continue
 		}
-		items, exErr := extractItems(p, s.maxItems)
+		var items []intel.ThreatIntel
+		var exErr error
+		if isYAML(p) {
+			items, exErr = extractPlainYAML(p)
+		} else {
+			items, exErr = extractItems(p, s.maxItems)
+		}
 		if exErr != nil {
 			log.Printf("iocsync: skip %s: %v", filepath.Base(p), exErr)
 			continue
@@ -70,30 +84,32 @@ func (s *Syncer) SyncOnce() (int, error) {
 			return 0, err
 		}
 	}
-	removed := s.cleanupOldZips(time.Now())
-	log.Printf("iocsync: added %d new IOC(s) from %d zip(s); removed %d expired zip(s)", len(candidates), scanned, removed)
+	removed := s.cleanupOldFiles(time.Now())
+	log.Printf("iocsync: added %d new IOC(s) from %d file(s); removed %d expired file(s)", len(candidates), scanned, removed)
 	return len(candidates), nil
 }
 
-// cleanupOldZips removes *.zip in dir whose mtime is older than retainDays.
-func (s *Syncer) cleanupOldZips(now time.Time) int {
+// cleanupOldFiles removes *.zip and *.yaml/*.yml files in dir whose mtime is
+// older than retainDays.
+func (s *Syncer) cleanupOldFiles(now time.Time) int {
 	if s.retainDays <= 0 {
 		return 0
 	}
-	paths, err := filepath.Glob(filepath.Join(s.dir, "*.zip"))
-	if err != nil {
-		return 0
-	}
+	zipPaths, _ := filepath.Glob(filepath.Join(s.dir, "*.zip"))
+	yamlPaths, _ := filepath.Glob(filepath.Join(s.dir, "*.yaml"))
+	ymlPaths, _ := filepath.Glob(filepath.Join(s.dir, "*.yml"))
+	allPaths := append(append(zipPaths, yamlPaths...), ymlPaths...)
+
 	cutoff := now.AddDate(0, 0, -s.retainDays)
 	removed := 0
-	for _, p := range paths {
+	for _, p := range allPaths {
 		info, statErr := os.Stat(p)
 		if statErr != nil || info.IsDir() {
 			continue
 		}
 		if info.ModTime().Before(cutoff) {
 			if err := os.Remove(p); err != nil {
-				log.Printf("iocsync: remove old zip %s failed: %v", filepath.Base(p), err)
+				log.Printf("iocsync: remove old file %s failed: %v", filepath.Base(p), err)
 				continue
 			}
 			removed++

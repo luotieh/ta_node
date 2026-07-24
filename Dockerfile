@@ -23,9 +23,9 @@ COPY --from=builder /ta_node /usr/local/bin/ta_node
 COPY configs/ /etc/ta_node/configs/
 COPY patterns/ /etc/ta_node/patterns/
 
-RUN mkdir -p /var/lib/ta_node/data /var/lib/ta_node/evidence /data/yt/ioc
+RUN mkdir -p /var/lib/ta_node/data /var/lib/ta_node/evidence /data/yt
 
-VOLUME ["/var/lib/ta_node/data", "/var/lib/ta_node/evidence", "/data/yt/ioc"]
+VOLUME ["/var/lib/ta_node/data", "/var/lib/ta_node/evidence", "/data/yt"]
 EXPOSE 19090
 
 ENTRYPOINT ["/usr/local/bin/ta_node"]

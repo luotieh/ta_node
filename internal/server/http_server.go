@@ -13,21 +13,29 @@ import (
 	"ta_node/internal/buildinfo"
 	"ta_node/internal/config"
 	"ta_node/internal/intel"
+	"ta_node/internal/iocsync"
 	"ta_node/internal/queue"
 )
 
 type Server struct {
-	store      *intel.Store
-	cfg        config.Config
-	configPath string
-	mu         sync.RWMutex
-	mux        *http.ServeMux
+	store        *intel.Store
+	cfg          config.Config
+	configPath   string
+	mu           sync.RWMutex
+	mux          *http.ServeMux
+	syncOnceFunc func() (int, error)
 }
 
 func New(store *intel.Store, cfg config.Config, configPath string) *Server {
 	s := &Server{store: store, cfg: cfg, configPath: configPath, mux: http.NewServeMux()}
 	s.routes()
 	return s
+}
+
+func (s *Server) SetIOCSyncer(syncer *iocsync.Syncer) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.syncOnceFunc = syncer.SyncOnce
 }
 
 func (s *Server) Handler() http.Handler { return s.mux }
@@ -247,6 +255,24 @@ func (s *Server) handleIntelID(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		writeJSON(w, http.StatusOK, map[string]any{"success": true, "count": len(result.Items), "skipped": result.Skipped, "errors": result.Errors})
+	case r.Method == http.MethodPost && path == "iocsync":
+		if !s.authorized(r) {
+			writeJSON(w, http.StatusUnauthorized, map[string]any{"success": false, "error": "unauthorized"})
+			return
+		}
+		s.mu.RLock()
+		fn := s.syncOnceFunc
+		s.mu.RUnlock()
+		if fn == nil {
+			writeJSON(w, http.StatusServiceUnavailable, map[string]any{"success": false, "error": "ioc sync not available"})
+			return
+		}
+		count, err := fn()
+		if err != nil {
+			writeJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "error": err.Error()})
+			return
+		}
+		writeJSON(w, http.StatusOK, map[string]any{"success": true, "added": count})
 	case r.Method == http.MethodGet && path == "stats":
 		writeJSON(w, http.StatusOK, s.store.Stats())
 	default:
@@ -546,6 +572,17 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
         <div class="row"><label for="intel.accept_stix">接收 STIX</label><input id="intel.accept_stix" type="checkbox" {{if .Config.Intel.AcceptSTIX}}checked{{end}}></div>
         <div class="row"><label for="intel.default_source">默认来源</label><input id="intel.default_source" value="{{.Config.Intel.DefaultSource}}"></div>
         <div class="row"><label for="intel.max_items">最大 IOC 数</label><input id="intel.max_items" type="number" min="0" value="{{.Config.Intel.MaxItems}}"></div>
+        <div class="row"><label for="intel.enable_ioc_sync">启用 IOC 同步</label><input id="intel.enable_ioc_sync" type="checkbox" {{if .Config.Intel.EnableIocSync}}checked{{end}}></div>
+        <div class="row"><label for="intel.ioc_sync_dir">同步目录</label><input id="intel.ioc_sync_dir" value="{{.Config.Intel.IocSyncDir}}"></div>
+        <div class="row"><label for="intel.ioc_sync_interval_min">同步间隔(分)</label><input id="intel.ioc_sync_interval_min" type="number" min="1" value="{{.Config.Intel.IocSyncIntervalMin}}"></div>
+        <div class="row"><label for="intel.ioc_sync_retain_days">保留天数</label><input id="intel.ioc_sync_retain_days" type="number" min="0" value="{{.Config.Intel.IocSyncRetainDays}}"></div>
+        <div class="row">
+          <label>手动触发同步</label>
+          <span style="display:flex;gap:8px;align-items:center;">
+            <button class="secondary" type="button" id="triggerIocSyncBtn">立即同步</button>
+            <span id="iocSyncStatus" class="muted" style="font-size:12px;flex:1;"></span>
+          </span>
+        </div>
       </fieldset>
       <fieldset>
         <legend>证据</legend>
@@ -598,6 +635,32 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
           </table>
         </div>
       </fieldset>
+      <fieldset class="full">
+        <legend>威胁情报规则</legend>
+        <div class="toolbar">
+          <div id="intelTableStatus" class="muted">当前已加载 <span id="intelCount">0</span> 条 IOC 规则</div>
+          <button class="secondary" type="button" id="refreshIntelBtn">刷新规则</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>类型</th>
+                <th>值</th>
+                <th>分类</th>
+                <th>级别</th>
+                <th>来源</th>
+                <th>启用</th>
+                <th>描述</th>
+              </tr>
+            </thead>
+            <tbody id="intelRows">
+              <tr><td colspan="8" class="muted">暂无数据</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </fieldset>
       <div class="actions">
         <div id="status" class="status"></div>
         <input id="authToken" class="auth-token" type="password" autocomplete="current-password" placeholder="鉴权 Token（输入一次后记住）">
@@ -612,6 +675,7 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
       "capture.interface", "capture.pcap_file", "capture.bpf_filter", "capture.snaplen", "capture.promiscuous",
       "patterns.enable", "patterns.pattern_dir",
       "intel.intel_file", "intel.reload_interval_sec", "intel.enable_hot_reload", "intel.prune_expired_interval_sec", "intel.accept_stix", "intel.default_source", "intel.max_items",
+      "intel.enable_ioc_sync", "intel.ioc_sync_dir", "intel.ioc_sync_interval_min", "intel.ioc_sync_retain_days",
       "evidence.enable_pcap_save", "evidence.pcap_dir",
       "event.enable_push", "event.queue_db", "event.push_batch_size", "event.retry_interval_sec", "event.push_timeout_sec", "event.max_push_retry",
       "server.enable", "server.listen", "server.token"
@@ -738,6 +802,64 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
     });
     document.getElementById("refreshPushLogsBtn").addEventListener("click", loadPushLogs);
     loadPushLogs();
+    async function loadIntelRules() {
+      const rowsEl = document.getElementById("intelRows");
+      const status = document.getElementById("intelTableStatus");
+      const countEl = document.getElementById("intelCount");
+      try {
+        const res = await fetch("/api/v1/intel");
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || res.statusText);
+        const items = data.items || [];
+        countEl.textContent = items.length;
+        status.textContent = "当前已加载 " + items.length + " 条 IOC 规则";
+        status.className = "muted";
+        if (items.length === 0) {
+          rowsEl.innerHTML = '<tr><td colspan="8" class="muted">暂无数据</td></tr>';
+        } else {
+          rowsEl.innerHTML = items.map((item) =>
+            '<tr>' +
+              '<td>' + escapeText(item.id || "") + '</td>' +
+              '<td>' + escapeText(item.type || "") + '</td>' +
+              '<td>' + escapeText(item.value || "") + '</td>' +
+              '<td>' + escapeText(item.category || "") + '</td>' +
+              '<td>' + escapeText(item.severity || "") + '</td>' +
+              '<td>' + escapeText(item.source || "") + '</td>' +
+              '<td>' + (item.enabled ? '是' : '否') + '</td>' +
+              '<td>' + escapeText(item.description || "") + '</td>' +
+            '</tr>'
+          ).join("");
+        }
+      } catch (err) {
+        rowsEl.innerHTML = '<tr><td colspan="8" class="muted">读取失败</td></tr>';
+        status.textContent = "读取规则失败：" + err.message;
+        status.className = "error";
+      }
+    }
+    document.getElementById("refreshIntelBtn").addEventListener("click", loadIntelRules);
+    loadIntelRules();
+    document.getElementById("triggerIocSyncBtn").addEventListener("click", async () => {
+      const btn = document.getElementById("triggerIocSyncBtn");
+      const status = document.getElementById("iocSyncStatus");
+      btn.disabled = true;
+      status.textContent = "正在同步...";
+      status.className = "muted";
+      try {
+        const res = await fetch("/api/v1/intel/iocsync", {
+          method: "POST",
+          headers: authHeaders({"Content-Type": "application/json"})
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || res.statusText);
+        status.textContent = "同步完成，新增 " + (data.added || 0) + " 条 IOC。";
+        status.className = "ok";
+      } catch (err) {
+        status.textContent = "同步失败：" + err.message;
+        status.className = "error";
+      } finally {
+        btn.disabled = false;
+      }
+    });
   </script>
 </body>
 </html>`))

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"os"
 	"strings"
 
 	"gopkg.in/yaml.v3"
@@ -20,6 +21,23 @@ var errIncomplete = errors.New("zip incomplete")
 // maxZipUncompressed caps total decompressed bytes read from a single zip to
 // bound memory against a malformed or hostile archive.
 const maxZipUncompressed = 256 << 20
+
+// extractPlainYAML reads a single standalone *.yaml/*.yml file directly from
+// disk and returns its ThreatIntel items.
+func extractPlainYAML(path string) ([]intel.ThreatIntel, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, errIncomplete
+	}
+	if int64(len(data)) > maxZipUncompressed {
+		return nil, fmt.Errorf("yaml %s exceeds %d bytes", path, maxZipUncompressed)
+	}
+	var fy intel.File
+	if err := yaml.Unmarshal(data, &fy); err != nil {
+		return nil, fmt.Errorf("parse %s: %w", path, err)
+	}
+	return fy.Items, nil
+}
 
 // extractItems reads every *.yaml/*.yml entry in the zip and parses them as
 // intel item files. A zip that fails to open returns errIncomplete; any other
