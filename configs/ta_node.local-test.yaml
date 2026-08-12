@@ -1,0 +1,67 @@
+node:
+  device_id: "node-local-test"
+  management_url: "http://127.0.0.1:1/disabled"
+  api_key: ""
+  home_net:
+    - "192.168.31.0/24"
+    - "198.18.0.0/30"
+
+capture:
+  interface: "lo"
+  pcap_file: ""
+  bpf_filter: ""
+  snaplen: 65535
+  promiscuous: true
+
+patterns:
+  enable: true
+  pattern_dir: "./patterns/local-test"
+
+intel:
+  intel_file: "./configs/intel.local-test.yaml"
+  reload_interval_sec: 30
+  enable_hot_reload: false
+  prune_expired_interval_sec: 0
+  accept_stix: true
+  default_source: "local-test"
+  max_items: 100
+  ioc_sync_dir: ""
+  ioc_sync_dir2: ""
+  enable_ioc_sync: false
+  ioc_sync_interval_min: 60
+  ioc_sync_retain_days: 0
+
+evidence:
+  enable_pcap_save: false
+  pcap_dir: "./data/evidence-local-test"
+
+event:
+  enable_push: false
+  queue_db: "./data/event_queue.session-test-20260728.db"
+  push_batch_size: 10
+  retry_interval_sec: 30
+  push_timeout_sec: 2
+  max_push_retry: 1
+  local_hit_window_sec: 60
+
+flow:
+  max_flows: 10000
+  idle_timeout_sec: 120
+  cleanup_interval_sec: 30
+
+aggregation:
+  mode: "session"
+  enable_transaction_link: true
+  response_wait_sec: 30
+  max_sessions: 10000
+  max_transactions_per_session: 16
+  max_packets_per_transaction: 128
+  max_reassembly_bytes_per_side: 262144
+  max_out_of_order_bytes: 65536
+  store_packet_index: true
+  save_full_session_pcap: false
+
+server:
+  enable: true
+  listen: "127.0.0.1:19090"
+  token: ""

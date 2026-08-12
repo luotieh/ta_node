@@ -1,0 +1,24 @@
+{
+  "threat": {
+    "rules": {
+      "LOCAL-RAW-PACKET-TEST": {
+        "type": "TEST",
+        "name": "Local raw packet test",
+        "version": "1",
+        "protocol": "tcp",
+        "is_http": 1,
+        "part": "total",
+        "regex": "ta-node-raw-packet-test"
+      },
+      "LOCAL-RAW-RESPONSE-TEST": {
+        "type": "TEST",
+        "name": "Local real response packet test",
+        "version": "1",
+        "protocol": "tcp",
+        "is_http": 0,
+        "part": "total",
+        "regex": "HTTP/1\\.1 404 Not Found"
+      }
+    }
+  }
+}

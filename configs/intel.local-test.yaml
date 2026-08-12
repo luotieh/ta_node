@@ -1,0 +1,9 @@
+items:
+  - id: "local-ip-raw-packet-test"
+    type: "ip"
+    value: "127.0.0.1"
+    category: "local_test"
+    severity: "medium"
+    source: "local-test"
+    description: "Local raw packet UI test target"
+    enabled: true
