@@ -6,6 +6,9 @@ node:
   management_url: ""
   # Sent as X-API-Key on push; set only if the management sets internal_api_key.
   api_key: ""
+  # Local network ranges (CIDR) used to classify event direction as
+  # inbound/outbound/lateral. Leave empty to report direction as "unknown".
+  home_net: []
 
 capture:
   interface: "eth0"
@@ -29,7 +32,8 @@ intel:
   default_source: "Threat Intel Hub"
   max_items: 100000
   # 每日定时从下述目录增量同步 IOC 规则到 intel_file(主文件即唯一规则来源)。
-  ioc_sync_dir: "/data/yt"        # 网闸投递的规则目录；设 "" 关闭
+  ioc_sync_dir: "/data/yt"        # 网闸投递的规则目录（主）
+  ioc_sync_dir2: "/data/yt/ioc"   # 网闸投递的规则目录（备）
   enable_ioc_sync: true
   ioc_sync_interval_min: 60       # 每隔多少分钟取一次新规则（启动时先跑一次）
   ioc_sync_retain_days: 10        # 删除该目录内早于 N 天的 zip
@@ -38,6 +42,9 @@ intel:
 evidence:
   enable_pcap_save: true
   pcap_dir: "./data/evidence"
+  retain_days: 7            # PCAP 保留天数，超期自动删除；0=不清理
+  hash_evidence_dir: true   # 按事件 ID 前 2 位 hex 哈希分桶（256 子目录）
+  archive_monthly: true     # 每月将上月目录压缩为 zip 归档
 
 event:
   enable_push: false
@@ -48,6 +55,27 @@ event:
   # 单个事件推送失败的最大重试次数，超过后放弃（仍保留在队列中可查，
   # 但不再重推）。0 表示不限。
   max_push_retry: 20
+  # Sliding window (seconds) for the node-local burst counter stamped on events
+  # as local_hit_count/local_window_sec (node-scoped hint, not a global count).
+  # Set 0 to disable.
+  local_hit_window_sec: 60
+
+flow:
+  max_flows: 1000000
+  idle_timeout_sec: 120
+  cleanup_interval_sec: 30
+
+aggregation:
+  mode: "session"
+  enable_transaction_link: true
+  response_wait_sec: 30
+  max_sessions: 100000
+  max_transactions_per_session: 16
+  max_packets_per_transaction: 128
+  max_reassembly_bytes_per_side: 262144
+  max_out_of_order_bytes: 65536
+  store_packet_index: true
+  save_full_session_pcap: false
 
 server:
   enable: true
