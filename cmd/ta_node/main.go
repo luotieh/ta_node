@@ -15,8 +15,10 @@ import (
 	"ta_node/internal/buildinfo"
 	"ta_node/internal/capture"
 	"ta_node/internal/config"
+	"ta_node/internal/correlation"
 	"ta_node/internal/counter"
 	"ta_node/internal/detector"
+	"ta_node/internal/event"
 	"ta_node/internal/evidence"
 	"ta_node/internal/fingerprint"
 	"ta_node/internal/flow"
@@ -79,7 +81,8 @@ func runNode(cfg config.Config, configPath string) error {
 		go push.StartWorker(ctx, q, client, cfg.Event.PushBatchSize, cfg.RetryInterval())
 	}
 	if cfg.Intel.EnableIocSync && cfg.Intel.IocSyncDir != "" {
-		syncer := iocsync.New(intelStore, cfg.Intel.IocSyncDir, cfg.Intel.IocSyncRetainDays, cfg.Intel.MaxItems)
+		dirs := collectSyncDirs(cfg.Intel.IocSyncDir, cfg.Intel.IocSyncDir2)
+		syncer := iocsync.New(intelStore, dirs, cfg.Intel.IocSyncRetainDays, cfg.Intel.MaxItems)
 		go runIOCSync(ctx, syncer, cfg.IocSyncInterval())
 		if cfg.Server.Enable {
 			srv := server.New(intelStore, cfg, configPath)
@@ -115,6 +118,20 @@ func runNode(cfg config.Config, configPath string) error {
 	defer src.Close()
 
 	agg := flow.NewAggregator(cfg.Flow.MaxFlows, cfg.FlowIdleTimeout())
+	var sessionTracker *correlation.Tracker
+	if cfg.SessionAggregationEnabled() {
+		sessionTracker = correlation.New(correlation.Options{
+			MaxSessions:               cfg.Aggregation.MaxSessions,
+			MaxTransactionsPerSession: cfg.Aggregation.MaxTransactionsPerSession,
+			MaxPacketsPerTransaction:  cfg.Aggregation.MaxPacketsPerTransaction,
+			MaxReassemblyBytesPerSide: cfg.Aggregation.MaxReassemblyBytesPerSide,
+			MaxOutOfOrderBytes:        cfg.Aggregation.MaxOutOfOrderBytes,
+			ResponseWait:              time.Duration(cfg.Aggregation.ResponseWaitSec) * time.Second,
+			SessionIdleTimeout:        cfg.FlowIdleTimeout(),
+			StorePacketIndex:          cfg.Aggregation.StorePacketIndex,
+		})
+		log.Printf("bidirectional session aggregation enabled (max_sessions=%d response_wait=%ds)", cfg.Aggregation.MaxSessions, cfg.Aggregation.ResponseWaitSec)
+	}
 	go flowCleanup(ctx, agg, cfg.FlowCleanupInterval())
 	var localHits *counter.Window
 	if cfg.Event.LocalHitWindowSec > 0 {
@@ -123,15 +140,30 @@ func runNode(cfg config.Config, configPath string) error {
 	det := detector.New(cfg.Node.DeviceID).
 		WithHomeNet(parseHomeNet(cfg.Node.HomeNet)).
 		WithSensorVersion(buildinfo.Short()).
-		WithLocalCounter(localHits, cfg.Event.LocalHitWindowSec)
-	evWriter := evidence.New(cfg.Evidence.EnablePCAPSave, cfg.Evidence.PCAPDir, cfg.Node.DeviceID)
+		WithLocalCounter(localHits, cfg.Event.LocalHitWindowSec).
+		WithEvidenceDir(cfg.Evidence.PCAPDir)
+	evWriter := evidence.New(cfg.Evidence.EnablePCAPSave, cfg.Evidence.PCAPDir, cfg.Node.DeviceID,
+		cfg.Evidence.HashEvidenceDir, cfg.Evidence.RetainDays, cfg.Evidence.ArchiveMonthly)
+
+	if cfg.Evidence.RetainDays > 0 {
+		go evidenceCleanup(ctx, evWriter)
+	}
+	if cfg.Evidence.ArchiveMonthly {
+		go evidenceArchive(ctx, evWriter)
+	}
 
 	for {
 		select {
 		case <-ctx.Done():
+			if sessionTracker != nil {
+				enqueueContextUpdates(q, sessionTracker.Flush())
+			}
 			return nil
 		case pkt, ok := <-src.Packets():
 			if !ok {
+				if sessionTracker != nil {
+					enqueueContextUpdates(q, sessionTracker.Flush())
+				}
 				return nil
 			}
 			pf, err := parser.Parse(pkt)
@@ -140,11 +172,15 @@ func runNode(cfg config.Config, configPath string) error {
 			}
 			fpHits := fpEngine.Match(pf)
 			intelHits := intelMatcher.MatchPacket(pf)
+			f := agg.Update(pf, fpHits, intelHits)
+			var observation correlation.Observation
+			if sessionTracker != nil {
+				observation = sessionTracker.Observe(pf, f.PacketSequence)
+				enqueueContextUpdates(q, observation.Updates)
+			}
 			if len(fpHits) == 0 && len(intelHits) == 0 {
-				agg.Update(pf, nil, nil)
 				continue
 			}
-			f := agg.Update(pf, fpHits, intelHits)
 			events := det.Detect(f)
 			for _, ev := range events {
 				path, err := evWriter.Save(ev.EventID, pkt)
@@ -154,12 +190,39 @@ func runNode(cfg config.Config, configPath string) error {
 				if path != "" {
 					ev.EvidenceFile = path
 				}
+				if sessionTracker != nil {
+					ev = sessionTracker.Register(observation, ev)
+				}
 				if err := q.Enqueue(ev); err != nil {
 					log.Printf("enqueue event failed: %v", err)
 				}
 			}
 		}
 	}
+}
+
+func enqueueContextUpdates(q queue.EventQueue, updates []event.ThreatEvent) {
+	for _, ev := range updates {
+		if err := q.Enqueue(ev); err != nil {
+			log.Printf("enqueue event context revision failed: %v", err)
+		}
+	}
+}
+
+// collectSyncDirs builds a deduped, non-empty directory list from the primary
+// and secondary IOC sync directories configured by the user.
+func collectSyncDirs(dirs ...string) []string {
+	seen := make(map[string]bool)
+	var out []string
+	for _, d := range dirs {
+		d = strings.TrimSpace(d)
+		if d == "" || seen[d] {
+			continue
+		}
+		seen[d] = true
+		out = append(out, d)
+	}
+	return out
 }
 
 // parseHomeNet converts CIDR strings from config into parsed networks, skipping
@@ -252,6 +315,41 @@ func pruneExpired(ctx context.Context, store *intel.Store, interval time.Duratio
 			if deleted := store.PruneExpired(time.Now().Unix()); deleted > 0 {
 				log.Printf("pruned expired intel items: %d", deleted)
 			}
+		}
+	}
+}
+
+func evidenceCleanup(ctx context.Context, w *evidence.Writer) {
+	ticker := time.NewTicker(1 * time.Hour)
+	defer ticker.Stop()
+	// run once at startup
+	w.CleanupExpired(time.Now())
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			w.CleanupExpired(time.Now())
+		}
+	}
+}
+
+func evidenceArchive(ctx context.Context, w *evidence.Writer) {
+	// Run at startup (within first 5 min), then daily.
+	select {
+	case <-ctx.Done():
+		return
+	case <-time.After(5 * time.Minute):
+	}
+	w.ArchiveLastMonth(time.Now())
+	ticker := time.NewTicker(24 * time.Hour)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			w.ArchiveLastMonth(time.Now())
 		}
 	}
 }

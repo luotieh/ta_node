@@ -1,11 +1,68 @@
 package parser
 
 import (
+	"bytes"
+	"net"
 	"testing"
+	"time"
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 )
+
+func TestParseRetainsExactRawPacketEvidence(t *testing.T) {
+	payload := []byte("POST /upload HTTP/1.1\r\nHost: evil.example.com\r\n\r\nhello")
+	eth := &layers.Ethernet{
+		SrcMAC:       net.HardwareAddr{0, 1, 2, 3, 4, 5},
+		DstMAC:       net.HardwareAddr{6, 7, 8, 9, 10, 11},
+		EthernetType: layers.EthernetTypeIPv4,
+	}
+	ip := &layers.IPv4{Version: 4, IHL: 5, TTL: 64, Protocol: layers.IPProtocolTCP,
+		SrcIP: net.IPv4(10, 0, 0, 1), DstIP: net.IPv4(1, 2, 3, 4)}
+	tcp := &layers.TCP{SrcPort: 12345, DstPort: 80, Seq: 1, ACK: true}
+	if err := tcp.SetNetworkLayerForChecksum(ip); err != nil {
+		t.Fatal(err)
+	}
+	buf := gopacket.NewSerializeBuffer()
+	if err := gopacket.SerializeLayers(buf, gopacket.SerializeOptions{FixLengths: true, ComputeChecksums: true},
+		eth, ip, tcp, gopacket.Payload(payload)); err != nil {
+		t.Fatal(err)
+	}
+	raw := append([]byte(nil), buf.Bytes()...)
+	pkt := gopacket.NewPacket(raw, layers.LayerTypeEthernet, gopacket.Default)
+	ts := time.Unix(100, 123_456_000)
+	pkt.Metadata().CaptureInfo = gopacket.CaptureInfo{
+		Timestamp: ts, CaptureLength: len(raw), Length: len(raw) + 20,
+	}
+
+	pf, err := Parse(pkt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(pf.RawPacket, raw) || !bytes.Equal(pf.Payload, payload) {
+		t.Fatalf("raw evidence changed: packet=%x payload=%x", pf.RawPacket, pf.Payload)
+	}
+	if pf.CapturedLen != uint32(len(raw)) || pf.WireLen != uint32(len(raw)+20) {
+		t.Fatalf("capture lengths wrong: captured=%d wire=%d", pf.CapturedLen, pf.WireLen)
+	}
+	if pf.PacketTimeUsec != uint64(ts.UnixMicro()) || pf.MessageDirection != "request" {
+		t.Fatalf("packet metadata wrong: time=%d direction=%q", pf.PacketTimeUsec, pf.MessageDirection)
+	}
+	if PayloadText(pf.Payload) != string(payload) {
+		t.Fatalf("printable payload text not retained: %q", PayloadText(pf.Payload))
+	}
+	if PayloadText([]byte{0xff, 0x00}) != "" {
+		t.Fatal("binary payload must not be exposed as invalid text")
+	}
+}
+
+func TestParseHTTPClassifiesResponse(t *testing.T) {
+	pf := PacketFeature{Payload: []byte("HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nOK")}
+	parseHTTP(&pf)
+	if pf.MessageDirection != "response" {
+		t.Fatalf("direction = %q, want response", pf.MessageDirection)
+	}
+}
 
 // buildClientHello assembles a minimal but well-formed TLS ClientHello record
 // carrying a single server_name (host_name) extension.

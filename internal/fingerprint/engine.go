@@ -47,6 +47,9 @@ func (e *Engine) Match(pf parser.PacketFeature) []FingerprintHit {
 			MatchFrom:   loc[0],
 			MatchTo:     loc[1],
 			HitTimeUsec: pf.PacketTimeUsec,
+			Class:       rule.Class,
+			Confidence:  rule.Confidence,
+			Sample:      sampleHit(target, loc),
 		})
 	}
 	return hits
@@ -79,4 +82,17 @@ func targetPayload(rule PatternRule, pf parser.PacketFeature) []byte {
 		}
 	}
 	return pf.Payload
+}
+
+func sampleHit(data []byte, loc []int) string {
+	start := loc[0]
+	end := loc[1]
+	if start < 0 || end > len(data) || start >= end {
+		return ""
+	}
+	s := data[start:end]
+	if len(s) > 300 {
+		s = s[:300]
+	}
+	return string(s)
 }

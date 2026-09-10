@@ -10,15 +10,16 @@ import (
 )
 
 type Config struct {
-	Node     NodeConfig     `json:"node" yaml:"node"`
-	Capture  CaptureConfig  `json:"capture" yaml:"capture"`
-	Patterns PatternConfig  `json:"patterns" yaml:"patterns"`
-	Intel    IntelConfig    `json:"intel" yaml:"intel"`
-	Evidence EvidenceConfig `json:"evidence" yaml:"evidence"`
-	Event    EventConfig    `json:"event" yaml:"event"`
-	Flow     FlowConfig     `json:"flow" yaml:"flow"`
-	Server   ServerConfig   `json:"server" yaml:"server"`
-	Runtime  RuntimeConfig  `json:"-" yaml:"-"`
+	Node        NodeConfig        `json:"node" yaml:"node"`
+	Capture     CaptureConfig     `json:"capture" yaml:"capture"`
+	Patterns    PatternConfig     `json:"patterns" yaml:"patterns"`
+	Intel       IntelConfig       `json:"intel" yaml:"intel"`
+	Evidence    EvidenceConfig    `json:"evidence" yaml:"evidence"`
+	Event       EventConfig       `json:"event" yaml:"event"`
+	Flow        FlowConfig        `json:"flow" yaml:"flow"`
+	Aggregation AggregationConfig `json:"aggregation" yaml:"aggregation"`
+	Server      ServerConfig      `json:"server" yaml:"server"`
+	Runtime     RuntimeConfig     `json:"-" yaml:"-"`
 }
 
 type RuntimeConfig struct {
@@ -61,14 +62,18 @@ type IntelConfig struct {
 	DefaultSource           string `json:"default_source" yaml:"default_source"`
 	MaxItems                int    `json:"max_items" yaml:"max_items"`
 	IocSyncDir              string `json:"ioc_sync_dir" yaml:"ioc_sync_dir"`
+	IocSyncDir2             string `json:"ioc_sync_dir2" yaml:"ioc_sync_dir2"`
 	EnableIocSync           bool   `json:"enable_ioc_sync" yaml:"enable_ioc_sync"`
 	IocSyncIntervalMin      int    `json:"ioc_sync_interval_min" yaml:"ioc_sync_interval_min"`
 	IocSyncRetainDays       int    `json:"ioc_sync_retain_days" yaml:"ioc_sync_retain_days"`
 }
 
 type EvidenceConfig struct {
-	EnablePCAPSave bool   `json:"enable_pcap_save" yaml:"enable_pcap_save"`
-	PCAPDir        string `json:"pcap_dir" yaml:"pcap_dir"`
+	EnablePCAPSave  bool   `json:"enable_pcap_save" yaml:"enable_pcap_save"`
+	PCAPDir         string `json:"pcap_dir" yaml:"pcap_dir"`
+	RetainDays      int    `json:"retain_days" yaml:"retain_days"`
+	HashEvidenceDir bool   `json:"hash_evidence_dir" yaml:"hash_evidence_dir"`
+	ArchiveMonthly  bool   `json:"archive_monthly" yaml:"archive_monthly"`
 }
 
 type EventConfig struct {
@@ -91,6 +96,22 @@ type FlowConfig struct {
 	MaxFlows           int `json:"max_flows" yaml:"max_flows"`
 	IdleTimeoutSec     int `json:"idle_timeout_sec" yaml:"idle_timeout_sec"`
 	CleanupIntervalSec int `json:"cleanup_interval_sec" yaml:"cleanup_interval_sec"`
+}
+
+// AggregationConfig controls bounded bidirectional session and HTTP/1.x
+// transaction correlation. Mode "packet" preserves the 1.4 behavior; mode
+// "session" enables request/response enrichment revisions.
+type AggregationConfig struct {
+	Mode                      string `json:"mode" yaml:"mode"`
+	EnableTransactionLink     bool   `json:"enable_transaction_link" yaml:"enable_transaction_link"`
+	ResponseWaitSec           int    `json:"response_wait_sec" yaml:"response_wait_sec"`
+	MaxSessions               int    `json:"max_sessions" yaml:"max_sessions"`
+	MaxTransactionsPerSession int    `json:"max_transactions_per_session" yaml:"max_transactions_per_session"`
+	MaxPacketsPerTransaction  int    `json:"max_packets_per_transaction" yaml:"max_packets_per_transaction"`
+	MaxReassemblyBytesPerSide int    `json:"max_reassembly_bytes_per_side" yaml:"max_reassembly_bytes_per_side"`
+	MaxOutOfOrderBytes        int    `json:"max_out_of_order_bytes" yaml:"max_out_of_order_bytes"`
+	StorePacketIndex          bool   `json:"store_packet_index" yaml:"store_packet_index"`
+	SaveFullSessionPCAP       bool   `json:"save_full_session_pcap" yaml:"save_full_session_pcap"`
 }
 
 type ServerConfig struct {
@@ -117,11 +138,12 @@ func Default() Config {
 			DefaultSource:           "Threat Intel Hub",
 			MaxItems:                100000,
 			IocSyncDir:              "/data/yt",
+			IocSyncDir2:             "/data/yt/ioc",
 			EnableIocSync:           true,
 			IocSyncIntervalMin:      60,
 			IocSyncRetainDays:       10,
 		},
-		Evidence: EvidenceConfig{EnablePCAPSave: true, PCAPDir: "./data/evidence"},
+		Evidence: EvidenceConfig{EnablePCAPSave: true, PCAPDir: "./data/evidence", RetainDays: 7, HashEvidenceDir: true, ArchiveMonthly: true},
 		Event: EventConfig{
 			EnablePush:        true,
 			QueueDB:           "./data/event_queue.db",
@@ -135,6 +157,17 @@ func Default() Config {
 			MaxFlows:           1000000,
 			IdleTimeoutSec:     120,
 			CleanupIntervalSec: 30,
+		},
+		Aggregation: AggregationConfig{
+			Mode:                      "packet",
+			EnableTransactionLink:     false,
+			ResponseWaitSec:           30,
+			MaxSessions:               100000,
+			MaxTransactionsPerSession: 16,
+			MaxPacketsPerTransaction:  128,
+			MaxReassemblyBytesPerSide: 262144,
+			MaxOutOfOrderBytes:        65536,
+			StorePacketIndex:          true,
 		},
 		Server: ServerConfig{Enable: true, Listen: "127.0.0.1:19090"},
 	}
@@ -254,4 +287,8 @@ func (c Config) FlowCleanupInterval() time.Duration {
 		interval = 30
 	}
 	return time.Duration(interval) * time.Second
+}
+
+func (c Config) SessionAggregationEnabled() bool {
+	return c.Aggregation.Mode == "session" && c.Aggregation.EnableTransactionLink
 }

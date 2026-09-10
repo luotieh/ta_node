@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
@@ -18,6 +19,9 @@ type PacketFeature struct {
 	// communication data size including L2-L4 headers, distinct from the
 	// payload-only byte accounting.
 	WireLen uint32 `json:"wire_len,omitempty"`
+	// CapturedLen is the number of bytes actually available to the node. It can
+	// be smaller than WireLen when capture.snaplen truncated the packet.
+	CapturedLen uint32 `json:"captured_len,omitempty"`
 
 	SrcIP   string `json:"src_ip"`
 	SrcPort uint16 `json:"src_port"`
@@ -33,6 +37,7 @@ type PacketFeature struct {
 	HTTPBody       []byte            `json:"-"`
 	HTTPHeaders    map[string]string `json:"http_headers,omitempty"`
 	HTTPBodySample string            `json:"http_body_sample,omitempty"`
+	HTTPStatusCode uint16            `json:"http_status_code,omitempty"`
 
 	DNSQuery   string   `json:"dns_query,omitempty"`
 	DNSQType   uint16   `json:"dns_qtype,omitempty"`
@@ -48,12 +53,31 @@ type PacketFeature struct {
 
 	Payload       []byte `json:"-"`
 	PayloadSample string `json:"payload_sample,omitempty"`
-	EvidenceFile  string `json:"evidence_file,omitempty"`
-	Packet        gopacket.Packet
+	// RawPacket is the exact captured frame (including link/network/transport
+	// headers). It references the current gopacket packet and is encoded into an
+	// owned event string synchronously when that packet produces a hit, avoiding
+	// an extra full-frame allocation on the overwhelmingly common no-hit path.
+	RawPacket []byte `json:"-"`
+	// MessageDirection classifies the application message when it can be
+	// determined without flow reassembly: request, response, or unknown.
+	MessageDirection string `json:"message_direction,omitempty"`
+	TCPSeq           uint32 `json:"tcp_seq,omitempty"`
+	TCPAck           uint32 `json:"tcp_ack,omitempty"`
+	TCPSYN           bool   `json:"tcp_syn,omitempty"`
+	TCPACK           bool   `json:"tcp_ack_flag,omitempty"`
+	TCPFIN           bool   `json:"tcp_fin,omitempty"`
+	TCPRST           bool   `json:"tcp_rst,omitempty"`
+	EvidenceFile     string `json:"evidence_file,omitempty"`
+	Packet           gopacket.Packet
 }
 
 func Parse(packet gopacket.Packet) (PacketFeature, error) {
-	pf := PacketFeature{Packet: packet}
+	raw := packet.Data()
+	pf := PacketFeature{
+		Packet:      packet,
+		RawPacket:   raw,
+		CapturedLen: uint32(len(raw)),
+	}
 	md := packet.Metadata()
 	if ts := md.Timestamp; !ts.IsZero() {
 		pf.PacketTimeUsec = uint64(ts.UnixMicro())
@@ -83,12 +107,25 @@ func Parse(packet gopacket.Packet) (PacketFeature, error) {
 		pf.Proto = "tcp"
 		pf.SrcPort = uint16(tcp.SrcPort)
 		pf.DstPort = uint16(tcp.DstPort)
+		pf.TCPSeq = tcp.Seq
+		pf.TCPAck = tcp.Ack
+		pf.TCPSYN = tcp.SYN
+		pf.TCPACK = tcp.ACK
+		pf.TCPFIN = tcp.FIN
+		pf.TCPRST = tcp.RST
 		pf.Payload = append([]byte(nil), tcp.Payload...)
 		if len(pf.Payload) > 0 {
 			pf.PayloadSample = samplePayload(pf.Payload)
 		}
 		parseHTTP(&pf)
 		parseTLS(&pf)
+		if pf.MessageDirection == "" {
+			if tcp.SYN && !tcp.ACK {
+				pf.MessageDirection = "request"
+			} else if tcp.SYN && tcp.ACK {
+				pf.MessageDirection = "response"
+			}
+		}
 		if pf.SrcPort == 53 || pf.DstPort == 53 {
 			parseDNSOverTCP(&pf)
 		}
@@ -129,6 +166,11 @@ func parseDNS(packet gopacket.Packet, pf *PacketFeature) {
 // fillDNS copies query name/type and answers (IPs and CNAME targets) from a
 // decoded DNS message onto pf. Shared by the UDP and TCP/53 paths.
 func fillDNS(dns *layers.DNS, pf *PacketFeature) {
+	if dns.QR {
+		pf.MessageDirection = "response"
+	} else {
+		pf.MessageDirection = "request"
+	}
 	if len(dns.Questions) > 0 {
 		q := dns.Questions[0]
 		pf.DNSQuery = strings.TrimSuffix(string(q.Name), ".")
@@ -168,6 +210,7 @@ func parseDNSOverTCP(pf *PacketFeature) {
 func parseTLS(pf *PacketFeature) {
 	if host, ok := tlsClientHelloSNI(pf.Payload); ok {
 		pf.SNI = host
+		pf.MessageDirection = "request"
 	}
 }
 
@@ -262,10 +305,21 @@ func parseHTTP(pf *PacketFeature) {
 	if len(pf.Payload) == 0 {
 		return
 	}
+	if bytes.HasPrefix(pf.Payload, []byte("HTTP/")) {
+		pf.MessageDirection = "response"
+		if len(pf.Payload) >= 13 && pf.Payload[9] == ' ' {
+			n, _ := strconv.ParseUint(string(pf.Payload[9:12]), 10, 16)
+			if n >= 100 {
+				pf.HTTPStatusCode = uint16(n)
+			}
+		}
+		return
+	}
 	method, path, ok := httpRequestLine(pf.Payload)
 	if !ok {
 		return
 	}
+	pf.MessageDirection = "request"
 	pf.HTTPMethod = method
 	pf.HTTPURL = path
 	header, body, _ := bytes.Cut(pf.Payload, []byte("\r\n\r\n"))
@@ -342,12 +396,25 @@ func samplePayload(payload []byte) string {
 }
 
 func printable(b []byte) bool {
+	if !utf8.Valid(b) {
+		return false
+	}
 	for _, c := range b {
-		if c < 9 || (c > 13 && c < 32) {
+		if c == 0 || c < 9 || (c > 13 && c < 32) {
 			return false
 		}
 	}
 	return true
+}
+
+// PayloadText returns the complete payload as UTF-8 text when it is safe to
+// display. Binary payloads are represented by their hex form in the event and
+// deliberately return an empty text view.
+func PayloadText(payload []byte) string {
+	if len(payload) == 0 || !printable(payload) {
+		return ""
+	}
+	return string(payload)
 }
 
 func IsIP(s string) bool { return net.ParseIP(s) != nil }

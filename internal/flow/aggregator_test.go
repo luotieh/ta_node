@@ -75,6 +75,32 @@ func TestAggregatorAttachesAppContextWithoutPersisting(t *testing.T) {
 	}
 }
 
+func TestAggregatorAttachesOnlyCurrentTriggerPacket(t *testing.T) {
+	a := NewAggregator(100, time.Minute)
+	first := pkt("1.1.1.1")
+	first.RawPacket = []byte{1, 2, 3}
+	first.CapturedLen = 3
+	first.WireLen = 5
+	first.MessageDirection = "request"
+
+	got := a.Update(first, []fingerprint.FingerprintHit{{RuleID: "r"}}, nil)
+	if string(got.RawPacket) != string(first.RawPacket) || string(got.RawPayload) != "abc" ||
+		got.CapturedLen != 3 || got.TriggerWireLen != 5 || got.MessageDirection != "request" {
+		t.Fatalf("trigger packet evidence missing: %+v", got)
+	}
+	if got.PacketSequence == 0 {
+		t.Fatal("trigger packet sequence was not assigned")
+	}
+
+	next := a.Update(pkt("1.1.1.1"), nil, nil)
+	if len(next.RawPacket) != 0 || next.CapturedLen != 0 || next.TriggerWireLen != 0 || next.MessageDirection != "" {
+		t.Fatalf("trigger evidence must not persist on the stored flow: %+v", next)
+	}
+	if next.PacketSequence != got.PacketSequence+1 {
+		t.Fatalf("packet sequence did not advance: first=%d next=%d", got.PacketSequence, next.PacketSequence)
+	}
+}
+
 func TestAggregatorCapsLiveFlows(t *testing.T) {
 	now := time.Unix(1000, 0)
 	a := NewAggregator(1, time.Hour)

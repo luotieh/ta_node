@@ -40,6 +40,63 @@ func TestDetectUsesStableEventIDForDuplicateHitsInSameFlow(t *testing.T) {
 	}
 }
 
+func TestDetectCreatesDistinctEventIDForEveryPacketHit(t *testing.T) {
+	det := New("node-1")
+	mk := func(packetTime uint64, packetNumber uint64) flow.FlowFeature {
+		return flow.FlowFeature{
+			FirstTime: 100, LastTime: packetTime, PacketTimeUsec: packetTime,
+			SrcIP: "10.0.0.1", SrcPort: 12345, DstIP: "1.2.3.4", DstPort: 80,
+			Proto: "tcp", Packets: packetNumber,
+			IntelHits: []intel.ThreatIntel{{ID: "ioc-1", Type: "ip", Value: "1.2.3.4", Category: "c2", Severity: "high"}},
+		}
+	}
+	first := det.Detect(mk(1_000, 1))[0]
+	second := det.Detect(mk(2_000, 2))[0]
+	if first.EventID == second.EventID {
+		t.Fatalf("separate packet hits were collapsed into event %q", first.EventID)
+	}
+	if retry := det.Detect(mk(2_000, 2))[0]; retry.EventID != second.EventID {
+		t.Fatalf("retry id changed: first=%q retry=%q", second.EventID, retry.EventID)
+	}
+}
+
+func TestDetectAttachesRawTriggerPacket(t *testing.T) {
+	det := New("node-1")
+	f := flow.FlowFeature{
+		FirstTime: 1_000_000, LastTime: 2_000_000, PacketTimeUsec: 2_000_000,
+		SrcIP: "10.0.0.1", SrcPort: 12345, DstIP: "1.2.3.4", DstPort: 80,
+		Proto: "tcp", Packets: 2,
+		RawPacket:   []byte{0xde, 0xad, 0xbe, 0xef},
+		RawPayload:  []byte("POST /x HTTP/1.1\r\n\r\nbody"),
+		CapturedLen: 4, TriggerWireLen: 8, MessageDirection: "request",
+		IntelHits: []intel.ThreatIntel{{ID: "ioc-1", Type: "ip", Value: "1.2.3.4", Category: "c2", Severity: "high"}},
+	}
+	ev := det.Detect(f)[0]
+	if ev.RawPacket == nil {
+		t.Fatal("raw trigger packet missing")
+	}
+	raw := ev.RawPacket
+	if raw.PacketHex != "deadbeef" || raw.PayloadHex != "504f5354202f7820485454502f312e310d0a0d0a626f6479" ||
+		raw.PayloadText != string(f.RawPayload) || raw.MessageDirection != "request" {
+		t.Fatalf("raw packet views wrong: %+v", raw)
+	}
+	if raw.CapturedLength != 4 || raw.WireLength != 8 || !raw.CaptureTruncated {
+		t.Fatalf("raw packet lengths wrong: %+v", raw)
+	}
+	if raw.Request == nil || raw.Response != nil {
+		t.Fatalf("request/response evidence wrong: %+v", raw)
+	}
+	if raw.Request.PacketHex != raw.PacketHex || raw.Request.PayloadText != raw.PayloadText || !raw.Request.CaptureTruncated {
+		t.Fatalf("nested request evidence wrong: %+v", raw.Request)
+	}
+	if raw.SessionStartTime != "1970-01-01T00:00:01Z" || raw.CaptureTime != "1970-01-01T00:00:02Z" {
+		t.Fatalf("raw packet times wrong: %+v", raw)
+	}
+	if ev.SchemaVersion != "1.6" {
+		t.Fatalf("schema version = %q, want 1.6", ev.SchemaVersion)
+	}
+}
+
 func TestDetectAttachesAuxiliaryContext(t *testing.T) {
 	_, home, _ := net.ParseCIDR("10.0.0.0/8")
 	det := New("node-1").

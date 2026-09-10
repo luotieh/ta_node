@@ -35,7 +35,7 @@ func TestSyncOnceImportsAllNew(t *testing.T) {
 	dir := t.TempDir()
 	store := newStore(t)
 	zipWith(t, filepath.Join(dir, "a.zip"), 0, 25)
-	s := New(store, dir, 10, 100000)
+	s := New(store, []string{dir}, 10, 100000)
 	added, err := s.SyncOnce()
 	if err != nil {
 		t.Fatal(err)
@@ -56,7 +56,7 @@ func TestSyncOnceSkipsAlreadyPresent(t *testing.T) {
 		}
 	}
 	zipWith(t, filepath.Join(dir, "a.zip"), 0, 10) // d0..d9
-	s := New(store, dir, 10, 100000)
+	s := New(store, []string{dir}, 10, 100000)
 
 	added, err := s.SyncOnce()
 	if err != nil {
@@ -83,7 +83,7 @@ func TestSyncOnceDedupsAcrossCandidates(t *testing.T) {
 		"- {id: a, type: domain, value: dup.example.com, enabled: true}\n" +
 		"- {id: b, type: domain, value: DUP.example.com., enabled: true}\n"
 	writeZip(t, filepath.Join(dir, "a.zip"), map[string]string{"r.yaml": body})
-	s := New(store, dir, 10, 100000)
+	s := New(store, []string{dir}, 10, 100000)
 	added, _ := s.SyncOnce()
 	if added != 1 || len(store.List()) != 1 {
 		t.Fatalf("want 1 deduped, got added=%d total=%d", added, len(store.List()))
@@ -97,7 +97,7 @@ func TestSyncOnceBadZipSkipped(t *testing.T) {
 		t.Fatal(err)
 	}
 	zipWith(t, filepath.Join(dir, "good.zip"), 0, 3)
-	s := New(store, dir, 10, 100000)
+	s := New(store, []string{dir}, 10, 100000)
 	added, err := s.SyncOnce()
 	if err != nil {
 		t.Fatalf("SyncOnce should not fail on a bad zip: %v", err)
@@ -126,7 +126,7 @@ func TestCleanupRemovesOldZips(t *testing.T) {
 	if err := os.Chtimes(recent, recentT, recentT); err != nil {
 		t.Fatal(err)
 	}
-	s := New(store, dir, 10, 100000)
+	s := New(store, []string{dir}, 10, 100000)
 	if _, err := s.SyncOnce(); err != nil {
 		t.Fatal(err)
 	}

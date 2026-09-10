@@ -1,0 +1,1776 @@
+items:
+- id: 96e462a3f709c9af7d08d710d5a332f2bdd56a340720f91a2d7baf77b70de696
+  type: ip
+  value: 103.23.172.117
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: 重复IP规则, 与 id=aa8d15292ec6379725b41268b1963bfa59f44f1662b7a25e52b794f35f4fc1b1 相同, 保留信息最全条目 | [DNS解析自 fvxcuvuyte.live] 命中威胁: Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service | 关联: adaptixc2, defense-evasion, darkcloud stealer, malware-as-a-service, formbook, winos4.0 | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service'
+    threat_labels:
+    - adaptixc2
+    - defense-evasion
+    - darkcloud stealer
+    - malware-as-a-service
+    - formbook
+    - winos4.0
+    - crypter-service
+    - xworm
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a5dec09c0c4b7d2a00d7b2c
+    narrative: null
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="adaptixc2"
+  - otx:tag="defense-evasion"
+  - otx:tag="darkcloud stealer"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="formbook"
+  - otx:tag="winos4.0"
+  - otx:tag="crypter-service"
+  - otx:tag="xworm"
+  - otx:tag="byovd"
+  - otx:tag="dcrat"
+  - dns_resolved_from:fvxcuvuyte.live
+  enabled: true
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 757431ded9f2e1e7c9137c6a38397df091932abfc8baa4299a9136fbe245475e
+  type: ip
+  value: 103.23.172.117
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: 重复IP规则, 与 id=aa8d15292ec6379725b41268b1963bfa59f44f1662b7a25e52b794f35f4fc1b1 相同, 保留信息最全条目 | [DNS解析自 fuaytrwese.love] 命中威胁: Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service | 关联: adaptixc2, defense-evasion, darkcloud stealer, malware-as-a-service, formbook, winos4.0 | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service'
+    threat_labels:
+    - adaptixc2
+    - defense-evasion
+    - darkcloud stealer
+    - malware-as-a-service
+    - formbook
+    - winos4.0
+    - crypter-service
+    - xworm
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a5dec09c0c4b7d2a00d7b2c
+    narrative: null
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="adaptixc2"
+  - otx:tag="defense-evasion"
+  - otx:tag="darkcloud stealer"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="formbook"
+  - otx:tag="winos4.0"
+  - otx:tag="crypter-service"
+  - otx:tag="xworm"
+  - otx:tag="byovd"
+  - otx:tag="dcrat"
+  - dns_resolved_from:fuaytrwese.love
+  enabled: true
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: ebb3f2e73f137b09b81ade20d2cc186cb8b27a3f442a7d77a9d2967fd6e65407
+  type: ip
+  value: 103.23.172.117
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: 重复IP规则, 与 id=aa8d15292ec6379725b41268b1963bfa59f44f1662b7a25e52b794f35f4fc1b1 相同, 保留信息最全条目 | [DNS解析自 hsauyeet.live] 命中威胁: Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service | 关联: adaptixc2, defense-evasion, darkcloud stealer, malware-as-a-service, formbook, winos4.0 | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service'
+    threat_labels:
+    - adaptixc2
+    - defense-evasion
+    - darkcloud stealer
+    - malware-as-a-service
+    - formbook
+    - winos4.0
+    - crypter-service
+    - xworm
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a5dec09c0c4b7d2a00d7b2c
+    narrative: 流量告警：发现域名 hsauyeet.live，关联多个恶意标签（adaptixc2、darkcloud stealer、formbook、xworm 等），用于恶意软件分发或控制。依据 OTX 情报，该域涉及高级 crypter 服务活动，置信度高。建议立即阻断对该域名的解析与访问，排查内部主机连接记录，并检查相关告警。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="adaptixc2"
+  - otx:tag="defense-evasion"
+  - otx:tag="darkcloud stealer"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="formbook"
+  - otx:tag="winos4.0"
+  - otx:tag="crypter-service"
+  - otx:tag="xworm"
+  - otx:tag="byovd"
+  - otx:tag="dcrat"
+  - dns_resolved_from:hsauyeet.live
+  enabled: true
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: d8224ea7d740770bab3f69d3a035f5f2767699654ffd7a7c0f02910b59a51700
+  type: ip
+  value: 103.23.172.117
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: 重复IP规则, 与 id=aa8d15292ec6379725b41268b1963bfa59f44f1662b7a25e52b794f35f4fc1b1 相同, 保留信息最全条目 | [DNS解析自 qeuasytua.love] 命中威胁: Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service | 关联: adaptixc2, defense-evasion, darkcloud stealer, malware-as-a-service, formbook, winos4.0 | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service'
+    threat_labels:
+    - adaptixc2
+    - defense-evasion
+    - darkcloud stealer
+    - malware-as-a-service
+    - formbook
+    - winos4.0
+    - crypter-service
+    - xworm
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a5dec09c0c4b7d2a00d7b2c
+    narrative: 经OTX高置信度情报，域名 qeuasytua.love 关联复杂 crypter 服务活动，涉及 Formbook、XWorm 等多款恶意软件及规避技术。建议立即阻断对该域名的解析与通信，并回溯相关访问记录以确认失陷范围。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="adaptixc2"
+  - otx:tag="defense-evasion"
+  - otx:tag="darkcloud stealer"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="formbook"
+  - otx:tag="winos4.0"
+  - otx:tag="crypter-service"
+  - otx:tag="xworm"
+  - otx:tag="byovd"
+  - otx:tag="dcrat"
+  - dns_resolved_from:qeuasytua.love
+  enabled: true
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 09815fb3716ab815dacf1cf234fcd54514a45801cf22a971ec6ff78007fae85d
+  type: ip
+  value: 103.23.172.117
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: 重复IP规则, 与 id=aa8d15292ec6379725b41268b1963bfa59f44f1662b7a25e52b794f35f4fc1b1 相同, 保留信息最全条目 | [DNS解析自 paiwudyea.love] 命中威胁: Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service | 关联: adaptixc2, defense-evasion, darkcloud stealer, malware-as-a-service, formbook, winos4.0 | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service'
+    threat_labels:
+    - adaptixc2
+    - defense-evasion
+    - darkcloud stealer
+    - malware-as-a-service
+    - formbook
+    - winos4.0
+    - crypter-service
+    - xworm
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a5dec09c0c4b7d2a00d7b2c
+    narrative: 检测到域名 paiwudyea.love 的流量告警。该域名被开源威胁情报(OTX)标记为高置信度恶意指标，关联 Formbook、XWorm 等多个恶意软件家族及加密器服务，可能用于命令控制或逃避检测。建议立即阻断对该域名的访问，并回溯相关主机的 DNS 查询与连接记录，排查潜在受感染系统。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="adaptixc2"
+  - otx:tag="defense-evasion"
+  - otx:tag="darkcloud stealer"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="formbook"
+  - otx:tag="winos4.0"
+  - otx:tag="crypter-service"
+  - otx:tag="xworm"
+  - otx:tag="byovd"
+  - otx:tag="dcrat"
+  - dns_resolved_from:paiwudyea.love
+  enabled: true
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 89a8992dd02e02059d1079ab605f0854f0ffe40b24aea662cf38b5072f0f2e42
+  type: ip
+  value: 103.23.172.117
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: 重复IP规则, 与 id=aa8d15292ec6379725b41268b1963bfa59f44f1662b7a25e52b794f35f4fc1b1 相同, 保留信息最全条目 | [DNS解析自 xnbscuya.love] 命中威胁: Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service | 关联: adaptixc2, defense-evasion, darkcloud stealer, malware-as-a-service, formbook, winos4.0 | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service'
+    threat_labels:
+    - adaptixc2
+    - defense-evasion
+    - darkcloud stealer
+    - malware-as-a-service
+    - formbook
+    - winos4.0
+    - crypter-service
+    - xworm
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a5dec09c0c4b7d2a00d7b2c
+    narrative: 检测到域名 xnbscuya.love 关联多个恶意软件标签（含adaptixc2、darkcloud stealer、formbook、xworm 等），归属 crypter-service 活动。依据 OTX 高置信度情报，判定为恶意域名。建议立即阻断该域名访问并排查相关通信。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="adaptixc2"
+  - otx:tag="defense-evasion"
+  - otx:tag="darkcloud stealer"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="formbook"
+  - otx:tag="winos4.0"
+  - otx:tag="crypter-service"
+  - otx:tag="xworm"
+  - otx:tag="byovd"
+  - otx:tag="dcrat"
+  - dns_resolved_from:xnbscuya.love
+  enabled: true
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: a2675fa889eba21bc840e432d17f7d0684bc791188a5d9002c0863971ad5151c
+  type: ip
+  value: 103.23.172.117
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: 重复IP规则, 与 id=aa8d15292ec6379725b41268b1963bfa59f44f1662b7a25e52b794f35f4fc1b1 相同, 保留信息最全条目 | [DNS解析自 xuastyrdqk.love] 命中威胁: Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service | 关联: adaptixc2, defense-evasion, darkcloud stealer, malware-as-a-service, formbook, winos4.0 | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service'
+    threat_labels:
+    - adaptixc2
+    - defense-evasion
+    - darkcloud stealer
+    - malware-as-a-service
+    - formbook
+    - winos4.0
+    - crypter-service
+    - xworm
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a5dec09c0c4b7d2a00d7b2c
+    narrative: 域名 xuastyrdqk.love 已关联多个恶意软件家族（Formbook、XWorm、DarkCloud Stealer 等）及远控工具 Adaptix C2，分析指出其用作复杂加壳服务。依据：OTX 高置信度情报，标记为恶意加壳服务与多款远控/窃密木马相关。建议在边界阻断对该域名的解析与访问，并排查内部主机连接记录。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="adaptixc2"
+  - otx:tag="defense-evasion"
+  - otx:tag="darkcloud stealer"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="formbook"
+  - otx:tag="winos4.0"
+  - otx:tag="crypter-service"
+  - otx:tag="xworm"
+  - otx:tag="byovd"
+  - otx:tag="dcrat"
+  - dns_resolved_from:xuastyrdqk.love
+  enabled: true
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 18b548e0dd1b096d12edd77db52d8e3d14017234600075463f23b1fea9c0eac5
+  type: ip
+  value: 103.23.172.117
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: 重复IP规则, 与 id=aa8d15292ec6379725b41268b1963bfa59f44f1662b7a25e52b794f35f4fc1b1 相同, 保留信息最全条目 | [DNS解析自 jaiydteds.love] 命中威胁: Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service | 关联: adaptixc2, defense-evasion, darkcloud stealer, malware-as-a-service, formbook, winos4.0 | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service'
+    threat_labels:
+    - adaptixc2
+    - defense-evasion
+    - darkcloud stealer
+    - malware-as-a-service
+    - formbook
+    - winos4.0
+    - crypter-service
+    - xworm
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a5dec09c0c4b7d2a00d7b2c
+    narrative: "【告警通告】  \n域名 jaiydteds.love 关联高置信度恶意活动。据 OTX 分析报告，该域名为恶意加壳服务（Crypter Service），用于打包分发 DarkCloud Stealer、Formbook、XWorm 等多款木马。建议立即在网络边界阻断对该域名的解析与访问，并对受影响主机深入排查，清除潜在恶意程序。"
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="adaptixc2"
+  - otx:tag="defense-evasion"
+  - otx:tag="darkcloud stealer"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="formbook"
+  - otx:tag="winos4.0"
+  - otx:tag="crypter-service"
+  - otx:tag="xworm"
+  - otx:tag="byovd"
+  - otx:tag="dcrat"
+  - dns_resolved_from:jaiydteds.love
+  enabled: true
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 2e79bbe5ec95c27917198545047cb548cdc6a3421328806fdc02c0c404f00ac9
+  type: ip
+  value: 103.23.172.117
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: 重复IP规则, 与 id=aa8d15292ec6379725b41268b1963bfa59f44f1662b7a25e52b794f35f4fc1b1 相同, 保留信息最全条目 | [DNS解析自 kdsuyrse.live] 命中威胁: Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service | 关联: adaptixc2, defense-evasion, darkcloud stealer, malware-as-a-service, formbook, winos4.0 | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service'
+    threat_labels:
+    - adaptixc2
+    - defense-evasion
+    - darkcloud stealer
+    - malware-as-a-service
+    - formbook
+    - winos4.0
+    - crypter-service
+    - xworm
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a5dec09c0c4b7d2a00d7b2c
+    narrative: 检测到恶意域名 kdsuyrse.live，OTX 开源情报将其标记为高置信度恶意载体，关联多个恶意软件家族（Formbook、XWorm 等）及加密服务 Cruciferra，用于防御规避与载荷投递。建议立即封禁该域名，并对内网相关 DNS 请求与网络流量进行监控回溯。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="adaptixc2"
+  - otx:tag="defense-evasion"
+  - otx:tag="darkcloud stealer"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="formbook"
+  - otx:tag="winos4.0"
+  - otx:tag="crypter-service"
+  - otx:tag="xworm"
+  - otx:tag="byovd"
+  - otx:tag="dcrat"
+  - dns_resolved_from:kdsuyrse.live
+  enabled: true
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 760f0261a0c48c78f49da822b64e3d389b43a0fffd1f2f20cb5c8b622d546b08
+  type: ip
+  value: 103.23.172.117
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: 重复IP规则, 与 id=aa8d15292ec6379725b41268b1963bfa59f44f1662b7a25e52b794f35f4fc1b1 相同, 保留信息最全条目 | [DNS解析自 lisiutegrm.live] 命中威胁: Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service | 关联: adaptixc2, defense-evasion, darkcloud stealer, malware-as-a-service, formbook, winos4.0 | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service'
+    threat_labels:
+    - adaptixc2
+    - defense-evasion
+    - darkcloud stealer
+    - malware-as-a-service
+    - formbook
+    - winos4.0
+    - crypter-service
+    - xworm
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a5dec09c0c4b7d2a00d7b2c
+    narrative: 域名 lisiutegrm.live 关联高级加密器服务“Cruciferra”分析活动，涉及 Formbook、XWorm 等多种恶意软件及 Adaptix C2 框架，存在防御规避行为。判定依据为 OTX 单一高置信度情报。建议立即阻断该域名的 DNS 解析及网络连接，排查相关通信记录，并持续监控。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="adaptixc2"
+  - otx:tag="defense-evasion"
+  - otx:tag="darkcloud stealer"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="formbook"
+  - otx:tag="winos4.0"
+  - otx:tag="crypter-service"
+  - otx:tag="xworm"
+  - otx:tag="byovd"
+  - otx:tag="dcrat"
+  - dns_resolved_from:lisiutegrm.live
+  enabled: true
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: cdb35d1028bff91356dbe8b9bc8b38d5e609123845b4ac20e9352e61800c895f
+  type: ip
+  value: 103.23.172.117
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: 重复IP规则, 与 id=aa8d15292ec6379725b41268b1963bfa59f44f1662b7a25e52b794f35f4fc1b1 相同, 保留信息最全条目 | [DNS解析自 mksfuuerwo.live] 命中威胁: Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service | 关联: adaptixc2, defense-evasion, darkcloud stealer, malware-as-a-service, formbook, winos4.0 | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service'
+    threat_labels:
+    - adaptixc2
+    - defense-evasion
+    - darkcloud stealer
+    - malware-as-a-service
+    - formbook
+    - winos4.0
+    - crypter-service
+    - xworm
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a5dec09c0c4b7d2a00d7b2c
+    narrative: '【告警通告】
+
+      该域名 mksfuuerwo.live 关联多个恶意软件家族（adaptixc2、darkcloud stealer、formbook、winos4.0、xworm 等）及其免杀加载服务（crypter-service），用于防御规避。基于开源威胁情报（OTX）高置信度判定。建议立即封禁该域名访问，排查相关网络连接与主机失陷迹象。'
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="adaptixc2"
+  - otx:tag="defense-evasion"
+  - otx:tag="darkcloud stealer"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="formbook"
+  - otx:tag="winos4.0"
+  - otx:tag="crypter-service"
+  - otx:tag="xworm"
+  - otx:tag="byovd"
+  - otx:tag="dcrat"
+  - dns_resolved_from:mksfuuerwo.live
+  enabled: true
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: b86031a668890f5bafd165783765987e819a13ba87dba4dd255550072d2ce5d6
+  type: ip
+  value: 103.23.172.117
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: 重复IP规则, 与 id=aa8d15292ec6379725b41268b1963bfa59f44f1662b7a25e52b794f35f4fc1b1 相同, 保留信息最全条目 | [DNS解析自 ncduuyese.live] 命中威胁: Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service | 关联: adaptixc2, defense-evasion, darkcloud stealer, malware-as-a-service, formbook, winos4.0 | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service'
+    threat_labels:
+    - adaptixc2
+    - defense-evasion
+    - darkcloud stealer
+    - malware-as-a-service
+    - formbook
+    - winos4.0
+    - crypter-service
+    - xworm
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a5dec09c0c4b7d2a00d7b2c
+    narrative: 发现访问恶意域名 ncduuyese.live 的流量。据 OTX 情报，该域名关联 Cruciferra crypter 服务活动，标记涉及 DarkCloud Stealer、FormBook、XWorm 等多款恶意软件，置信度高。建议立即阻断该域名并排查受影响主机。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="adaptixc2"
+  - otx:tag="defense-evasion"
+  - otx:tag="darkcloud stealer"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="formbook"
+  - otx:tag="winos4.0"
+  - otx:tag="crypter-service"
+  - otx:tag="xworm"
+  - otx:tag="byovd"
+  - otx:tag="dcrat"
+  - dns_resolved_from:ncduuyese.live
+  enabled: true
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: f60eecce8a8577c757a4cddcc202d5ae4cc108a04249d3a80bbdfaab37d3f463
+  type: ip
+  value: 103.23.172.117
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: 重复IP规则, 与 id=aa8d15292ec6379725b41268b1963bfa59f44f1662b7a25e52b794f35f4fc1b1 相同, 保留信息最全条目 | [DNS解析自 oakwusya.love] 命中威胁: Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service | 关联: adaptixc2, defense-evasion, darkcloud stealer, malware-as-a-service, formbook, winos4.0 | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service'
+    threat_labels:
+    - adaptixc2
+    - defense-evasion
+    - darkcloud stealer
+    - malware-as-a-service
+    - formbook
+    - winos4.0
+    - crypter-service
+    - xworm
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a5dec09c0c4b7d2a00d7b2c
+    narrative: 基于 OTX 高可信情报，域名 oakwusya.love 关联多项恶意活动，涉及 Crypter 服务、DarkCloud Stealer、FormBook 等多种恶意软件即服务及远控框架。判定依据为威胁标签：adaptixc2、defense-evasion、darkcloud stealer、malware-as-a-service、formbook、winos4.0、crypter-service、xworm。建议立即阻断该域名访问，并排查相关主机是否感染。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="adaptixc2"
+  - otx:tag="defense-evasion"
+  - otx:tag="darkcloud stealer"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="formbook"
+  - otx:tag="winos4.0"
+  - otx:tag="crypter-service"
+  - otx:tag="xworm"
+  - otx:tag="byovd"
+  - otx:tag="dcrat"
+  - dns_resolved_from:oakwusya.love
+  enabled: true
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 634c85ae64de500fafd5e0f1596864a3bdcc57a600d86e3c5e4f8336e66ebb8e
+  type: ip
+  value: 45.11.36.254
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: 重复IP规则, 与 id=811aa76bac45507fdc438cb4ba676f05eae23073875c9be8aeea86f54d2e4cec 相同, 保留信息最全条目 | [DNS解析自 pois43.s3.eu-central-003.backblazeb2.com] 命中威胁: Operation Poisson – Analyzing a Cybercriminal’s Entire Operation | 关联: tailscale, rustdesk, poisson, credential-theft, france, keylogger | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Operation Poisson – Analyzing a Cybercriminal’s Entire Operation
+    threat_labels:
+    - tailscale
+    - rustdesk
+    - poisson
+    - credential-theft
+    - france
+    - keylogger
+    - fileless-attack
+    - openssh
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a3526fcbaffc5909dd73ce4
+    narrative: SOC 告警：发现高置信度 IOC `pois43.s3.eu-central-003.backblazeb2.com`，关联“Operation Poisson”恶意活动。该行动涉及凭据窃取、键盘记录、无文件攻击，利用 Tailscale、RustDesk 等工具。建议立即封锁该域名，排查相关网络连接与 SSH 活动。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="tailscale"
+  - otx:tag="rustdesk"
+  - otx:tag="poisson"
+  - otx:tag="credential-theft"
+  - otx:tag="france"
+  - otx:tag="keylogger"
+  - otx:tag="fileless-attack"
+  - otx:tag="openssh"
+  - otx:tag="havoc"
+  - otx:tag="havoc-c2"
+  - dns_resolved_from:pois43.s3.eu-central-003.backblazeb2.com
+  enabled: true
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 1f9508944379e2782570aefd4ee37c2e564b388f02eb7c36c25960657110ccda
+  type: ip
+  value: 45.11.36.254
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: 重复IP规则, 与 id=811aa76bac45507fdc438cb4ba676f05eae23073875c9be8aeea86f54d2e4cec 相同, 保留信息最全条目 | [DNS解析自 w456w5.s3.eu-central-003.backblazeb2.com] 命中威胁: Operation Poisson – Analyzing a Cybercriminal’s Entire Operation | 关联: tailscale, rustdesk, poisson, credential-theft, france, keylogger | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Operation Poisson – Analyzing a Cybercriminal’s Entire Operation
+    threat_labels:
+    - tailscale
+    - rustdesk
+    - poisson
+    - credential-theft
+    - france
+    - keylogger
+    - fileless-attack
+    - openssh
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a3526fcbaffc5909dd73ce4
+    narrative: 已检测到与 Poission 行动关联的域名 IOC。威胁标签指示该活动涉及凭据窃取、键盘记录、无文件攻击，并利用 Tailscale、RustDesk、OpenSSH 工具，目标可能涉及法国。判定依据为 OTX 高置信度情报。建议立即阻断对该域名的访问并排查相关主机是否被入侵。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="tailscale"
+  - otx:tag="rustdesk"
+  - otx:tag="poisson"
+  - otx:tag="credential-theft"
+  - otx:tag="france"
+  - otx:tag="keylogger"
+  - otx:tag="fileless-attack"
+  - otx:tag="openssh"
+  - otx:tag="havoc"
+  - otx:tag="havoc-c2"
+  - dns_resolved_from:w456w5.s3.eu-central-003.backblazeb2.com
+  enabled: true
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: b61db34f9481999d1085bd34d7393fefb09399f22e919c19ef9a7327bee4e995
+  type: ip
+  value: 45.11.37.254
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: 重复IP规则, 与 id=b9eb21aebc1371c0fd2e7c1bdc4aff55e8a161fbf40bfcc5a7065b25e3c5640f 相同, 保留信息最全条目 | [DNS解析自 pois43.s3.eu-central-003.backblazeb2.com] 命中威胁: Operation Poisson – Analyzing a Cybercriminal’s Entire Operation | 关联: tailscale, rustdesk, poisson, credential-theft, france, keylogger | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Operation Poisson – Analyzing a Cybercriminal’s Entire Operation
+    threat_labels:
+    - tailscale
+    - rustdesk
+    - poisson
+    - credential-theft
+    - france
+    - keylogger
+    - fileless-attack
+    - openssh
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a3526fcbaffc5909dd73ce4
+    narrative: SOC 告警：发现高置信度 IOC `pois43.s3.eu-central-003.backblazeb2.com`，关联“Operation Poisson”恶意活动。该行动涉及凭据窃取、键盘记录、无文件攻击，利用 Tailscale、RustDesk 等工具。建议立即封锁该域名，排查相关网络连接与 SSH 活动。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="tailscale"
+  - otx:tag="rustdesk"
+  - otx:tag="poisson"
+  - otx:tag="credential-theft"
+  - otx:tag="france"
+  - otx:tag="keylogger"
+  - otx:tag="fileless-attack"
+  - otx:tag="openssh"
+  - otx:tag="havoc"
+  - otx:tag="havoc-c2"
+  - dns_resolved_from:pois43.s3.eu-central-003.backblazeb2.com
+  enabled: true
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: e1ab6a4ddbcde90ce6060aec116521d4b99a9402e2b7e23ff04b33211fb95d76
+  type: ip
+  value: 45.11.37.254
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: 重复IP规则, 与 id=b9eb21aebc1371c0fd2e7c1bdc4aff55e8a161fbf40bfcc5a7065b25e3c5640f 相同, 保留信息最全条目 | [DNS解析自 w456w5.s3.eu-central-003.backblazeb2.com] 命中威胁: Operation Poisson – Analyzing a Cybercriminal’s Entire Operation | 关联: tailscale, rustdesk, poisson, credential-theft, france, keylogger | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Operation Poisson – Analyzing a Cybercriminal’s Entire Operation
+    threat_labels:
+    - tailscale
+    - rustdesk
+    - poisson
+    - credential-theft
+    - france
+    - keylogger
+    - fileless-attack
+    - openssh
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a3526fcbaffc5909dd73ce4
+    narrative: 已检测到与 Poission 行动关联的域名 IOC。威胁标签指示该活动涉及凭据窃取、键盘记录、无文件攻击，并利用 Tailscale、RustDesk、OpenSSH 工具，目标可能涉及法国。判定依据为 OTX 高置信度情报。建议立即阻断对该域名的访问并排查相关主机是否被入侵。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="tailscale"
+  - otx:tag="rustdesk"
+  - otx:tag="poisson"
+  - otx:tag="credential-theft"
+  - otx:tag="france"
+  - otx:tag="keylogger"
+  - otx:tag="fileless-attack"
+  - otx:tag="openssh"
+  - otx:tag="havoc"
+  - otx:tag="havoc-c2"
+  - dns_resolved_from:w456w5.s3.eu-central-003.backblazeb2.com
+  enabled: true
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: e8da171de9dc9318713b913b4292c198380393a6d78fecf41058d365d9a85aef
+  type: ip
+  value: 45.11.38.254
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: 重复IP规则, 与 id=c6bf878b9bbc2678bef50a8242a2c15e9b67837ccdf752eba7518405a1edf020 相同, 保留信息最全条目 | [DNS解析自 pois43.s3.eu-central-003.backblazeb2.com] 命中威胁: Operation Poisson – Analyzing a Cybercriminal’s Entire Operation | 关联: tailscale, rustdesk, poisson, credential-theft, france, keylogger | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Operation Poisson – Analyzing a Cybercriminal’s Entire Operation
+    threat_labels:
+    - tailscale
+    - rustdesk
+    - poisson
+    - credential-theft
+    - france
+    - keylogger
+    - fileless-attack
+    - openssh
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a3526fcbaffc5909dd73ce4
+    narrative: SOC 告警：发现高置信度 IOC `pois43.s3.eu-central-003.backblazeb2.com`，关联“Operation Poisson”恶意活动。该行动涉及凭据窃取、键盘记录、无文件攻击，利用 Tailscale、RustDesk 等工具。建议立即封锁该域名，排查相关网络连接与 SSH 活动。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="tailscale"
+  - otx:tag="rustdesk"
+  - otx:tag="poisson"
+  - otx:tag="credential-theft"
+  - otx:tag="france"
+  - otx:tag="keylogger"
+  - otx:tag="fileless-attack"
+  - otx:tag="openssh"
+  - otx:tag="havoc"
+  - otx:tag="havoc-c2"
+  - dns_resolved_from:pois43.s3.eu-central-003.backblazeb2.com
+  enabled: true
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 1ec17ae64cdba57be3d1c875446784ef3c7858da675c8b38981246357adf7723
+  type: ip
+  value: 45.11.38.254
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: 重复IP规则, 与 id=c6bf878b9bbc2678bef50a8242a2c15e9b67837ccdf752eba7518405a1edf020 相同, 保留信息最全条目 | [DNS解析自 w456w5.s3.eu-central-003.backblazeb2.com] 命中威胁: Operation Poisson – Analyzing a Cybercriminal’s Entire Operation | 关联: tailscale, rustdesk, poisson, credential-theft, france, keylogger | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Operation Poisson – Analyzing a Cybercriminal’s Entire Operation
+    threat_labels:
+    - tailscale
+    - rustdesk
+    - poisson
+    - credential-theft
+    - france
+    - keylogger
+    - fileless-attack
+    - openssh
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a3526fcbaffc5909dd73ce4
+    narrative: 已检测到与 Poission 行动关联的域名 IOC。威胁标签指示该活动涉及凭据窃取、键盘记录、无文件攻击，并利用 Tailscale、RustDesk、OpenSSH 工具，目标可能涉及法国。判定依据为 OTX 高置信度情报。建议立即阻断对该域名的访问并排查相关主机是否被入侵。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="tailscale"
+  - otx:tag="rustdesk"
+  - otx:tag="poisson"
+  - otx:tag="credential-theft"
+  - otx:tag="france"
+  - otx:tag="keylogger"
+  - otx:tag="fileless-attack"
+  - otx:tag="openssh"
+  - otx:tag="havoc"
+  - otx:tag="havoc-c2"
+  - dns_resolved_from:w456w5.s3.eu-central-003.backblazeb2.com
+  enabled: true
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 772b4f95328b5fb131d6dcbd5f1430d01ba6a8d7158bcb6efbc4d887cfd65031
+  type: ip
+  value: 45.11.39.254
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: 重复IP规则, 与 id=2898cbdc4ba2d101d4e2a774e83ca6ceeee1ffc9b6a3ca44d6c88f9fba205ad2 相同, 保留信息最全条目 | [DNS解析自 pois43.s3.eu-central-003.backblazeb2.com] 命中威胁: Operation Poisson – Analyzing a Cybercriminal’s Entire Operation | 关联: tailscale, rustdesk, poisson, credential-theft, france, keylogger | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Operation Poisson – Analyzing a Cybercriminal’s Entire Operation
+    threat_labels:
+    - tailscale
+    - rustdesk
+    - poisson
+    - credential-theft
+    - france
+    - keylogger
+    - fileless-attack
+    - openssh
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a3526fcbaffc5909dd73ce4
+    narrative: SOC 告警：发现高置信度 IOC `pois43.s3.eu-central-003.backblazeb2.com`，关联“Operation Poisson”恶意活动。该行动涉及凭据窃取、键盘记录、无文件攻击，利用 Tailscale、RustDesk 等工具。建议立即封锁该域名，排查相关网络连接与 SSH 活动。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="tailscale"
+  - otx:tag="rustdesk"
+  - otx:tag="poisson"
+  - otx:tag="credential-theft"
+  - otx:tag="france"
+  - otx:tag="keylogger"
+  - otx:tag="fileless-attack"
+  - otx:tag="openssh"
+  - otx:tag="havoc"
+  - otx:tag="havoc-c2"
+  - dns_resolved_from:pois43.s3.eu-central-003.backblazeb2.com
+  enabled: true
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 3c079b9438c3aa8e9d9b2aff2d954a7a164f257ed4486d763a9310cce4ae115e
+  type: ip
+  value: 45.11.39.254
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: 重复IP规则, 与 id=2898cbdc4ba2d101d4e2a774e83ca6ceeee1ffc9b6a3ca44d6c88f9fba205ad2 相同, 保留信息最全条目 | [DNS解析自 w456w5.s3.eu-central-003.backblazeb2.com] 命中威胁: Operation Poisson – Analyzing a Cybercriminal’s Entire Operation | 关联: tailscale, rustdesk, poisson, credential-theft, france, keylogger | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Operation Poisson – Analyzing a Cybercriminal’s Entire Operation
+    threat_labels:
+    - tailscale
+    - rustdesk
+    - poisson
+    - credential-theft
+    - france
+    - keylogger
+    - fileless-attack
+    - openssh
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a3526fcbaffc5909dd73ce4
+    narrative: 已检测到与 Poission 行动关联的域名 IOC。威胁标签指示该活动涉及凭据窃取、键盘记录、无文件攻击，并利用 Tailscale、RustDesk、OpenSSH 工具，目标可能涉及法国。判定依据为 OTX 高置信度情报。建议立即阻断对该域名的访问并排查相关主机是否被入侵。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="tailscale"
+  - otx:tag="rustdesk"
+  - otx:tag="poisson"
+  - otx:tag="credential-theft"
+  - otx:tag="france"
+  - otx:tag="keylogger"
+  - otx:tag="fileless-attack"
+  - otx:tag="openssh"
+  - otx:tag="havoc"
+  - otx:tag="havoc-c2"
+  - dns_resolved_from:w456w5.s3.eu-central-003.backblazeb2.com
+  enabled: true
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 6507220d6776a271202db4f2eff14b314945d657db65ffb9c0ae67ba5026401f
+  type: ip
+  value: 45.137.205.53
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: 重复IP规则, 与 id=de74400aed36f5ba4bc32456b19355c5bf5b787a71608bb6edffdd831181d6ac 相同, 保留信息最全条目 | [DNS解析自 auth.hospitalinstallation.com] 命中威胁: Cavern Manticore: Exposing Iran-Linked Modular C2 Framework | 关联: modular c2 framework, rmm abuse, sysaid, supply-chain compromise, iran, nativeaot compilation | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'Cavern Manticore: Exposing Iran-Linked Modular C2 Framework'
+    threat_labels:
+    - modular c2 framework
+    - rmm abuse
+    - sysaid
+    - supply-chain compromise
+    - iran
+    - nativeaot compilation
+    - mois
+    - dll sideloading
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a4bb565cb9499639bf4125b
+    narrative: null
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="modular c2 framework"
+  - otx:tag="rmm abuse"
+  - otx:tag="sysaid"
+  - otx:tag="supply-chain compromise"
+  - otx:tag="iran"
+  - otx:tag="nativeaot compilation"
+  - otx:tag="mois"
+  - otx:tag="dll sideloading"
+  - dns_resolved_from:auth.hospitalinstallation.com
+  enabled: true
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: a2591aa6c0721f479b049b3d32aaddd0bcb4eca0a355c1ddb69949e0d3b8032e
+  type: ip
+  value: 75.98.162.139
+  category: network_activity
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: 重复IP规则, 与 id=636b001bb10287658fdbc39d746fea0cd373362c37f1ed36892fd78da880f144 相同, 保留信息最全条目 | [DNS解析自 mysimerp.net] 命中威胁: Attackers Weaponize Microsoft Teams Relays to Stay Hidden | 关联: dragonforce, dll side-loading, ransomware, byovd, cve-2023-52271, cve-2025-61155 | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Attackers Weaponize Microsoft Teams Relays to Stay Hidden
+    threat_labels:
+    - dragonforce
+    - dll side-loading
+    - ransomware
+    - byovd
+    - cve-2023-52271
+    - cve-2025-61155
+    - cve-2025-1055
+    - turn relay
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a316151d9ab4af59e56576d
+    narrative: null
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="dragonforce"
+  - otx:tag="dll side-loading"
+  - otx:tag="ransomware"
+  - otx:tag="byovd"
+  - otx:tag="cve-2023-52271"
+  - otx:tag="cve-2025-61155"
+  - otx:tag="cve-2025-1055"
+  - otx:tag="turn relay"
+  - otx:tag="credential theft"
+  - otx:tag="vulnerable drivers"
+  - dns_resolved_from:mysimerp.net
+  enabled: true
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: otx-6996efa6c7a901cbcb67660e-4218417407
+  type: url
+  value: http://aerobickarlaurbanovas.top/Bin/ScreenConnect.ClientSetup.msi?e=Access&y=Guest=
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: URL主机已失效(所有解析器无解析): aerobickarlaurbanovas.top | 命中威胁: (Don''t) TrustConnect: It''s a RAT in an RMM hat | 关联: rmm abuse, cybercrime, email campaigns, trustconnect, c2 infrastructure, trustconnect rat | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: '(Don''t) TrustConnect: It''s a RAT in an RMM hat'
+    threat_labels:
+    - rmm abuse
+    - cybercrime
+    - email campaigns
+    - trustconnect
+    - c2 infrastructure
+    - trustconnect rat
+    - digital signatures
+    - docconnect
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6996efa6c7a901cbcb67660e
+    narrative: 告警：发现高置信度 RMM 滥用型 RAT 活动。域名 aerobickarlaurbanovas.top 托管文件 ScreenConnect.ClientSetup.msi，关联 TrustConnect RAT 与邮件社工。判定基于 OTX 开源情报，标记为 RMM 滥用、C2 基础设施。建议立即阻断该域名及下载 URL，排查是否有终端访问或执行此 MSI。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rmm abuse"
+  - otx:tag="cybercrime"
+  - otx:tag="email campaigns"
+  - otx:tag="trustconnect"
+  - otx:tag="c2 infrastructure"
+  - otx:tag="trustconnect rat"
+  - otx:tag="digital signatures"
+  - otx:tag="docconnect"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="remote access trojan"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+  expire_at: 1789888041
+- id: otx-6a5e7a9e8b20b763327b0d2d-4456542247
+  type: url
+  value: http://auth.samecloud.o-r.kr/index.php
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: URL主机已失效(所有解析器无解析): auth.samecloud.o-r.kr | 命中威胁: Analysis of Kimsuky''s Attack on a South Korean Groupware Vendor Using a New Gomir Family Variant | 关联: groupware, trollstealer, google drive c2, gomir, supply-chain, gobear | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Analysis of Kimsuky's Attack on a South Korean Groupware Vendor Using a New Gomir Family Variant
+    threat_labels:
+    - groupware
+    - trollstealer
+    - google drive c2
+    - gomir
+    - supply-chain
+    - gobear
+    - drivetroy
+    - httpspy
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a5e7a9e8b20b763327b0d2d
+    narrative: 根据结构化证据，该URL关联Kimsuky组织利用新GoMir家族变种针对韩国群件供应商的攻击。判定依据为威胁标签中包含“Gomir”、“Supply-Chain”、“Groupware”及多种信息窃取与C2行为。建议立即阻断该URL访问，排查同网段内与该域名相关的通信记录。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="groupware"
+  - otx:tag="trollstealer"
+  - otx:tag="google drive c2"
+  - otx:tag="gomir"
+  - otx:tag="supply-chain"
+  - otx:tag="gobear"
+  - otx:tag="drivetroy"
+  - otx:tag="httpspy"
+  - otx:tag="south korea"
+  - otx:tag="birdtroy"
+  enabled: true
+  created_at: 1784646000
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: otx-6a5dec09c0c4b7d2a00d7b2c-4456404101
+  type: url
+  value: http://fiusyevr.live
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: URL主机已失效(所有解析器无解析): fiusyevr.live | 命中威胁: Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service | 关联: adaptixc2, defense-evasion, darkcloud stealer, malware-as-a-service, formbook, winos4.0 | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service'
+    threat_labels:
+    - adaptixc2
+    - defense-evasion
+    - darkcloud stealer
+    - malware-as-a-service
+    - formbook
+    - winos4.0
+    - crypter-service
+    - xworm
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a5dec09c0c4b7d2a00d7b2c
+    narrative: null
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="adaptixc2"
+  - otx:tag="defense-evasion"
+  - otx:tag="darkcloud stealer"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="formbook"
+  - otx:tag="winos4.0"
+  - otx:tag="crypter-service"
+  - otx:tag="xworm"
+  - otx:tag="byovd"
+  - otx:tag="dcrat"
+  enabled: true
+  created_at: 1784559600
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: otx-69972ba4edeee60b22933086-4218420731
+  type: url
+  value: http://jzluw.com/cdn-dynmedia-1.microsoft.com/is/n03ufh3k003jdhkg99fhhas/is/content/
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: URL主机已失效(所有解析器无解析): jzluw.com | 命中威胁: ClickFix in action: how fake captcha can encrypt an entire company | 关联: fake captcha, latrodectus, c2 communication, side-loading, clickfix, malware analysis | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'ClickFix in action: how fake captcha can encrypt an entire company'
+    threat_labels:
+    - fake captcha
+    - latrodectus
+    - c2 communication
+    - side-loading
+    - clickfix
+    - malware analysis
+    - supper
+    - ransomware
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 69972ba4edeee60b22933086
+    narrative: '监测到与恶意URL的通信，该域名涉及“ClickFix in action: how fake captcha can encrypt an entire company”活动，威胁标签包括虚假验证码、latrodectus、C2通信及勒索软件。来源为OTX，置信度为高。建议立即阻断此IOC，回溯相关访问记录，并提醒员工防范虚假验证码攻击。'
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="fake captcha"
+  - otx:tag="latrodectus"
+  - otx:tag="c2 communication"
+  - otx:tag="side-loading"
+  - otx:tag="clickfix"
+  - otx:tag="malware analysis"
+  - otx:tag="supper"
+  - otx:tag="ransomware"
+  - otx:tag="persistence"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+  expire_at: 1789888041
+- id: otx-6996efa6c7a901cbcb67660e-4218417409
+  type: url
+  value: http://smallmartdirectintense.com/Bin/ScreenConnect.ClientSetup.msi?e=Access&y=Guest=
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: URL主机已失效(所有解析器无解析): smallmartdirectintense.com | 命中威胁: (Don''t) TrustConnect: It''s a RAT in an RMM hat | 关联: rmm abuse, cybercrime, email campaigns, trustconnect, c2 infrastructure, trustconnect rat | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: '(Don''t) TrustConnect: It''s a RAT in an RMM hat'
+    threat_labels:
+    - rmm abuse
+    - cybercrime
+    - email campaigns
+    - trustconnect
+    - c2 infrastructure
+    - trustconnect rat
+    - digital signatures
+    - docconnect
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6996efa6c7a901cbcb67660e
+    narrative: '告警：发现高度可疑的远端监控管理（RMM）滥用行为，IOC为 `http://smallmartdirectintense.com/Bin/ScreenConnect.ClientSetup.msi?e=Access&y=Guest`。威胁情报将此活动标记为“(Don''t) TrustConnect: It''s a RAT in an RMM hat”，结合标签 `trustconnect rat`、`rmm abuse`，判为伪装的远控木马。建议立即阻断该URL，排查受影响主机是否存在对应安装或通信记录。'
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rmm abuse"
+  - otx:tag="cybercrime"
+  - otx:tag="email campaigns"
+  - otx:tag="trustconnect"
+  - otx:tag="c2 infrastructure"
+  - otx:tag="trustconnect rat"
+  - otx:tag="digital signatures"
+  - otx:tag="docconnect"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="remote access trojan"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+  expire_at: 1789888041
+- id: otx-6a315d670f9460fe003298a8-4327533083
+  type: url
+  value: http://sonra.eutialyson.com/inst24.msi
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: URL主机已失效(所有解析器无解析): sonra.eutialyson.com | 命中威胁: Potemkin Loader & RMMProject The Anatomy of a ClickFix Attack | 关联: rmmproject, blockchain c2, chisel, etherrat, credential theft, clickfix | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Potemkin Loader & RMMProject The Anatomy of a ClickFix Attack
+    threat_labels:
+    - rmmproject
+    - blockchain c2
+    - chisel
+    - etherrat
+    - credential theft
+    - clickfix
+    - dga
+    - lateral movement
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a315d670f9460fe003298a8
+    narrative: null
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rmmproject"
+  - otx:tag="blockchain c2"
+  - otx:tag="chisel"
+  - otx:tag="etherrat"
+  - otx:tag="credential theft"
+  - otx:tag="clickfix"
+  - otx:tag="dga"
+  - otx:tag="lateral movement"
+  - otx:tag="hidden desktop"
+  - otx:tag="potemkin"
+  enabled: true
+  created_at: 1784255135
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: otx-6996efa6c7a901cbcb67660e-4218417410
+  type: url
+  value: http://stewise.top/Bin/ScreenConnect.ClientSetup.msi?e=Access&y=Guest
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: URL主机已失效(所有解析器无解析): stewise.top | 命中威胁: (Don''t) TrustConnect: It''s a RAT in an RMM hat | 关联: rmm abuse, cybercrime, email campaigns, trustconnect, c2 infrastructure, trustconnect rat | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: '(Don''t) TrustConnect: It''s a RAT in an RMM hat'
+    threat_labels:
+    - rmm abuse
+    - cybercrime
+    - email campaigns
+    - trustconnect
+    - c2 infrastructure
+    - trustconnect rat
+    - digital signatures
+    - docconnect
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6996efa6c7a901cbcb67660e
+    narrative: 基于OTX高可信度情报，该URL指向的ScreenConnect安装包实为TrustConnect RAT，属RMM滥用攻击。建议立即阻断对该域名的访问，并排查相关下载记录。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rmm abuse"
+  - otx:tag="cybercrime"
+  - otx:tag="email campaigns"
+  - otx:tag="trustconnect"
+  - otx:tag="c2 infrastructure"
+  - otx:tag="trustconnect rat"
+  - otx:tag="digital signatures"
+  - otx:tag="docconnect"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="remote access trojan"
+  - whoisxml:enriched
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+  expire_at: 1789888041
+- id: otx-6a5dec09c0c4b7d2a00d7b2c-4456404121
+  type: url
+  value: http://svuatwea.love
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: URL主机已失效(所有解析器无解析): svuatwea.love | 命中威胁: Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service | 关联: adaptixc2, defense-evasion, darkcloud stealer, malware-as-a-service, formbook, winos4.0 | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service'
+    threat_labels:
+    - adaptixc2
+    - defense-evasion
+    - darkcloud stealer
+    - malware-as-a-service
+    - formbook
+    - winos4.0
+    - crypter-service
+    - xworm
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a5dec09c0c4b7d2a00d7b2c
+    narrative: null
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="adaptixc2"
+  - otx:tag="defense-evasion"
+  - otx:tag="darkcloud stealer"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="formbook"
+  - otx:tag="winos4.0"
+  - otx:tag="crypter-service"
+  - otx:tag="xworm"
+  - otx:tag="byovd"
+  - otx:tag="dcrat"
+  enabled: true
+  created_at: 1784559600
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: otx-699a6ee1425f8f4a6e583f31-4224091013
+  type: url
+  value: http://taxfnat.tw/
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: URL主机已失效(所有解析器无解析): taxfnat.tw | 命中威胁: Massive Winos 4.0 Campaigns Target Taiwan | 关联: dll sideloading, valleyrat, byovd, taiwan, apt, uac bypass | 来源: otx · 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Massive Winos 4.0 Campaigns Target Taiwan
+    threat_labels:
+    - dll sideloading
+    - valleyrat
+    - byovd
+    - taiwan
+    - apt
+    - uac bypass
+    - winos 4.0
+    - phishing
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 699a6ee1425f8f4a6e583f31
+    narrative: 根据 OTX 情报，IOC `http://taxfnat.tw/` 关联大规模 Winos 4.0 活动，目标指向台湾地区，涉及 DLL 侧加载、BYOVD、UAC 绕过等多种技术，置信度高。建议立即封禁该域名，排查内网访问记录，并对相关主机进行深入检查。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="dll sideloading"
+  - otx:tag="valleyrat"
+  - otx:tag="byovd"
+  - otx:tag="taiwan"
+  - otx:tag="apt"
+  - otx:tag="uac bypass"
+  - otx:tag="winos 4.0"
+  - otx:tag="phishing"
+  enabled: true
+  created_at: 1783940972
+  updated_at: 1783941250
+  expire_at: 1789888041
+- id: otx-6a5dec09c0c4b7d2a00d7b2c-4456404124
+  type: url
+  value: http://vusuydryt.love
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: URL主机已失效(所有解析器无解析): vusuydryt.love | 命中威胁: Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service | 关联: adaptixc2, defense-evasion, darkcloud stealer, malware-as-a-service, formbook, winos4.0 | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service'
+    threat_labels:
+    - adaptixc2
+    - defense-evasion
+    - darkcloud stealer
+    - malware-as-a-service
+    - formbook
+    - winos4.0
+    - crypter-service
+    - xworm
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a5dec09c0c4b7d2a00d7b2c
+    narrative: null
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="adaptixc2"
+  - otx:tag="defense-evasion"
+  - otx:tag="darkcloud stealer"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="formbook"
+  - otx:tag="winos4.0"
+  - otx:tag="crypter-service"
+  - otx:tag="xworm"
+  - otx:tag="byovd"
+  - otx:tag="dcrat"
+  enabled: true
+  created_at: 1784559600
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: otx-6a5e7a9e8b20b763327b0d2d-4456542248
+  type: url
+  value: http://www.ilskdeid.o-r.kr:8000/
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: URL主机已失效(所有解析器无解析): www.ilskdeid.o-r.kr | 命中威胁: Analysis of Kimsuky''s Attack on a South Korean Groupware Vendor Using a New Gomir Family Variant | 关联: groupware, trollstealer, google drive c2, gomir, supply-chain, gobear | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Analysis of Kimsuky's Attack on a South Korean Groupware Vendor Using a New Gomir Family Variant
+    threat_labels:
+    - groupware
+    - trollstealer
+    - google drive c2
+    - gomir
+    - supply-chain
+    - gobear
+    - drivetroy
+    - httpspy
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a5e7a9e8b20b763327b0d2d
+    narrative: 检测到恶意 URL http://www.ilskdeid.o-r.kr:8000/，关联 OTX 报告中 Kimsuky 组织利用新 Gomir 变种对韩国群件供应商发起的供应链攻击。该 IOC 标签包括 trollstealer、google drive c2、gomir、supply-chain 等，置信度高。建议立即阻断该域名，排查内网相关访问记录，并升级检测规则。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="groupware"
+  - otx:tag="trollstealer"
+  - otx:tag="google drive c2"
+  - otx:tag="gomir"
+  - otx:tag="supply-chain"
+  - otx:tag="gobear"
+  - otx:tag="drivetroy"
+  - otx:tag="httpspy"
+  - otx:tag="south korea"
+  - otx:tag="birdtroy"
+  enabled: true
+  created_at: 1784646000
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: otx-6a28363f58453c0b99062360-4402609018
+  type: url
+  value: https://amazonalert.xyz/download/code.txt
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: URL主机已失效(所有解析器无解析): amazonalert.xyz | 命中威胁: From Fake Amazon Security Alert to HarborWatch Agent: ClickFix Delivery of a Custom Monitoring RAT | 关联: clickfix, fake captcha, phishing campaign, harbor sentinel | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'From Fake Amazon Security Alert to HarborWatch Agent: ClickFix Delivery of a Custom Monitoring RAT'
+    threat_labels:
+    - clickfix
+    - fake captcha
+    - phishing campaign
+    - harbor sentinel
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a28363f58453c0b99062360
+    narrative: null
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="clickfix"
+  - otx:tag="fake captcha"
+  - otx:tag="phishing campaign"
+  - otx:tag="harbor sentinel"
+  enabled: true
+  created_at: 1783653289
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: otx-6a5e7a9e8b20b763327b0d2d-4456542249
+  type: url
+  value: https://auth.samecloud.o-r.kr/index.php
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: URL主机已失效(所有解析器无解析): auth.samecloud.o-r.kr | 命中威胁: Analysis of Kimsuky''s Attack on a South Korean Groupware Vendor Using a New Gomir Family Variant | 关联: groupware, trollstealer, google drive c2, gomir, supply-chain, gobear | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Analysis of Kimsuky's Attack on a South Korean Groupware Vendor Using a New Gomir Family Variant
+    threat_labels:
+    - groupware
+    - trollstealer
+    - google drive c2
+    - gomir
+    - supply-chain
+    - gobear
+    - drivetroy
+    - httpspy
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a5e7a9e8b20b763327b0d2d
+    narrative: 检测到与 Kimsuky 组织针对韩国群组软件供应商的供应链攻击相关恶意 URL，该活动涉及新 Gomir 变种，具有 TrollStealer、Google Drive C2 等特征。依据 OTX 高置信度情报。建议立即阻断该 URL 的网络访问，排查受感染群件安装的可疑更新，并检查与其通信的主机。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="groupware"
+  - otx:tag="trollstealer"
+  - otx:tag="google drive c2"
+  - otx:tag="gomir"
+  - otx:tag="supply-chain"
+  - otx:tag="gobear"
+  - otx:tag="drivetroy"
+  - otx:tag="httpspy"
+  - otx:tag="south korea"
+  - otx:tag="birdtroy"
+  enabled: true
+  created_at: 1784646000
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: otx-6a315d670f9460fe003298a8-4328865250
+  type: url
+  value: https://cl.distritovagas.com/hte.hta
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: URL主机已失效(所有解析器无解析): cl.distritovagas.com | 命中威胁: Potemkin Loader & RMMProject The Anatomy of a ClickFix Attack | 关联: rmmproject, blockchain c2, chisel, etherrat, credential theft, clickfix | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Potemkin Loader & RMMProject The Anatomy of a ClickFix Attack
+    threat_labels:
+    - rmmproject
+    - blockchain c2
+    - chisel
+    - etherrat
+    - credential theft
+    - clickfix
+    - dga
+    - lateral movement
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a315d670f9460fe003298a8
+    narrative: null
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="rmmproject"
+  - otx:tag="blockchain c2"
+  - otx:tag="chisel"
+  - otx:tag="etherrat"
+  - otx:tag="credential theft"
+  - otx:tag="clickfix"
+  - otx:tag="dga"
+  - otx:tag="lateral movement"
+  - otx:tag="hidden desktop"
+  - otx:tag="potemkin"
+  enabled: true
+  created_at: 1784255135
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: otx-6a5e7a9e8b20b763327b0d2d-4456542250
+  type: url
+  value: https://commit.hanbiro.o-r.kr/index.php
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: URL主机已失效(所有解析器无解析): commit.hanbiro.o-r.kr | 命中威胁: Analysis of Kimsuky''s Attack on a South Korean Groupware Vendor Using a New Gomir Family Variant | 关联: groupware, trollstealer, google drive c2, gomir, supply-chain, gobear | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Analysis of Kimsuky's Attack on a South Korean Groupware Vendor Using a New Gomir Family Variant
+    threat_labels:
+    - groupware
+    - trollstealer
+    - google drive c2
+    - gomir
+    - supply-chain
+    - gobear
+    - drivetroy
+    - httpspy
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a5e7a9e8b20b763327b0d2d
+    narrative: 检测到与 Kimsuky 组织针对韩国群件供应商的供应链攻击活动相关的恶意 URL。该 IOC 涉及 Gomir 新变种，使用 Google Drive C2，具有高置信度。建议立即阻断对该 URL 的访问，并排查受影响资产。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="groupware"
+  - otx:tag="trollstealer"
+  - otx:tag="google drive c2"
+  - otx:tag="gomir"
+  - otx:tag="supply-chain"
+  - otx:tag="gobear"
+  - otx:tag="drivetroy"
+  - otx:tag="httpspy"
+  - otx:tag="south korea"
+  - otx:tag="birdtroy"
+  enabled: true
+  created_at: 1784646000
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: otx-6a5e7a9e8b20b763327b0d2d-4456542251
+  type: url
+  value: https://global.webjine.o-r.kr/index.php
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: URL主机已失效(所有解析器无解析): global.webjine.o-r.kr | 命中威胁: Analysis of Kimsuky''s Attack on a South Korean Groupware Vendor Using a New Gomir Family Variant | 关联: groupware, trollstealer, google drive c2, gomir, supply-chain, gobear | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Analysis of Kimsuky's Attack on a South Korean Groupware Vendor Using a New Gomir Family Variant
+    threat_labels:
+    - groupware
+    - trollstealer
+    - google drive c2
+    - gomir
+    - supply-chain
+    - gobear
+    - drivetroy
+    - httpspy
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a5e7a9e8b20b763327b0d2d
+    narrative: 根据 OTX 告警，该 URL 关联 Kimsuky 组织近期针对韩国群件供应商的供应链攻击，活动中使用了新版 Gomir 家族。威胁特征包括 TrollStealer 窃密、Google Drive C2 及 Httpspy 后门。判定依据为单一来源 OTX 的高置信度标记。建议立即阻断该域名访问，排查受影响群件系统的异常进程与网络连接。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="groupware"
+  - otx:tag="trollstealer"
+  - otx:tag="google drive c2"
+  - otx:tag="gomir"
+  - otx:tag="supply-chain"
+  - otx:tag="gobear"
+  - otx:tag="drivetroy"
+  - otx:tag="httpspy"
+  - otx:tag="south korea"
+  - otx:tag="birdtroy"
+  enabled: true
+  created_at: 1784646000
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: otx-6a4bb565cb9499639bf4125b-4449246299
+  type: url
+  value: https://hygienehistory.com/cac.aspx
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: URL主机已失效(所有解析器无解析): hygienehistory.com | 命中威胁: Cavern Manticore: Exposing Iran-Linked Modular C2 Framework | 关联: modular c2 framework, rmm abuse, sysaid, supply-chain compromise, iran, nativeaot compilation | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'Cavern Manticore: Exposing Iran-Linked Modular C2 Framework'
+    threat_labels:
+    - modular c2 framework
+    - rmm abuse
+    - sysaid
+    - supply-chain compromise
+    - iran
+    - nativeaot compilation
+    - mois
+    - dll sideloading
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a4bb565cb9499639bf4125b
+    narrative: null
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="modular c2 framework"
+  - otx:tag="rmm abuse"
+  - otx:tag="sysaid"
+  - otx:tag="supply-chain compromise"
+  - otx:tag="iran"
+  - otx:tag="nativeaot compilation"
+  - otx:tag="mois"
+  - otx:tag="dll sideloading"
+  enabled: true
+  created_at: 1783653289
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: otx-6a5e7a9e8b20b763327b0d2d-4456542252
+  type: url
+  value: https://oauth.shacloud.o-r.kr:8443
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: URL主机已失效(所有解析器无解析): oauth.shacloud.o-r.kr | 命中威胁: Analysis of Kimsuky''s Attack on a South Korean Groupware Vendor Using a New Gomir Family Variant | 关联: groupware, trollstealer, google drive c2, gomir, supply-chain, gobear | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Analysis of Kimsuky's Attack on a South Korean Groupware Vendor Using a New Gomir Family Variant
+    threat_labels:
+    - groupware
+    - trollstealer
+    - google drive c2
+    - gomir
+    - supply-chain
+    - gobear
+    - drivetroy
+    - httpspy
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a5e7a9e8b20b763327b0d2d
+    narrative: 告警通告：发现高置信度恶意 IOC `https://oauth.shacloud.o-r.kr:8443`，关联 Kimsuky 组织近期针对韩国群件供应商的供应链攻击活动（Gomir 新变种）。依据 OTX 情报，该 URL 承载 trollstealer、google drive c2 等恶意标签。建议立即阻断对该域名的所有通信，排查相关访问记录并加强端点监控。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="groupware"
+  - otx:tag="trollstealer"
+  - otx:tag="google drive c2"
+  - otx:tag="gomir"
+  - otx:tag="supply-chain"
+  - otx:tag="gobear"
+  - otx:tag="drivetroy"
+  - otx:tag="httpspy"
+  - otx:tag="south korea"
+  - otx:tag="birdtroy"
+  enabled: true
+  created_at: 1784646000
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: otx-6a5e7a9e8b20b763327b0d2d-4456542253
+  type: url
+  value: https://oobe.webjine.o-r.kr/index.php
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '【清洗移除】原因: URL主机已失效(所有解析器无解析): oobe.webjine.o-r.kr | 命中威胁: Analysis of Kimsuky''s Attack on a South Korean Groupware Vendor Using a New Gomir Family Variant | 关联: groupware, trollstealer, google drive c2, gomir, supply-chain, gobear | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Analysis of Kimsuky's Attack on a South Korean Groupware Vendor Using a New Gomir Family Variant
+    threat_labels:
+    - groupware
+    - trollstealer
+    - google drive c2
+    - gomir
+    - supply-chain
+    - gobear
+    - drivetroy
+    - httpspy
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a5e7a9e8b20b763327b0d2d
+    narrative: 检测到疑似 Kimsuky 组织针对韩国群件供应商的新版 Gomir 家族变种攻击 URL。OTX 源高置信度标记，关联 Google Drive C2、TrollStealer 等供应链威胁。建议立即阻断该 IOC，排查相关访问记录并启动事件响应。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="groupware"
+  - otx:tag="trollstealer"
+  - otx:tag="google drive c2"
+  - otx:tag="gomir"
+  - otx:tag="supply-chain"
+  - otx:tag="gobear"
+  - otx:tag="drivetroy"
+  - otx:tag="httpspy"
+  - otx:tag="south korea"
+  - otx:tag="birdtroy"
+  enabled: true
+  created_at: 1784646000
+  updated_at: 1784872448
+  expire_at: 1789888041

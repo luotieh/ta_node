@@ -1,0 +1,1680 @@
+items:
+- id: 9749642da7ee4f27854414cce0b9f5618a5832250aa078948c1ea5de9ec33c48
+  type: ip
+  value: 104.21.13.107
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 prism-vertex.com] 命中威胁: ACR Stealer: Two observed intrusion chains amid increased threat activity | 关联: blockchain c2, webdav, steganography, amatera stealer, clickfix, acr stealer | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'ACR Stealer: Two observed intrusion chains amid increased threat activity'
+    threat_labels:
+    - blockchain c2
+    - webdav
+    - steganography
+    - amatera stealer
+    - clickfix
+    - acr stealer
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a59832ac2ebd9e525a462b9
+    narrative: "【告警通告】  \n基于OTX情报，域名 prism-vertex.com 关联ACR Stealer活动，涉及区块链C2、WebDAV、隐写术、ClickFix及Amatera Stealer等威胁标签，置信度为高。该域名被用于入侵链，建议立即在边界和终端阻断对该域名的解析与访问，并排查已产生的通信记录。"
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="blockchain c2"
+  - otx:tag="webdav"
+  - otx:tag="steganography"
+  - otx:tag="amatera stealer"
+  - otx:tag="clickfix"
+  - otx:tag="acr stealer"
+  - dns_resolved_from:prism-vertex.com
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: c1e36c99e048843f5f5ee8b5f8468c1969e0f94161429615779a4d9463b52299
+  type: ip
+  value: 104.21.25.179
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 johncon.my] 命中威胁: June 2026 Infostealer Trend Report | 关联: darkcloud, vidar, email campaign, acrstealer, clickfix, seo poisoning | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: June 2026 Infostealer Trend Report
+    threat_labels:
+    - darkcloud
+    - vidar
+    - email campaign
+    - acrstealer
+    - clickfix
+    - seo poisoning
+    - amos
+    - credential theft
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a5775d6071af081378a0eb9
+    narrative: 根据OTX高置信度情报，域名johncon.my关联“June 2026 Infostealer Trend Report”，涉及darkcloud、vidar、acrstealer、amos等信息窃取木马，以及邮件钓鱼、SEO投毒、ClickFix等攻击活动，威胁标签含凭证窃取。建议立即阻断对该域名的访问，并排查相关DNS及HTTP流量。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="darkcloud"
+  - otx:tag="vidar"
+  - otx:tag="email campaign"
+  - otx:tag="acrstealer"
+  - otx:tag="clickfix"
+  - otx:tag="seo poisoning"
+  - otx:tag="amos"
+  - otx:tag="credential theft"
+  - otx:tag="blockchain c2"
+  - otx:tag="agenttesla"
+  - dns_resolved_from:johncon.my
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 58f389b70dee30bc6285eaf3932b9067a4186680739fbfead310d4180763fbed
+  type: ip
+  value: 104.21.33.112
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 looksta.icu] 命中威胁: ACR Stealer: Two observed intrusion chains amid increased threat activity | 关联: blockchain c2, webdav, steganography, amatera stealer, clickfix, acr stealer | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'ACR Stealer: Two observed intrusion chains amid increased threat activity'
+    threat_labels:
+    - blockchain c2
+    - webdav
+    - steganography
+    - amatera stealer
+    - clickfix
+    - acr stealer
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a59832ac2ebd9e525a462b9
+    narrative: null
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="blockchain c2"
+  - otx:tag="webdav"
+  - otx:tag="steganography"
+  - otx:tag="amatera stealer"
+  - otx:tag="clickfix"
+  - otx:tag="acr stealer"
+  - dns_resolved_from:looksta.icu
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 5181bbb07ddb71eaf3e9c96890c3366bb4357031e9de236fce0f8e4a31672bcf
+  type: ip
+  value: 104.21.44.89
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 contrite.quirksturdy.icu] 命中威胁: ACR Stealer: Two observed intrusion chains amid increased threat activity | 关联: blockchain c2, webdav, steganography, amatera stealer, clickfix, acr stealer | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'ACR Stealer: Two observed intrusion chains amid increased threat activity'
+    threat_labels:
+    - blockchain c2
+    - webdav
+    - steganography
+    - amatera stealer
+    - clickfix
+    - acr stealer
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a59832ac2ebd9e525a462b9
+    narrative: 告警：域名 contrite.quirksturdy.icu 关联 ACR Stealer 活动，涉及区块链 C2、WebDAV、隐写术及 ClickFix 等技术。该 IOC 来自 OTX，置信度高。建议立即阻断对该域名的访问，检查是否有相关连接记录，并深入排查失陷主机。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="blockchain c2"
+  - otx:tag="webdav"
+  - otx:tag="steganography"
+  - otx:tag="amatera stealer"
+  - otx:tag="clickfix"
+  - otx:tag="acr stealer"
+  - dns_resolved_from:contrite.quirksturdy.icu
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 1ccba1f09cbf1377f544658f1d3f3ec86a98a214ff65836852987d5763b2da28
+  type: ip
+  value: 104.21.55.54
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 cpppemwjewjoiwejow.sale] 命中威胁: ACR Stealer: Two observed intrusion chains amid increased threat activity | 关联: blockchain c2, webdav, steganography, amatera stealer, clickfix, acr stealer | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'ACR Stealer: Two observed intrusion chains amid increased threat activity'
+    threat_labels:
+    - blockchain c2
+    - webdav
+    - steganography
+    - amatera stealer
+    - clickfix
+    - acr stealer
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a59832ac2ebd9e525a462b9
+    narrative: 检测到域名 cpppemwjewjoiwejow.sale 与 ACR Stealer 活动关联，标签包含 blockchain C2、WebDAV、隐写术、Amatera Stealer、ClickFix。OTX 单源高置信度判定为窃密木马通信。建议立即阻断该域名并排查受感染主机。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="blockchain c2"
+  - otx:tag="webdav"
+  - otx:tag="steganography"
+  - otx:tag="amatera stealer"
+  - otx:tag="clickfix"
+  - otx:tag="acr stealer"
+  - dns_resolved_from:cpppemwjewjoiwejow.sale
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: c53a3bf306ffe14d107756de9d7a82e65763dd3613729e847a822cf7d999b60b
+  type: ip
+  value: 104.21.56.49
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 enhanceblabber.cc] 命中威胁: ACR Stealer: Two observed intrusion chains amid increased threat activity | 关联: blockchain c2, webdav, steganography, amatera stealer, clickfix, acr stealer | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'ACR Stealer: Two observed intrusion chains amid increased threat activity'
+    threat_labels:
+    - blockchain c2
+    - webdav
+    - steganography
+    - amatera stealer
+    - clickfix
+    - acr stealer
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a59832ac2ebd9e525a462b9
+    narrative: 根据OTX情报，域名 enhanceblabber.cc 关联ACR Stealer窃密活动，涉及区块链C2、WebDAV、隐写术等技术。判定依据为高置信度威胁标签。建议立即封锁该域名，检查DNS解析日志，排查失陷主机。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="blockchain c2"
+  - otx:tag="webdav"
+  - otx:tag="steganography"
+  - otx:tag="amatera stealer"
+  - otx:tag="clickfix"
+  - otx:tag="acr stealer"
+  - dns_resolved_from:enhanceblabber.cc
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: edce171fcd74d639a6b0352c18437e000585a0321634a41d2c9f6c5ffe2a501b
+  type: ip
+  value: 104.21.57.117
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 amazonattention.com] 命中威胁: From Fake Amazon Security Alert to HarborWatch Agent: ClickFix Delivery of a Custom Monitoring RAT | 关联: clickfix, fake captcha, phishing campaign, harbor sentinel | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'From Fake Amazon Security Alert to HarborWatch Agent: ClickFix Delivery of a Custom Monitoring RAT'
+    threat_labels:
+    - clickfix
+    - fake captcha
+    - phishing campaign
+    - harbor sentinel
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a28363f58453c0b99062360
+    narrative: null
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="clickfix"
+  - otx:tag="fake captcha"
+  - otx:tag="phishing campaign"
+  - otx:tag="harbor sentinel"
+  - whoisxml:enriched
+  - dns_resolved_from:amazonattention.com
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: e06a90e98f6ec61de42dcc0edd482e61ca21a9a4302613b2be9a2b5ec0092613
+  type: ip
+  value: 104.21.60.213
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 prism-matrixs.com] 命中威胁: ACR Stealer: Two observed intrusion chains amid increased threat activity | 关联: blockchain c2, webdav, steganography, amatera stealer, clickfix, acr stealer | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'ACR Stealer: Two observed intrusion chains amid increased threat activity'
+    threat_labels:
+    - blockchain c2
+    - webdav
+    - steganography
+    - amatera stealer
+    - clickfix
+    - acr stealer
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a59832ac2ebd9e525a462b9
+    narrative: 告警：域名 prism-matrixs.com 关联 ACR Stealer 入侵链，威胁标签含区块链C2、WebDAV、隐写等，置信度高（OTX单源）。建议立即封锁该域名并排查解析记录。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="blockchain c2"
+  - otx:tag="webdav"
+  - otx:tag="steganography"
+  - otx:tag="amatera stealer"
+  - otx:tag="clickfix"
+  - otx:tag="acr stealer"
+  - dns_resolved_from:prism-matrixs.com
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 2bbd179d9e5356da0350f0c701761eba56044fb057f3f437978d5644750786c0
+  type: ip
+  value: 104.21.61.3
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 bduwih8.pro] 命中威胁: June 2026 Infostealer Trend Report | 关联: darkcloud, vidar, email campaign, acrstealer, clickfix, seo poisoning | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: June 2026 Infostealer Trend Report
+    threat_labels:
+    - darkcloud
+    - vidar
+    - email campaign
+    - acrstealer
+    - clickfix
+    - seo poisoning
+    - amos
+    - credential theft
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a5775d6071af081378a0eb9
+    narrative: 检测到域名 **bduwih8.pro** 关联多个信息窃取木马标签（darkcloud、vidar、acrstealer、amos）及恶意活动（电子邮件钓鱼、SEO 投毒、凭证窃取）。基于 OTX 单一来源高置信度判定。建议立即阻断该域名访问，排查终端及邮件网关中相关连接记录与凭证泄露风险。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="darkcloud"
+  - otx:tag="vidar"
+  - otx:tag="email campaign"
+  - otx:tag="acrstealer"
+  - otx:tag="clickfix"
+  - otx:tag="seo poisoning"
+  - otx:tag="amos"
+  - otx:tag="credential theft"
+  - otx:tag="blockchain c2"
+  - otx:tag="agenttesla"
+  - dns_resolved_from:bduwih8.pro
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 1fe455eab6f96a7a2b7c052060b75d24a096cf10881056976c280a63beb756c7
+  type: ip
+  value: 104.21.67.11
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 zealpraxis.com] 命中威胁: ACR Stealer: Two observed intrusion chains amid increased threat activity | 关联: blockchain c2, webdav, steganography, amatera stealer, clickfix, acr stealer | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'ACR Stealer: Two observed intrusion chains amid increased threat activity'
+    threat_labels:
+    - blockchain c2
+    - webdav
+    - steganography
+    - amatera stealer
+    - clickfix
+    - acr stealer
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a59832ac2ebd9e525a462b9
+    narrative: 告警：域名 zealpraxis.com 关联 ACR Stealer 入侵链，威胁活动上升。依据 OTX 情报（高置信），标签含区块链 C2、隐写、ACR Stealer 等。建议立即封禁该域名，并排查相关出站流量。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="blockchain c2"
+  - otx:tag="webdav"
+  - otx:tag="steganography"
+  - otx:tag="amatera stealer"
+  - otx:tag="clickfix"
+  - otx:tag="acr stealer"
+  - dns_resolved_from:zealpraxis.com
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: b3ef30ec02cb062acd5a038561a3fbeee01dc90d976ffe7a5ed24f0d1589862f
+  type: ip
+  value: 104.21.68.204
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 proton-network.com] 命中威胁: ACR Stealer: Two observed intrusion chains amid increased threat activity | 关联: blockchain c2, webdav, steganography, amatera stealer, clickfix, acr stealer | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'ACR Stealer: Two observed intrusion chains amid increased threat activity'
+    threat_labels:
+    - blockchain c2
+    - webdav
+    - steganography
+    - amatera stealer
+    - clickfix
+    - acr stealer
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a59832ac2ebd9e525a462b9
+    narrative: null
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="blockchain c2"
+  - otx:tag="webdav"
+  - otx:tag="steganography"
+  - otx:tag="amatera stealer"
+  - otx:tag="clickfix"
+  - otx:tag="acr stealer"
+  - dns_resolved_from:proton-network.com
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 5d3bff4d2b5db6440f71251f0b30a7678ef4d85759fd5fc43abf2b304fd5b22b
+  type: ip
+  value: 104.21.73.251
+  category: network_activity
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 windowsupdate-cdn.com] 命中威胁: ClickFix Campaign Generated Via AI Delivers SmartRAT | 关联: banana rat, fake captcha, smartrat, powershell, typosquatting, ghostloader | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: ClickFix Campaign Generated Via AI Delivers SmartRAT
+    threat_labels:
+    - banana rat
+    - fake captcha
+    - smartrat
+    - powershell
+    - typosquatting
+    - ghostloader
+    - brazil
+    - clickfix
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a32e5873cf59d36f41c77be
+    narrative: 检测到域名 windowsupdate-cdn.com 关联 ClickFix 攻击活动，被用于投递 SmartRAT 远控木马。该域名通过仿冒拼写（typosquatting）并配合伪造验证码（fake captcha）诱导用户执行恶意 PowerShell 命令，关联威胁标签含 banana rat、ghostloader 等。依据开源威胁情报（OTX）标记为高置信度。建议立即封禁该域名，排查受信终端是否与 IOC 通信，并检查 PowerShell 执行日志。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="banana rat"
+  - otx:tag="fake captcha"
+  - otx:tag="smartrat"
+  - otx:tag="powershell"
+  - otx:tag="typosquatting"
+  - otx:tag="ghostloader"
+  - otx:tag="brazil"
+  - otx:tag="clickfix"
+  - otx:tag="qr code interception"
+  - otx:tag="banking trojan"
+  - dns_resolved_from:windowsupdate-cdn.com
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 29f974a43f1b78f7d9f777034ca1adec0f5c94d04b84b0428d8e3622081744d7
+  type: ip
+  value: 104.21.74.212
+  category: network_activity
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 computer.kplus.com] 命中威胁: Spirals: New Stealthy Ransomware Deployed Against Asian IT Company | 关联: chisel, web shell, asp.net web shell, cloudflare tunnel, it services, credential dumping | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'Spirals: New Stealthy Ransomware Deployed Against Asian IT Company'
+    threat_labels:
+    - chisel
+    - web shell
+    - asp.net web shell
+    - cloudflare tunnel
+    - it services
+    - credential dumping
+    - revsocks
+    - south asia
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a58c2ecd43c8e98d4bdd2e0
+    narrative: null
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="chisel"
+  - otx:tag="web shell"
+  - otx:tag="asp.net web shell"
+  - otx:tag="cloudflare tunnel"
+  - otx:tag="it services"
+  - otx:tag="credential dumping"
+  - otx:tag="revsocks"
+  - otx:tag="south asia"
+  - otx:tag="rust-based ransomware"
+  - otx:tag="spirals"
+  - dns_resolved_from:computer.kplus.com
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: c7ab4dca415bd7fbbb4805e0f081888407609e58d6028684e551521965327f33
+  type: ip
+  value: 104.21.79.27
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 dodod.lat] 命中威胁: WebAssembly Malware Found in Trojanized Open VSX Extensions | 关联: glasswasm, cryptocurrency targeting, dead-drop c2, webassembly, chacha20 encryption, supply chain | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: WebAssembly Malware Found in Trojanized Open VSX Extensions
+    threat_labels:
+    - glasswasm
+    - cryptocurrency targeting
+    - dead-drop c2
+    - webassembly
+    - chacha20 encryption
+    - supply chain
+    - tinygo
+    - vs code extensions
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a30d0b403db287f819b47e9
+    narrative: null
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="glasswasm"
+  - otx:tag="cryptocurrency targeting"
+  - otx:tag="dead-drop c2"
+  - otx:tag="webassembly"
+  - otx:tag="chacha20 encryption"
+  - otx:tag="supply chain"
+  - otx:tag="tinygo"
+  - otx:tag="vs code extensions"
+  - otx:tag="open vsx"
+  - otx:tag="solana blockchain"
+  - dns_resolved_from:dodod.lat
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: cd154c487b2aec7f53607acc40ce9236b9202237e4370c7b9b948a1c4531b9fa
+  type: ip
+  value: 104.21.80.11
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 deep-harborio.com] 命中威胁: ACR Stealer: Two observed intrusion chains amid increased threat activity | 关联: blockchain c2, webdav, steganography, amatera stealer, clickfix, acr stealer | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'ACR Stealer: Two observed intrusion chains amid increased threat activity'
+    threat_labels:
+    - blockchain c2
+    - webdav
+    - steganography
+    - amatera stealer
+    - clickfix
+    - acr stealer
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a59832ac2ebd9e525a462b9
+    narrative: 根据高置信度威胁情报，IOC `deep-harborio.com` 关联 ACR Stealer 入侵链活动，涉及区块链 C2、WebDAV 与隐写术等疑点。单源 OTX 报告指出近期相关威胁活跃上升。建议立即在边界和终端阻断或监控该域名，并回溯疑似连接记录。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="blockchain c2"
+  - otx:tag="webdav"
+  - otx:tag="steganography"
+  - otx:tag="amatera stealer"
+  - otx:tag="clickfix"
+  - otx:tag="acr stealer"
+  - dns_resolved_from:deep-harborio.com
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 4a155078738c51293b82174c46e2f184388d31154a1f55607bb065a68c5e585b
+  type: ip
+  value: 162.241.2.30
+  category: network_activity
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 comunidadesparentais.com.br] 命中威胁: Attackers Weaponize Microsoft Teams Relays to Stay Hidden | 关联: dragonforce, dll side-loading, ransomware, byovd, cve-2023-52271, cve-2025-61155 | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Attackers Weaponize Microsoft Teams Relays to Stay Hidden
+    threat_labels:
+    - dragonforce
+    - dll side-loading
+    - ransomware
+    - byovd
+    - cve-2023-52271
+    - cve-2025-61155
+    - cve-2025-1055
+    - turn relay
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a316151d9ab4af59e56576d
+    narrative: null
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="dragonforce"
+  - otx:tag="dll side-loading"
+  - otx:tag="ransomware"
+  - otx:tag="byovd"
+  - otx:tag="cve-2023-52271"
+  - otx:tag="cve-2025-61155"
+  - otx:tag="cve-2025-1055"
+  - otx:tag="turn relay"
+  - otx:tag="credential theft"
+  - otx:tag="vulnerable drivers"
+  - dns_resolved_from:comunidadesparentais.com.br
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 0165c927068fd81a5da9037de786cf97135992deb264f07c0c247368902bf89c
+  type: ip
+  value: 172.67.134.113
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 johncon.my] 命中威胁: June 2026 Infostealer Trend Report | 关联: darkcloud, vidar, email campaign, acrstealer, clickfix, seo poisoning | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: June 2026 Infostealer Trend Report
+    threat_labels:
+    - darkcloud
+    - vidar
+    - email campaign
+    - acrstealer
+    - clickfix
+    - seo poisoning
+    - amos
+    - credential theft
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a5775d6071af081378a0eb9
+    narrative: 根据OTX高置信度情报，域名johncon.my关联“June 2026 Infostealer Trend Report”，涉及darkcloud、vidar、acrstealer、amos等信息窃取木马，以及邮件钓鱼、SEO投毒、ClickFix等攻击活动，威胁标签含凭证窃取。建议立即阻断对该域名的访问，并排查相关DNS及HTTP流量。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="darkcloud"
+  - otx:tag="vidar"
+  - otx:tag="email campaign"
+  - otx:tag="acrstealer"
+  - otx:tag="clickfix"
+  - otx:tag="seo poisoning"
+  - otx:tag="amos"
+  - otx:tag="credential theft"
+  - otx:tag="blockchain c2"
+  - otx:tag="agenttesla"
+  - dns_resolved_from:johncon.my
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: f7431a7ea67cd93791bee5b31bb26a4ad033103abb40bd0c6c1cb8ea9c64ca02
+  type: ip
+  value: 172.67.140.235
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 dodod.lat] 命中威胁: WebAssembly Malware Found in Trojanized Open VSX Extensions | 关联: glasswasm, cryptocurrency targeting, dead-drop c2, webassembly, chacha20 encryption, supply chain | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: WebAssembly Malware Found in Trojanized Open VSX Extensions
+    threat_labels:
+    - glasswasm
+    - cryptocurrency targeting
+    - dead-drop c2
+    - webassembly
+    - chacha20 encryption
+    - supply chain
+    - tinygo
+    - vs code extensions
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a30d0b403db287f819b47e9
+    narrative: null
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="glasswasm"
+  - otx:tag="cryptocurrency targeting"
+  - otx:tag="dead-drop c2"
+  - otx:tag="webassembly"
+  - otx:tag="chacha20 encryption"
+  - otx:tag="supply chain"
+  - otx:tag="tinygo"
+  - otx:tag="vs code extensions"
+  - otx:tag="open vsx"
+  - otx:tag="solana blockchain"
+  - dns_resolved_from:dodod.lat
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: dbbf3c7bca2ca36da538598f12b9e62308edd58806655e895b5480bb2138bfc4
+  type: ip
+  value: 172.67.144.214
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 cpppemwjewjoiwejow.sale] 命中威胁: ACR Stealer: Two observed intrusion chains amid increased threat activity | 关联: blockchain c2, webdav, steganography, amatera stealer, clickfix, acr stealer | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'ACR Stealer: Two observed intrusion chains amid increased threat activity'
+    threat_labels:
+    - blockchain c2
+    - webdav
+    - steganography
+    - amatera stealer
+    - clickfix
+    - acr stealer
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a59832ac2ebd9e525a462b9
+    narrative: 检测到域名 cpppemwjewjoiwejow.sale 与 ACR Stealer 活动关联，标签包含 blockchain C2、WebDAV、隐写术、Amatera Stealer、ClickFix。OTX 单源高置信度判定为窃密木马通信。建议立即阻断该域名并排查受感染主机。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="blockchain c2"
+  - otx:tag="webdav"
+  - otx:tag="steganography"
+  - otx:tag="amatera stealer"
+  - otx:tag="clickfix"
+  - otx:tag="acr stealer"
+  - dns_resolved_from:cpppemwjewjoiwejow.sale
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 29896e2c623d9f5b8cf3e7e05498534148a6b178c17ab2524fd28473737e6ab9
+  type: ip
+  value: 172.67.151.208
+  category: network_activity
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 windowsupdate-cdn.com] 命中威胁: ClickFix Campaign Generated Via AI Delivers SmartRAT | 关联: banana rat, fake captcha, smartrat, powershell, typosquatting, ghostloader | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: ClickFix Campaign Generated Via AI Delivers SmartRAT
+    threat_labels:
+    - banana rat
+    - fake captcha
+    - smartrat
+    - powershell
+    - typosquatting
+    - ghostloader
+    - brazil
+    - clickfix
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a32e5873cf59d36f41c77be
+    narrative: 检测到域名 windowsupdate-cdn.com 关联 ClickFix 攻击活动，被用于投递 SmartRAT 远控木马。该域名通过仿冒拼写（typosquatting）并配合伪造验证码（fake captcha）诱导用户执行恶意 PowerShell 命令，关联威胁标签含 banana rat、ghostloader 等。依据开源威胁情报（OTX）标记为高置信度。建议立即封禁该域名，排查受信终端是否与 IOC 通信，并检查 PowerShell 执行日志。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="banana rat"
+  - otx:tag="fake captcha"
+  - otx:tag="smartrat"
+  - otx:tag="powershell"
+  - otx:tag="typosquatting"
+  - otx:tag="ghostloader"
+  - otx:tag="brazil"
+  - otx:tag="clickfix"
+  - otx:tag="qr code interception"
+  - otx:tag="banking trojan"
+  - dns_resolved_from:windowsupdate-cdn.com
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 33629d3927c827c5a1c67ba81affe0b90e0b9529052227cbf37a8bdc38565081
+  type: ip
+  value: 172.67.161.227
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 looksta.icu] 命中威胁: ACR Stealer: Two observed intrusion chains amid increased threat activity | 关联: blockchain c2, webdav, steganography, amatera stealer, clickfix, acr stealer | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'ACR Stealer: Two observed intrusion chains amid increased threat activity'
+    threat_labels:
+    - blockchain c2
+    - webdav
+    - steganography
+    - amatera stealer
+    - clickfix
+    - acr stealer
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a59832ac2ebd9e525a462b9
+    narrative: null
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="blockchain c2"
+  - otx:tag="webdav"
+  - otx:tag="steganography"
+  - otx:tag="amatera stealer"
+  - otx:tag="clickfix"
+  - otx:tag="acr stealer"
+  - dns_resolved_from:looksta.icu
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: c01cb2c92d43c85f2281ff10870cfeb7ddc9f321f7312abe8d6cf6d42921d7f5
+  type: ip
+  value: 172.67.172.146
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 deep-harborio.com] 命中威胁: ACR Stealer: Two observed intrusion chains amid increased threat activity | 关联: blockchain c2, webdav, steganography, amatera stealer, clickfix, acr stealer | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'ACR Stealer: Two observed intrusion chains amid increased threat activity'
+    threat_labels:
+    - blockchain c2
+    - webdav
+    - steganography
+    - amatera stealer
+    - clickfix
+    - acr stealer
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a59832ac2ebd9e525a462b9
+    narrative: 根据高置信度威胁情报，IOC `deep-harborio.com` 关联 ACR Stealer 入侵链活动，涉及区块链 C2、WebDAV 与隐写术等疑点。单源 OTX 报告指出近期相关威胁活跃上升。建议立即在边界和终端阻断或监控该域名，并回溯疑似连接记录。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="blockchain c2"
+  - otx:tag="webdav"
+  - otx:tag="steganography"
+  - otx:tag="amatera stealer"
+  - otx:tag="clickfix"
+  - otx:tag="acr stealer"
+  - dns_resolved_from:deep-harborio.com
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 19fcd7b5828d9a0fdfc6be1ac3367b1c178d4c82d920f4aee9d935b18be0721a
+  type: ip
+  value: 172.67.177.145
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 enhanceblabber.cc] 命中威胁: ACR Stealer: Two observed intrusion chains amid increased threat activity | 关联: blockchain c2, webdav, steganography, amatera stealer, clickfix, acr stealer | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'ACR Stealer: Two observed intrusion chains amid increased threat activity'
+    threat_labels:
+    - blockchain c2
+    - webdav
+    - steganography
+    - amatera stealer
+    - clickfix
+    - acr stealer
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a59832ac2ebd9e525a462b9
+    narrative: 根据OTX情报，域名 enhanceblabber.cc 关联ACR Stealer窃密活动，涉及区块链C2、WebDAV、隐写术等技术。判定依据为高置信度威胁标签。建议立即封锁该域名，检查DNS解析日志，排查失陷主机。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="blockchain c2"
+  - otx:tag="webdav"
+  - otx:tag="steganography"
+  - otx:tag="amatera stealer"
+  - otx:tag="clickfix"
+  - otx:tag="acr stealer"
+  - dns_resolved_from:enhanceblabber.cc
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 1bee2a8541c8fd9f0c80d8032257bf23b4433d689a009db87148f91aa46db82d
+  type: ip
+  value: 172.67.190.89
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 amazonattention.com] 命中威胁: From Fake Amazon Security Alert to HarborWatch Agent: ClickFix Delivery of a Custom Monitoring RAT | 关联: clickfix, fake captcha, phishing campaign, harbor sentinel | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'From Fake Amazon Security Alert to HarborWatch Agent: ClickFix Delivery of a Custom Monitoring RAT'
+    threat_labels:
+    - clickfix
+    - fake captcha
+    - phishing campaign
+    - harbor sentinel
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a28363f58453c0b99062360
+    narrative: null
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="clickfix"
+  - otx:tag="fake captcha"
+  - otx:tag="phishing campaign"
+  - otx:tag="harbor sentinel"
+  - whoisxml:enriched
+  - dns_resolved_from:amazonattention.com
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 2945b16728e5dc304dceee4ae01e505db9be4af68dcd76e8966c868fe201e918
+  type: ip
+  value: 172.67.198.116
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 proton-network.com] 命中威胁: ACR Stealer: Two observed intrusion chains amid increased threat activity | 关联: blockchain c2, webdav, steganography, amatera stealer, clickfix, acr stealer | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'ACR Stealer: Two observed intrusion chains amid increased threat activity'
+    threat_labels:
+    - blockchain c2
+    - webdav
+    - steganography
+    - amatera stealer
+    - clickfix
+    - acr stealer
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a59832ac2ebd9e525a462b9
+    narrative: null
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="blockchain c2"
+  - otx:tag="webdav"
+  - otx:tag="steganography"
+  - otx:tag="amatera stealer"
+  - otx:tag="clickfix"
+  - otx:tag="acr stealer"
+  - dns_resolved_from:proton-network.com
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: ea2dad09073007d4c659a8069b09185dd8d024f4264a41ad7b29ee37a13b0839
+  type: ip
+  value: 172.67.198.57
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 contrite.quirksturdy.icu] 命中威胁: ACR Stealer: Two observed intrusion chains amid increased threat activity | 关联: blockchain c2, webdav, steganography, amatera stealer, clickfix, acr stealer | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'ACR Stealer: Two observed intrusion chains amid increased threat activity'
+    threat_labels:
+    - blockchain c2
+    - webdav
+    - steganography
+    - amatera stealer
+    - clickfix
+    - acr stealer
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a59832ac2ebd9e525a462b9
+    narrative: 告警：域名 contrite.quirksturdy.icu 关联 ACR Stealer 活动，涉及区块链 C2、WebDAV、隐写术及 ClickFix 等技术。该 IOC 来自 OTX，置信度高。建议立即阻断对该域名的访问，检查是否有相关连接记录，并深入排查失陷主机。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="blockchain c2"
+  - otx:tag="webdav"
+  - otx:tag="steganography"
+  - otx:tag="amatera stealer"
+  - otx:tag="clickfix"
+  - otx:tag="acr stealer"
+  - dns_resolved_from:contrite.quirksturdy.icu
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 6dbf61a8e667df126f4c073475ca0763270d8ba81428bae4098623c8fd979da3
+  type: ip
+  value: 172.67.199.214
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 prism-vertex.com] 命中威胁: ACR Stealer: Two observed intrusion chains amid increased threat activity | 关联: blockchain c2, webdav, steganography, amatera stealer, clickfix, acr stealer | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'ACR Stealer: Two observed intrusion chains amid increased threat activity'
+    threat_labels:
+    - blockchain c2
+    - webdav
+    - steganography
+    - amatera stealer
+    - clickfix
+    - acr stealer
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a59832ac2ebd9e525a462b9
+    narrative: "【告警通告】  \n基于OTX情报，域名 prism-vertex.com 关联ACR Stealer活动，涉及区块链C2、WebDAV、隐写术、ClickFix及Amatera Stealer等威胁标签，置信度为高。该域名被用于入侵链，建议立即在边界和终端阻断对该域名的解析与访问，并排查已产生的通信记录。"
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="blockchain c2"
+  - otx:tag="webdav"
+  - otx:tag="steganography"
+  - otx:tag="amatera stealer"
+  - otx:tag="clickfix"
+  - otx:tag="acr stealer"
+  - dns_resolved_from:prism-vertex.com
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: ed841be753b36bc8dd2f64bc448fcaeb1a6560309970b84b03638cd0f1fc92a1
+  type: ip
+  value: 172.67.201.201
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 prism-matrixs.com] 命中威胁: ACR Stealer: Two observed intrusion chains amid increased threat activity | 关联: blockchain c2, webdav, steganography, amatera stealer, clickfix, acr stealer | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'ACR Stealer: Two observed intrusion chains amid increased threat activity'
+    threat_labels:
+    - blockchain c2
+    - webdav
+    - steganography
+    - amatera stealer
+    - clickfix
+    - acr stealer
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a59832ac2ebd9e525a462b9
+    narrative: 告警：域名 prism-matrixs.com 关联 ACR Stealer 入侵链，威胁标签含区块链C2、WebDAV、隐写等，置信度高（OTX单源）。建议立即封锁该域名并排查解析记录。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="blockchain c2"
+  - otx:tag="webdav"
+  - otx:tag="steganography"
+  - otx:tag="amatera stealer"
+  - otx:tag="clickfix"
+  - otx:tag="acr stealer"
+  - dns_resolved_from:prism-matrixs.com
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: f61ea93b9aa7319949baeff9bfeb135041eabcf9dc4d5592c5ec57840891e64a
+  type: ip
+  value: 172.67.204.80
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 bduwih8.pro] 命中威胁: June 2026 Infostealer Trend Report | 关联: darkcloud, vidar, email campaign, acrstealer, clickfix, seo poisoning | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: June 2026 Infostealer Trend Report
+    threat_labels:
+    - darkcloud
+    - vidar
+    - email campaign
+    - acrstealer
+    - clickfix
+    - seo poisoning
+    - amos
+    - credential theft
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a5775d6071af081378a0eb9
+    narrative: 检测到域名 **bduwih8.pro** 关联多个信息窃取木马标签（darkcloud、vidar、acrstealer、amos）及恶意活动（电子邮件钓鱼、SEO 投毒、凭证窃取）。基于 OTX 单一来源高置信度判定。建议立即阻断该域名访问，排查终端及邮件网关中相关连接记录与凭证泄露风险。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="darkcloud"
+  - otx:tag="vidar"
+  - otx:tag="email campaign"
+  - otx:tag="acrstealer"
+  - otx:tag="clickfix"
+  - otx:tag="seo poisoning"
+  - otx:tag="amos"
+  - otx:tag="credential theft"
+  - otx:tag="blockchain c2"
+  - otx:tag="agenttesla"
+  - dns_resolved_from:bduwih8.pro
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: bdbb2ff1abec8d22c1e48e4ca499c6e7ad8d7763b0868d86695d1d1482911074
+  type: ip
+  value: 172.67.206.120
+  category: network_activity
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 computer.kplus.com] 命中威胁: Spirals: New Stealthy Ransomware Deployed Against Asian IT Company | 关联: chisel, web shell, asp.net web shell, cloudflare tunnel, it services, credential dumping | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'Spirals: New Stealthy Ransomware Deployed Against Asian IT Company'
+    threat_labels:
+    - chisel
+    - web shell
+    - asp.net web shell
+    - cloudflare tunnel
+    - it services
+    - credential dumping
+    - revsocks
+    - south asia
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a58c2ecd43c8e98d4bdd2e0
+    narrative: null
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="chisel"
+  - otx:tag="web shell"
+  - otx:tag="asp.net web shell"
+  - otx:tag="cloudflare tunnel"
+  - otx:tag="it services"
+  - otx:tag="credential dumping"
+  - otx:tag="revsocks"
+  - otx:tag="south asia"
+  - otx:tag="rust-based ransomware"
+  - otx:tag="spirals"
+  - dns_resolved_from:computer.kplus.com
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 3a6387634af6614d294a20b722c4afd6600dee60b9a6f4db978683faafdcd54f
+  type: ip
+  value: 172.67.210.254
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 zealpraxis.com] 命中威胁: ACR Stealer: Two observed intrusion chains amid increased threat activity | 关联: blockchain c2, webdav, steganography, amatera stealer, clickfix, acr stealer | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'ACR Stealer: Two observed intrusion chains amid increased threat activity'
+    threat_labels:
+    - blockchain c2
+    - webdav
+    - steganography
+    - amatera stealer
+    - clickfix
+    - acr stealer
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a59832ac2ebd9e525a462b9
+    narrative: 告警：域名 zealpraxis.com 关联 ACR Stealer 入侵链，威胁活动上升。依据 OTX 情报（高置信），标签含区块链 C2、隐写、ACR Stealer 等。建议立即封禁该域名，并排查相关出站流量。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="blockchain c2"
+  - otx:tag="webdav"
+  - otx:tag="steganography"
+  - otx:tag="amatera stealer"
+  - otx:tag="clickfix"
+  - otx:tag="acr stealer"
+  - dns_resolved_from:zealpraxis.com
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: ec188728e537f034da09689ba1237982cea187d1a196d5b00e3073f6fc1174f5
+  type: ip
+  value: 185.230.63.107
+  category: network_activity
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 vfsgloball.net] 命中威胁: ClickFix Campaign Generated Via AI Delivers SmartRAT | 关联: banana rat, fake captcha, smartrat, powershell, typosquatting, ghostloader | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: ClickFix Campaign Generated Via AI Delivers SmartRAT
+    threat_labels:
+    - banana rat
+    - fake captcha
+    - smartrat
+    - powershell
+    - typosquatting
+    - ghostloader
+    - brazil
+    - clickfix
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a32e5873cf59d36f41c77be
+    narrative: 告警：域名 vfsgloball.net 关联高置信度 ClickFix 活动，利用伪造验证码诱导执行 PowerShell，投递 SmartRAT（香蕉远控）。依据 OTX 情报，行为标签含 typosquatting、ghostloader。建议立即阻断该域名通信，排查受控主机上的 PowerShell 异常执行记录。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="banana rat"
+  - otx:tag="fake captcha"
+  - otx:tag="smartrat"
+  - otx:tag="powershell"
+  - otx:tag="typosquatting"
+  - otx:tag="ghostloader"
+  - otx:tag="brazil"
+  - otx:tag="clickfix"
+  - otx:tag="qr code interception"
+  - otx:tag="banking trojan"
+  - dns_resolved_from:vfsgloball.net
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: cb9356c56ce271d8bb909a6edf380842e083f173024b7920b0ce5daf97eee3c1
+  type: ip
+  value: 185.230.63.171
+  category: network_activity
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 vfsgloball.net] 命中威胁: ClickFix Campaign Generated Via AI Delivers SmartRAT | 关联: banana rat, fake captcha, smartrat, powershell, typosquatting, ghostloader | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: ClickFix Campaign Generated Via AI Delivers SmartRAT
+    threat_labels:
+    - banana rat
+    - fake captcha
+    - smartrat
+    - powershell
+    - typosquatting
+    - ghostloader
+    - brazil
+    - clickfix
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a32e5873cf59d36f41c77be
+    narrative: 告警：域名 vfsgloball.net 关联高置信度 ClickFix 活动，利用伪造验证码诱导执行 PowerShell，投递 SmartRAT（香蕉远控）。依据 OTX 情报，行为标签含 typosquatting、ghostloader。建议立即阻断该域名通信，排查受控主机上的 PowerShell 异常执行记录。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="banana rat"
+  - otx:tag="fake captcha"
+  - otx:tag="smartrat"
+  - otx:tag="powershell"
+  - otx:tag="typosquatting"
+  - otx:tag="ghostloader"
+  - otx:tag="brazil"
+  - otx:tag="clickfix"
+  - otx:tag="qr code interception"
+  - otx:tag="banking trojan"
+  - dns_resolved_from:vfsgloball.net
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: c2db0fc898e69eba0bd89d172bf52e22749706973b6a66335874ae4a6a7a8d35
+  type: ip
+  value: 185.230.63.186
+  category: network_activity
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 vfsgloball.net] 命中威胁: ClickFix Campaign Generated Via AI Delivers SmartRAT | 关联: banana rat, fake captcha, smartrat, powershell, typosquatting, ghostloader | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: ClickFix Campaign Generated Via AI Delivers SmartRAT
+    threat_labels:
+    - banana rat
+    - fake captcha
+    - smartrat
+    - powershell
+    - typosquatting
+    - ghostloader
+    - brazil
+    - clickfix
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a32e5873cf59d36f41c77be
+    narrative: 告警：域名 vfsgloball.net 关联高置信度 ClickFix 活动，利用伪造验证码诱导执行 PowerShell，投递 SmartRAT（香蕉远控）。依据 OTX 情报，行为标签含 typosquatting、ghostloader。建议立即阻断该域名通信，排查受控主机上的 PowerShell 异常执行记录。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="banana rat"
+  - otx:tag="fake captcha"
+  - otx:tag="smartrat"
+  - otx:tag="powershell"
+  - otx:tag="typosquatting"
+  - otx:tag="ghostloader"
+  - otx:tag="brazil"
+  - otx:tag="clickfix"
+  - otx:tag="qr code interception"
+  - otx:tag="banking trojan"
+  - dns_resolved_from:vfsgloball.net
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 8af7e359c6f34098f14e2d24ce579a540cd88a3cbe94949035fb2f6db1daaef1
+  type: ip
+  value: 185.243.11.51
+  category: network_activity
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 glanz-gmbh.de] 命中威胁: Attackers Weaponize Microsoft Teams Relays to Stay Hidden | 关联: dragonforce, dll side-loading, ransomware, byovd, cve-2023-52271, cve-2025-61155 | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Attackers Weaponize Microsoft Teams Relays to Stay Hidden
+    threat_labels:
+    - dragonforce
+    - dll side-loading
+    - ransomware
+    - byovd
+    - cve-2023-52271
+    - cve-2025-61155
+    - cve-2025-1055
+    - turn relay
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a316151d9ab4af59e56576d
+    narrative: null
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="dragonforce"
+  - otx:tag="dll side-loading"
+  - otx:tag="ransomware"
+  - otx:tag="byovd"
+  - otx:tag="cve-2023-52271"
+  - otx:tag="cve-2025-61155"
+  - otx:tag="cve-2025-1055"
+  - otx:tag="turn relay"
+  - otx:tag="credential theft"
+  - otx:tag="vulnerable drivers"
+  - dns_resolved_from:glanz-gmbh.de
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: e7ad34cd80e6cb5a1e804e867b495f826aabf17c29f2c386db2e909c4f2dcaa6
+  type: ip
+  value: 192.185.86.177
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 almacensantangel.com] 命中威胁: Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service | 关联: adaptixc2, defense-evasion, darkcloud stealer, malware-as-a-service, formbook, winos4.0 | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'Unpacking "Cruciferra": An Analysis of a Sophisticated Crypter Service'
+    threat_labels:
+    - adaptixc2
+    - defense-evasion
+    - darkcloud stealer
+    - malware-as-a-service
+    - formbook
+    - winos4.0
+    - crypter-service
+    - xworm
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a5dec09c0c4b7d2a00d7b2c
+    narrative: null
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="adaptixc2"
+  - otx:tag="defense-evasion"
+  - otx:tag="darkcloud stealer"
+  - otx:tag="malware-as-a-service"
+  - otx:tag="formbook"
+  - otx:tag="winos4.0"
+  - otx:tag="crypter-service"
+  - otx:tag="xworm"
+  - otx:tag="byovd"
+  - otx:tag="dcrat"
+  - dns_resolved_from:almacensantangel.com
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 6340f94356a3ed1239c79454038c477c8bf5c215a11d56e25d1226ff2516e48e
+  type: ip
+  value: 2.25.69.49
+  category: phishing
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 helloxcherry.com] 命中威胁: Vibe Coded Extortion: Path from Legal Lure to CrownX Ransom Capabilities | 关联: ransomware, credential theft, lateral movement, avalon, defense evasion, phishing | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: 'Vibe Coded Extortion: Path from Legal Lure to CrownX Ransom Capabilities'
+    threat_labels:
+    - ransomware
+    - credential theft
+    - lateral movement
+    - avalon
+    - defense evasion
+    - phishing
+    - crownx
+    - ai-assisted development
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a46d120d41fcc87a8a52932
+    narrative: null
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="ransomware"
+  - otx:tag="credential theft"
+  - otx:tag="lateral movement"
+  - otx:tag="avalon"
+  - otx:tag="defense evasion"
+  - otx:tag="phishing"
+  - otx:tag="crownx"
+  - otx:tag="ai-assisted development"
+  - whoisxml:enriched
+  - dns_resolved_from:helloxcherry.com
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 811aa76bac45507fdc438cb4ba676f05eae23073875c9be8aeea86f54d2e4cec
+  type: ip
+  value: 45.11.36.254
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 sentiwaw.s3.eu-central-003.backblazeb2.com] 命中威胁: Operation Poisson – Analyzing a Cybercriminal’s Entire Operation | 关联: tailscale, rustdesk, poisson, credential-theft, france, keylogger | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Operation Poisson – Analyzing a Cybercriminal’s Entire Operation
+    threat_labels:
+    - tailscale
+    - rustdesk
+    - poisson
+    - credential-theft
+    - france
+    - keylogger
+    - fileless-attack
+    - openssh
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a3526fcbaffc5909dd73ce4
+    narrative: 已检测到域名 sentiwaw.s3.eu-central-003.backblazeb2.com 参与名为“Operation Poisson”的网络犯罪活动。威胁标签指示凭据窃取、键盘记录、无文件攻击及 Tailscale、RustDesk、OpenSSH 滥用。依据 otx 高置信度情报判定为恶意。建议阻断该域名通信，排查相关主机是否存在未授权远程访问或凭据泄露迹象。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="tailscale"
+  - otx:tag="rustdesk"
+  - otx:tag="poisson"
+  - otx:tag="credential-theft"
+  - otx:tag="france"
+  - otx:tag="keylogger"
+  - otx:tag="fileless-attack"
+  - otx:tag="openssh"
+  - otx:tag="havoc"
+  - otx:tag="havoc-c2"
+  - dns_resolved_from:sentiwaw.s3.eu-central-003.backblazeb2.com
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: b9eb21aebc1371c0fd2e7c1bdc4aff55e8a161fbf40bfcc5a7065b25e3c5640f
+  type: ip
+  value: 45.11.37.254
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 sentiwaw.s3.eu-central-003.backblazeb2.com] 命中威胁: Operation Poisson – Analyzing a Cybercriminal’s Entire Operation | 关联: tailscale, rustdesk, poisson, credential-theft, france, keylogger | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Operation Poisson – Analyzing a Cybercriminal’s Entire Operation
+    threat_labels:
+    - tailscale
+    - rustdesk
+    - poisson
+    - credential-theft
+    - france
+    - keylogger
+    - fileless-attack
+    - openssh
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a3526fcbaffc5909dd73ce4
+    narrative: 已检测到域名 sentiwaw.s3.eu-central-003.backblazeb2.com 参与名为“Operation Poisson”的网络犯罪活动。威胁标签指示凭据窃取、键盘记录、无文件攻击及 Tailscale、RustDesk、OpenSSH 滥用。依据 otx 高置信度情报判定为恶意。建议阻断该域名通信，排查相关主机是否存在未授权远程访问或凭据泄露迹象。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="tailscale"
+  - otx:tag="rustdesk"
+  - otx:tag="poisson"
+  - otx:tag="credential-theft"
+  - otx:tag="france"
+  - otx:tag="keylogger"
+  - otx:tag="fileless-attack"
+  - otx:tag="openssh"
+  - otx:tag="havoc"
+  - otx:tag="havoc-c2"
+  - dns_resolved_from:sentiwaw.s3.eu-central-003.backblazeb2.com
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: c6bf878b9bbc2678bef50a8242a2c15e9b67837ccdf752eba7518405a1edf020
+  type: ip
+  value: 45.11.38.254
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 sentiwaw.s3.eu-central-003.backblazeb2.com] 命中威胁: Operation Poisson – Analyzing a Cybercriminal’s Entire Operation | 关联: tailscale, rustdesk, poisson, credential-theft, france, keylogger | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Operation Poisson – Analyzing a Cybercriminal’s Entire Operation
+    threat_labels:
+    - tailscale
+    - rustdesk
+    - poisson
+    - credential-theft
+    - france
+    - keylogger
+    - fileless-attack
+    - openssh
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a3526fcbaffc5909dd73ce4
+    narrative: 已检测到域名 sentiwaw.s3.eu-central-003.backblazeb2.com 参与名为“Operation Poisson”的网络犯罪活动。威胁标签指示凭据窃取、键盘记录、无文件攻击及 Tailscale、RustDesk、OpenSSH 滥用。依据 otx 高置信度情报判定为恶意。建议阻断该域名通信，排查相关主机是否存在未授权远程访问或凭据泄露迹象。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="tailscale"
+  - otx:tag="rustdesk"
+  - otx:tag="poisson"
+  - otx:tag="credential-theft"
+  - otx:tag="france"
+  - otx:tag="keylogger"
+  - otx:tag="fileless-attack"
+  - otx:tag="openssh"
+  - otx:tag="havoc"
+  - otx:tag="havoc-c2"
+  - dns_resolved_from:sentiwaw.s3.eu-central-003.backblazeb2.com
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 2898cbdc4ba2d101d4e2a774e83ca6ceeee1ffc9b6a3ca44d6c88f9fba205ad2
+  type: ip
+  value: 45.11.39.254
+  category: c2
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 sentiwaw.s3.eu-central-003.backblazeb2.com] 命中威胁: Operation Poisson – Analyzing a Cybercriminal’s Entire Operation | 关联: tailscale, rustdesk, poisson, credential-theft, france, keylogger | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Operation Poisson – Analyzing a Cybercriminal’s Entire Operation
+    threat_labels:
+    - tailscale
+    - rustdesk
+    - poisson
+    - credential-theft
+    - france
+    - keylogger
+    - fileless-attack
+    - openssh
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a3526fcbaffc5909dd73ce4
+    narrative: 已检测到域名 sentiwaw.s3.eu-central-003.backblazeb2.com 参与名为“Operation Poisson”的网络犯罪活动。威胁标签指示凭据窃取、键盘记录、无文件攻击及 Tailscale、RustDesk、OpenSSH 滥用。依据 otx 高置信度情报判定为恶意。建议阻断该域名通信，排查相关主机是否存在未授权远程访问或凭据泄露迹象。
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="tailscale"
+  - otx:tag="rustdesk"
+  - otx:tag="poisson"
+  - otx:tag="credential-theft"
+  - otx:tag="france"
+  - otx:tag="keylogger"
+  - otx:tag="fileless-attack"
+  - otx:tag="openssh"
+  - otx:tag="havoc"
+  - otx:tag="havoc-c2"
+  - dns_resolved_from:sentiwaw.s3.eu-central-003.backblazeb2.com
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041
+- id: 636b001bb10287658fdbc39d746fea0cd373362c37f1ed36892fd78da880f144
+  type: ip
+  value: 75.98.162.139
+  category: network_activity
+  severity: high
+  source: Threat Intel Hub
+  description: '[DNS解析自 turnkeyaiagents.com] 命中威胁: Attackers Weaponize Microsoft Teams Relays to Stay Hidden | 关联: dragonforce, dll side-loading, ransomware, byovd, cve-2023-52271, cve-2025-61155 | 来源: otx • 置信: high (1 source) | TLP:WHITE'
+  evidence:
+    activity: Attackers Weaponize Microsoft Teams Relays to Stay Hidden
+    threat_labels:
+    - dragonforce
+    - dll side-loading
+    - ransomware
+    - byovd
+    - cve-2023-52271
+    - cve-2025-61155
+    - cve-2025-1055
+    - turn relay
+    source: otx
+    cross_check: null
+    confidence: high (1 source)
+    tlp: white
+    misp_event_id: 6a316151d9ab4af59e56576d
+    narrative: null
+  recommended_action: block_and_report
+  tags:
+  - source:otx
+  - tlp:white
+  - otx:tag="dragonforce"
+  - otx:tag="dll side-loading"
+  - otx:tag="ransomware"
+  - otx:tag="byovd"
+  - otx:tag="cve-2023-52271"
+  - otx:tag="cve-2025-61155"
+  - otx:tag="cve-2025-1055"
+  - otx:tag="turn relay"
+  - otx:tag="credential theft"
+  - otx:tag="vulnerable drivers"
+  - dns_resolved_from:turnkeyaiagents.com
+  enabled: false
+  created_at: 1784872448
+  updated_at: 1784872448
+  expire_at: 1789888041

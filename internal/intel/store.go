@@ -3,6 +3,7 @@ package intel
 import (
 	"errors"
 	"os"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -79,6 +80,25 @@ func (s *Store) List() []ThreatIntel {
 		out = append(out, it)
 	}
 	return out
+}
+
+func (s *Store) ListPaged(offset, limit int) ([]ThreatIntel, int) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	out := make([]ThreatIntel, 0, len(s.items))
+	for _, it := range s.items {
+		out = append(out, it)
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
+	total := len(out)
+	if offset >= total {
+		return nil, total
+	}
+	end := offset + limit
+	if end > total {
+		end = total
+	}
+	return out[offset:end], total
 }
 
 func (s *Store) Get(id string) (ThreatIntel, bool) {

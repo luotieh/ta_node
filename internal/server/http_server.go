@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"os"
+	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -52,6 +55,7 @@ func (s *Server) routes() {
 	s.mux.HandleFunc("/api/v1/push/logs", s.handlePushLogs)
 	s.mux.HandleFunc("/api/v1/intel", s.handleIntel)
 	s.mux.HandleFunc("/api/v1/intel/", s.handleIntelID)
+	s.mux.HandleFunc("/api/v1/evidence/", s.handleEvidenceDownload)
 }
 
 func (s *Server) handleConfig(w http.ResponseWriter, r *http.Request) {
@@ -124,7 +128,13 @@ func (s *Server) handleConfigPage(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleIntel(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		writeJSON(w, http.StatusOK, map[string]any{"items": s.store.List()})
+		offset, _ := strconv.Atoi(r.URL.Query().Get("offset"))
+		limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+		if limit <= 0 {
+			limit = 50
+		}
+		items, total := s.store.ListPaged(offset, limit)
+		writeJSON(w, http.StatusOK, map[string]any{"items": items, "total": total, "offset": offset, "limit": limit})
 	case http.MethodPost:
 		if !s.authorized(r) {
 			writeJSON(w, http.StatusUnauthorized, map[string]any{"success": false, "error": "unauthorized"})
@@ -340,6 +350,33 @@ func (s *Server) checkItemLimit(incoming int) error {
 	return nil
 }
 
+func (s *Server) handleEvidenceDownload(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	s.mu.RLock()
+	baseDir := s.cfg.Evidence.PCAPDir
+	s.mu.RUnlock()
+	if baseDir == "" {
+		baseDir = "./data/evidence"
+	}
+	baseDir = filepath.Clean(baseDir)
+	rel := strings.TrimPrefix(r.URL.Path, "/api/v1/evidence/")
+	if rel == "" || strings.Contains(rel, "..") {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	abs := filepath.Join(baseDir, rel)
+	if _, err := os.Stat(abs); os.IsNotExist(err) {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	w.Header().Set("Content-Type", "application/vnd.tcpdump.pcap")
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", filepath.Base(rel)))
+	http.ServeFile(w, r, abs)
+}
+
 func (s *Server) acceptSTIX() bool {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -408,9 +445,9 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
       padding: 20px 24px 36px;
     }
     form {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
+      display: block;
+      width: 100%;
+      min-width: 0;
     }
     fieldset {
       border: 1px solid var(--line);
@@ -522,17 +559,166 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
     .badge.pushed { background: #e4f4ec; color: #155f45; }
     .badge.failed { background: #f9e8e6; color: var(--danger); }
     .badge.pending { background: #eef2f6; color: #394252; }
+    .packet-toggle {
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #394252;
+      font-size: 15px;
+      line-height: 28px;
+    }
+    .packet-toggle:hover { background: #eef2f6; }
+    .packet-toggle:disabled { cursor: default; color: #aab2bf; background: transparent; }
+    .packet-detail-row > td { padding: 0; background: #f8fafc; }
+    .packet-detail {
+      padding: 14px 16px 16px 46px;
+      border-bottom: 1px solid var(--line);
+    }
+    .packet-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 22px;
+      margin-bottom: 12px;
+      color: #4b5565;
+      font-size: 13px;
+    }
+    .packet-block { margin-top: 12px; }
+    .packet-block-title { margin-bottom: 5px; font-weight: 650; color: #202632; }
+    .packet-tabs {
+      display: flex;
+      gap: 4px;
+      margin-top: 14px;
+      border-bottom: 1px solid #cfd8e5;
+    }
+    .packet-tab {
+      flex: 0 0 auto;
+      margin-bottom: -1px;
+      padding: 8px 13px;
+      border: 1px solid transparent;
+      border-bottom-color: #cfd8e5;
+      border-radius: 5px 5px 0 0;
+      background: transparent;
+      color: #586273;
+      font-weight: 600;
+    }
+    .packet-tab:hover { background: #eef4fb; }
+    .packet-tab.active {
+      border-color: #8da6c4 #8da6c4 #f8fafc;
+      background: #f8fafc;
+      color: #0b67c2;
+    }
+    .packet-panel { padding-top: 2px; }
+    .packet-panel[hidden] { display: none; }
+    .packet-empty {
+      margin-top: 12px;
+      padding: 18px 12px;
+      border: 1px dashed #cfd8e5;
+      border-radius: 6px;
+      text-align: center;
+      color: var(--muted);
+      background: #fff;
+    }
+    .packet-data {
+      max-height: 260px;
+      overflow: auto;
+      margin: 0;
+      padding: 10px 12px;
+      border: 1px solid #d9e0e9;
+      border-radius: 6px;
+      background: #fff;
+      color: #202632;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-all;
+      font: 12px/1.55 ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+    }
+    .hex-details {
+      overflow: hidden;
+      border: 1px solid #d9e0e9;
+      border-radius: 6px;
+      background: #fff;
+    }
+    .hex-details > summary {
+      cursor: pointer;
+      padding: 10px 12px;
+      color: #506176;
+      font-size: 12px;
+      font-weight: 650;
+      user-select: none;
+    }
+    .hex-details[open] > summary { border-bottom: 1px solid #d9e0e9; }
+    .hex-details .packet-data {
+      max-height: 360px;
+      border: 0;
+      border-radius: 0;
+    }
+    .app-shell {
+      display: grid;
+      grid-template-columns: 232px minmax(0, 1fr);
+      width: 100%;
+      min-width: 0;
+      min-height: calc(100vh - 65px);
+    }
+    .sidebar {
+      position: sticky; top: 65px; align-self: start; height: calc(100vh - 65px);
+      padding: 20px 14px; background: #13243a; color: #dce8f7; overflow-y: auto;
+    }
+    .nav-label { margin: 0 10px 8px; color: #7890ae; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .nav-button {
+      width: 100%; display: flex; align-items: center; gap: 10px; margin: 3px 0; padding: 10px 12px;
+      border: 0; border-radius: 8px; background: transparent; color: #c8d6e8; text-align: left; font-weight: 560;
+    }
+    .nav-button:hover { background: #1d3551; color: #fff; }
+    .nav-button.active { background: #245f91; color: #fff; box-shadow: inset 3px 0 #55c5f3; }
+    .nav-icon { width: 20px; text-align: center; font-size: 16px; }
+    .workspace { width: 100%; max-width: none; margin: 0; padding: 24px 30px 42px; min-width: 0; }
+    .workspace-title { margin-bottom: 18px; }
+    .workspace-title h2 { margin: 0 0 4px; font-size: 22px; }
+    .workspace-title p { margin: 0; color: var(--muted); }
+    .view { display: none; width: 100%; min-width: 0; }
+    .view.active { display: block; }
+    .config-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+    .metric-card { padding: 16px; border: 1px solid var(--line); border-radius: 10px; background: #fff; box-shadow: var(--shadow); }
+    .metric-card .metric-label { color: var(--muted); font-size: 12px; }
+    .metric-card .metric-value { margin-top: 7px; font-size: 21px; font-weight: 700; color: #1a2738; overflow-wrap: anywhere; }
+    .metric-card .metric-note { margin-top: 5px; color: var(--muted); font-size: 12px; }
+    .section-card { padding: 18px; border: 1px solid var(--line); border-radius: 10px; background: #fff; box-shadow: var(--shadow); }
+    .section-card h3 { margin: 0 0 5px; font-size: 16px; }
+    .quick-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .top-status { display: flex; gap: 8px; align-items: center; color: #27543f; font-size: 13px; font-weight: 650; }
+    .status-dot { width: 9px; height: 9px; border-radius: 50%; background: #27a56a; box-shadow: 0 0 0 4px #dff4e9; }
+    .context-state { display: inline-block; margin-left: 5px; border-radius: 999px; padding: 2px 7px; font-size: 11px; background: #e9f1f8; color: #315b7b; }
+    .context-state.complete { background: #e1f4ea; color: #176244; }
+    .context-state.pending { background: #fff2d9; color: #855b0b; }
+    .session-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 10px 0 4px; }
+    .session-stat { padding: 9px 10px; border-radius: 7px; background: #edf3f8; color: #405166; font-size: 12px; }
+    .session-stat strong { display: block; margin-top: 2px; color: #17263a; font-size: 14px; }
+    .packet-fragments { margin-top: 12px; border: 1px solid #d9e0e9; border-radius: 7px; background: #fff; }
+    .packet-fragments > summary { cursor: pointer; padding: 10px 12px; font-weight: 650; color: #33445a; }
+    .fragment-item { border-top: 1px solid #e4e9ef; }
+    .fragment-item > summary { cursor: pointer; padding: 8px 12px; color: #506176; font-size: 12px; }
+    .fragment-item .packet-data { margin: 0 10px 10px; max-height: 160px; }
+    .actions { position: sticky; bottom: 0; z-index: 3; margin-top: 18px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 9px; background: rgba(255,255,255,.96); box-shadow: 0 -3px 14px rgba(30,45,62,.08); }
     @media (max-width: 860px) {
-      form { grid-template-columns: 1fr; }
+      .app-shell { grid-template-columns: 1fr; }
+      .sidebar { position: static; height: auto; display: flex; gap: 5px; padding: 8px; overflow-x: auto; }
+      .nav-label { display: none; }
+      .nav-button { flex: 0 0 auto; width: auto; white-space: nowrap; }
+      .config-grid { grid-template-columns: 1fr; }
+      .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .topbar { align-items: flex-start; flex-direction: column; gap: 4px; }
     }
     @media (max-width: 560px) {
-      header, main { padding-left: 14px; padding-right: 14px; }
+      header, .workspace { padding-left: 14px; padding-right: 14px; }
+      .config-grid, .metric-grid, .session-strip { grid-template-columns: 1fr; }
       .row { grid-template-columns: 1fr; gap: 5px; }
       .actions { flex-wrap: wrap; justify-content: stretch; }
       .status { width: 100%; }
       .auth-token { width: 100%; flex: 1 1 100%; }
-      button { flex: 1; }
+      .actions button { flex: 1; }
     }
   </style>
 </head>
@@ -540,85 +726,68 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
   <header>
     <div class="topbar">
       <div>
-        <h1>ta_node 配置</h1>
-        <div class="path">版本：{{.Version}}</div>
-        <div class="path">配置文件：{{.ConfigPath}}</div>
+        <h1>融合采集节点</h1>
+        <div class="path">{{.Config.Node.DeviceID}} · ta_node {{.Version}}</div>
       </div>
+      <div class="top-status"><span class="status-dot"></span>节点服务运行中</div>
     </div>
   </header>
-  <main>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="功能导航">
+      <div style="width:100%">
+        <div class="nav-label">运行与分析</div>
+        <button type="button" class="nav-button active" data-view="overview"><span class="nav-icon">◫</span>运行概览</button>
+        <button type="button" class="nav-button" data-view="alerts"><span class="nav-icon">⚠</span>告警中心</button>
+        <div class="nav-label" style="margin-top:18px">采集与检测</div>
+        <button type="button" class="nav-button" data-view="capture"><span class="nav-icon">⌁</span>采集与会话</button>
+        <button type="button" class="nav-button" data-view="detection"><span class="nav-icon">◎</span>检测策略</button>
+        <div class="nav-label" style="margin-top:18px">节点管理</div>
+        <button type="button" class="nav-button" data-view="delivery"><span class="nav-icon">↗</span>事件与上报</button>
+        <button type="button" class="nav-button" data-view="system"><span class="nav-icon">⚙</span>节点与系统</button>
+      </div>
+    </aside>
+  <main class="workspace">
+    <div class="workspace-title">
+      <h2 id="viewTitle">运行概览</h2>
+      <p id="viewDescription">查看节点采集、检测、告警和上报链路的整体状态。</p>
+    </div>
     <form id="configForm">
-      <fieldset>
-        <legend>节点</legend>
-        <div class="row"><label for="node.device_id">设备 ID</label><input id="node.device_id" value="{{.Config.Node.DeviceID}}"></div>
-      </fieldset>
-      <fieldset>
-        <legend>采集</legend>
-        <div class="row"><label for="capture.interface">网卡</label><input id="capture.interface" value="{{.Config.Capture.Interface}}"></div>
-        <div class="row"><label for="capture.pcap_file">PCAP 文件</label><input id="capture.pcap_file" value="{{.Config.Capture.PCAPFile}}"></div>
-        <div class="row"><label for="capture.bpf_filter">BPF 过滤</label><input id="capture.bpf_filter" value="{{.Config.Capture.BPFFilter}}"></div>
-        <div class="row"><label></label><span class="muted" style="font-size:12px">BPF 过滤需用 -tags pcap 构建；默认 AF_PACKET 后端填写非空值会导致启动失败。</span></div>
-        <div class="row"><label for="capture.snaplen">Snaplen</label><input id="capture.snaplen" type="number" min="64" value="{{.Config.Capture.Snaplen}}"></div>
-        <div class="row"><label for="capture.promiscuous">混杂模式</label><input id="capture.promiscuous" type="checkbox" {{if .Config.Capture.Promiscuous}}checked{{end}}></div>
-      </fieldset>
-      <fieldset>
-        <legend>规则与情报</legend>
-        <div class="row"><label for="patterns.enable">启用指纹规则</label><input id="patterns.enable" type="checkbox" {{if .Config.Patterns.Enable}}checked{{end}}></div>
-        <div class="row"><label for="patterns.pattern_dir">规则目录</label><input id="patterns.pattern_dir" value="{{.Config.Patterns.PatternDir}}"></div>
-        <div class="row"><label for="intel.intel_file">情报文件</label><input id="intel.intel_file" value="{{.Config.Intel.IntelFile}}"></div>
-        <div class="row"><label for="intel.reload_interval_sec">热加载间隔</label><input id="intel.reload_interval_sec" type="number" min="1" value="{{.Config.Intel.ReloadIntervalSec}}"></div>
-        <div class="row"><label for="intel.enable_hot_reload">启用热加载</label><input id="intel.enable_hot_reload" type="checkbox" {{if .Config.Intel.EnableHotReload}}checked{{end}}></div>
-        <div class="row"><label for="intel.prune_expired_interval_sec">过期清理间隔</label><input id="intel.prune_expired_interval_sec" type="number" min="0" value="{{.Config.Intel.PruneExpiredIntervalSec}}"></div>
-        <div class="row"><label for="intel.accept_stix">接收 STIX</label><input id="intel.accept_stix" type="checkbox" {{if .Config.Intel.AcceptSTIX}}checked{{end}}></div>
-        <div class="row"><label for="intel.default_source">默认来源</label><input id="intel.default_source" value="{{.Config.Intel.DefaultSource}}"></div>
-        <div class="row"><label for="intel.max_items">最大 IOC 数</label><input id="intel.max_items" type="number" min="0" value="{{.Config.Intel.MaxItems}}"></div>
-        <div class="row"><label for="intel.enable_ioc_sync">启用 IOC 同步</label><input id="intel.enable_ioc_sync" type="checkbox" {{if .Config.Intel.EnableIocSync}}checked{{end}}></div>
-        <div class="row"><label for="intel.ioc_sync_dir">同步目录</label><input id="intel.ioc_sync_dir" value="{{.Config.Intel.IocSyncDir}}"></div>
-        <div class="row"><label for="intel.ioc_sync_interval_min">同步间隔(分)</label><input id="intel.ioc_sync_interval_min" type="number" min="1" value="{{.Config.Intel.IocSyncIntervalMin}}"></div>
-        <div class="row"><label for="intel.ioc_sync_retain_days">保留天数</label><input id="intel.ioc_sync_retain_days" type="number" min="0" value="{{.Config.Intel.IocSyncRetainDays}}"></div>
-        <div class="row">
-          <label>手动触发同步</label>
-          <span style="display:flex;gap:8px;align-items:center;">
-            <button class="secondary" type="button" id="triggerIocSyncBtn">立即同步</button>
-            <span id="iocSyncStatus" class="muted" style="font-size:12px;flex:1;"></span>
-          </span>
+      <section class="view active" data-view-panel="overview">
+        <div class="metric-grid">
+          <div class="metric-card"><div class="metric-label">节点标识</div><div class="metric-value">{{.Config.Node.DeviceID}}</div><div class="metric-note">服务在线</div></div>
+          <div class="metric-card"><div class="metric-label">当前采集源</div><div class="metric-value">{{if .Config.Capture.PCAPFile}}PCAP{{else}}{{.Config.Capture.Interface}}{{end}}</div><div class="metric-note">{{if .Config.Capture.PCAPFile}}{{.Config.Capture.PCAPFile}}{{else}}实时网口采集{{end}}</div></div>
+          <div class="metric-card"><div class="metric-label">会话聚合</div><div class="metric-value">{{if .Config.Aggregation.EnableTransactionLink}}已启用{{else}}逐包模式{{end}}</div><div class="metric-note">{{.Config.Aggregation.Mode}} · Schema 1.5</div></div>
+          <div class="metric-card"><div class="metric-label">情报规则</div><div class="metric-value" id="overviewIntelCount">读取中</div><div class="metric-note">IOC 当前加载量</div></div>
         </div>
-      </fieldset>
-      <fieldset>
-        <legend>证据</legend>
-        <div class="row"><label for="evidence.enable_pcap_save">保存 PCAP</label><input id="evidence.enable_pcap_save" type="checkbox" {{if .Config.Evidence.EnablePCAPSave}}checked{{end}}></div>
-        <div class="row"><label for="evidence.pcap_dir">证据目录</label><input id="evidence.pcap_dir" value="{{.Config.Evidence.PCAPDir}}"></div>
-      </fieldset>
-      <fieldset>
-        <legend>事件队列</legend>
-        <div class="row"><label for="event.queue_db">SQLite DB</label><input id="event.queue_db" value="{{.Config.Event.QueueDB}}"></div>
-      </fieldset>
-      <fieldset>
-        <legend>事件推送</legend>
-        <div class="row"><label for="event.enable_push">启用推送</label><input id="event.enable_push" type="checkbox" {{if .Config.Event.EnablePush}}checked{{end}}></div>
-        <div class="row"><label for="node.management_url">管理端 URL</label><input id="node.management_url" value="{{.Config.Node.ManagementURL}}"></div>
-        <div class="row"><label for="node.api_key">内部 API Key</label><input id="node.api_key" type="password" placeholder="{{if .HasNodeAPIKey}}留空保持不变{{else}}X-API-Key，留空则不发送{{end}}"></div>
-        <div class="row"><label for="event.push_batch_size">推送批量</label><input id="event.push_batch_size" type="number" min="1" value="{{.Config.Event.PushBatchSize}}"></div>
-        <div class="row"><label for="event.retry_interval_sec">重试间隔</label><input id="event.retry_interval_sec" type="number" min="1" value="{{.Config.Event.RetryIntervalSec}}"></div>
-        <div class="row"><label for="event.push_timeout_sec">推送超时</label><input id="event.push_timeout_sec" type="number" min="1" value="{{.Config.Event.PushTimeoutSec}}"></div>
-        <div class="row"><label for="event.max_push_retry">最大推送重试</label><input id="event.max_push_retry" type="number" min="0" value="{{.Config.Event.MaxPushRetry}}"></div>
-      </fieldset>
-      <fieldset>
-        <legend>本地服务</legend>
-        <div class="row"><label for="server.enable">启用 API</label><input id="server.enable" type="checkbox" {{if .Config.Server.Enable}}checked{{end}}></div>
-        <div class="row"><label for="server.listen">监听地址</label><input id="server.listen" value="{{.Config.Server.Listen}}"></div>
-        <div class="row"><label for="server.token">API Token</label><input id="server.token" type="password" placeholder="{{if .HasServerToken}}留空保持不变{{end}}"></div>
-      </fieldset>
+        <div class="section-card">
+          <h3>检测链路状态</h3>
+          <p class="muted">采集 → 协议解析 → 指纹/IOC检测 → 双向会话关联 → 事件队列 → 管理端上报</p>
+          <div class="session-strip">
+            <div class="session-stat">最近告警<strong id="overviewAlertCount">读取中</strong></div>
+            <div class="session-stat">待处理事件<strong id="overviewPendingCount">读取中</strong></div>
+            <div class="session-stat">响应等待窗口<strong>{{.Config.Aggregation.ResponseWaitSec}} 秒</strong></div>
+            <div class="session-stat">配置文件<strong style="font-size:12px">{{.ConfigPath}}</strong></div>
+          </div>
+          <div class="quick-actions">
+            <button class="primary view-shortcut" type="button" data-view="alerts">查看告警</button>
+            <button class="secondary view-shortcut" type="button" data-view="capture">配置采集</button>
+            <button class="secondary view-shortcut" type="button" data-view="detection">管理检测策略</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" data-view-panel="alerts">
       <fieldset class="full">
-        <legend>推送日志</legend>
+        <legend>告警事件与会话证据</legend>
         <div class="toolbar">
-          <div id="pushLogStatus" class="muted">最近 50 条队列推送状态</div>
-          <button class="secondary" type="button" id="refreshPushLogsBtn">刷新日志</button>
+          <div id="pushLogStatus" class="muted">最近 50 条告警及上下文状态</div>
+          <button class="secondary" type="button" id="refreshPushLogsBtn">刷新告警</button>
         </div>
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
+                <th aria-label="展开报文"></th>
                 <th>发生时间</th>
                 <th>状态</th>
                 <th>命中规则</th>
@@ -630,16 +799,84 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
               </tr>
             </thead>
             <tbody id="pushLogRows">
-              <tr><td colspan="8" class="muted">暂无数据</td></tr>
+              <tr><td colspan="9" class="muted">暂无数据</td></tr>
             </tbody>
           </table>
         </div>
       </fieldset>
+      </section>
+
+      <section class="view" data-view-panel="capture">
+        <div class="config-grid">
+          <fieldset>
+            <legend>流量采集</legend>
+            <div class="row"><label for="capture.interface">网卡</label><input id="capture.interface" value="{{.Config.Capture.Interface}}"></div>
+            <div class="row"><label for="capture.pcap_file">PCAP 文件</label><input id="capture.pcap_file" value="{{.Config.Capture.PCAPFile}}"></div>
+            <div class="row"><label for="capture.bpf_filter">BPF 过滤</label><input id="capture.bpf_filter" value="{{.Config.Capture.BPFFilter}}"></div>
+            <div class="row"><label for="capture.snaplen">Snaplen</label><input id="capture.snaplen" type="number" min="64" value="{{.Config.Capture.Snaplen}}"></div>
+            <div class="row"><label for="capture.promiscuous">混杂模式</label><input id="capture.promiscuous" type="checkbox" {{if .Config.Capture.Promiscuous}}checked{{end}}></div>
+          </fieldset>
+          <fieldset>
+            <legend>双向会话聚合</legend>
+            <div class="row"><label for="aggregation.mode">聚合模式</label><input id="aggregation.mode" value="{{.Config.Aggregation.Mode}}" placeholder="packet 或 session"></div>
+            <div class="row"><label for="aggregation.enable_transaction_link">关联请求响应</label><input id="aggregation.enable_transaction_link" type="checkbox" {{if .Config.Aggregation.EnableTransactionLink}}checked{{end}}></div>
+            <div class="row"><label for="aggregation.response_wait_sec">响应等待(秒)</label><input id="aggregation.response_wait_sec" type="number" min="1" value="{{.Config.Aggregation.ResponseWaitSec}}"></div>
+            <div class="row"><label for="aggregation.max_sessions">最大会话数</label><input id="aggregation.max_sessions" type="number" min="1" value="{{.Config.Aggregation.MaxSessions}}"></div>
+            <div class="row"><label for="aggregation.max_transactions_per_session">每会话事务数</label><input id="aggregation.max_transactions_per_session" type="number" min="1" value="{{.Config.Aggregation.MaxTransactionsPerSession}}"></div>
+            <div class="row"><label for="aggregation.max_packets_per_transaction">每事务包数</label><input id="aggregation.max_packets_per_transaction" type="number" min="1" value="{{.Config.Aggregation.MaxPacketsPerTransaction}}"></div>
+            <div class="row"><label for="aggregation.max_reassembly_bytes_per_side">单向重组字节</label><input id="aggregation.max_reassembly_bytes_per_side" type="number" min="1024" value="{{.Config.Aggregation.MaxReassemblyBytesPerSide}}"></div>
+            <div class="row"><label for="aggregation.max_out_of_order_bytes">乱序窗口字节</label><input id="aggregation.max_out_of_order_bytes" type="number" min="0" value="{{.Config.Aggregation.MaxOutOfOrderBytes}}"></div>
+            <div class="row"><label for="aggregation.store_packet_index">保存分片索引</label><input id="aggregation.store_packet_index" type="checkbox" {{if .Config.Aggregation.StorePacketIndex}}checked{{end}}></div>
+          </fieldset>
+          <fieldset>
+            <legend>流表资源</legend>
+            <div class="row"><label for="flow.max_flows">最大流数</label><input id="flow.max_flows" type="number" min="1" value="{{.Config.Flow.MaxFlows}}"></div>
+            <div class="row"><label for="flow.idle_timeout_sec">空闲超时(秒)</label><input id="flow.idle_timeout_sec" type="number" min="1" value="{{.Config.Flow.IdleTimeoutSec}}"></div>
+            <div class="row"><label for="flow.cleanup_interval_sec">清理间隔(秒)</label><input id="flow.cleanup_interval_sec" type="number" min="1" value="{{.Config.Flow.CleanupIntervalSec}}"></div>
+          </fieldset>
+          <fieldset>
+            <legend>证据留存</legend>
+            <div class="row"><label for="evidence.enable_pcap_save">保存命中 PCAP</label><input id="evidence.enable_pcap_save" type="checkbox" {{if .Config.Evidence.EnablePCAPSave}}checked{{end}}></div>
+            <div class="row"><label for="evidence.pcap_dir">证据目录</label><input id="evidence.pcap_dir" value="{{.Config.Evidence.PCAPDir}}"></div>
+            <div class="row"><label for="aggregation.save_full_session_pcap">完整会话 PCAP</label><input id="aggregation.save_full_session_pcap" type="checkbox" {{if .Config.Aggregation.SaveFullSessionPCAP}}checked{{end}}></div>
+          </fieldset>
+        </div>
+      </section>
+
+      <section class="view" data-view-panel="detection">
+        <div class="config-grid" style="margin-bottom:16px">
+          <fieldset>
+            <legend>指纹检测</legend>
+            <div class="row"><label for="patterns.enable">启用指纹规则</label><input id="patterns.enable" type="checkbox" {{if .Config.Patterns.Enable}}checked{{end}}></div>
+            <div class="row"><label for="patterns.pattern_dir">规则目录</label><input id="patterns.pattern_dir" value="{{.Config.Patterns.PatternDir}}"></div>
+          </fieldset>
+          <fieldset>
+            <legend>威胁情报同步</legend>
+            <div class="row"><label for="intel.intel_file">情报文件</label><input id="intel.intel_file" value="{{.Config.Intel.IntelFile}}"></div>
+            <div class="row"><label for="intel.enable_hot_reload">启用热加载</label><input id="intel.enable_hot_reload" type="checkbox" {{if .Config.Intel.EnableHotReload}}checked{{end}}></div>
+            <div class="row"><label for="intel.reload_interval_sec">热加载间隔</label><input id="intel.reload_interval_sec" type="number" min="1" value="{{.Config.Intel.ReloadIntervalSec}}"></div>
+            <div class="row"><label for="intel.prune_expired_interval_sec">过期清理间隔</label><input id="intel.prune_expired_interval_sec" type="number" min="0" value="{{.Config.Intel.PruneExpiredIntervalSec}}"></div>
+            <div class="row"><label for="intel.accept_stix">接收 STIX</label><input id="intel.accept_stix" type="checkbox" {{if .Config.Intel.AcceptSTIX}}checked{{end}}></div>
+            <div class="row"><label for="intel.default_source">默认来源</label><input id="intel.default_source" value="{{.Config.Intel.DefaultSource}}"></div>
+            <div class="row"><label for="intel.max_items">最大 IOC 数</label><input id="intel.max_items" type="number" min="0" value="{{.Config.Intel.MaxItems}}"></div>
+            <div class="row"><label for="intel.enable_ioc_sync">启用目录同步</label><input id="intel.enable_ioc_sync" type="checkbox" {{if .Config.Intel.EnableIocSync}}checked{{end}}></div>
+            <div class="row"><label for="intel.ioc_sync_dir">同步目录1</label><input id="intel.ioc_sync_dir" value="{{.Config.Intel.IocSyncDir}}"></div>
+            <div class="row"><label for="intel.ioc_sync_dir2">同步目录2</label><input id="intel.ioc_sync_dir2" value="{{.Config.Intel.IocSyncDir2}}"></div>
+            <div class="row"><label for="intel.ioc_sync_interval_min">同步间隔(分)</label><input id="intel.ioc_sync_interval_min" type="number" min="1" value="{{.Config.Intel.IocSyncIntervalMin}}"></div>
+            <div class="row"><label for="intel.ioc_sync_retain_days">保留天数</label><input id="intel.ioc_sync_retain_days" type="number" min="0" value="{{.Config.Intel.IocSyncRetainDays}}"></div>
+            <div class="row"><label>手动同步</label><span><button class="secondary" type="button" id="triggerIocSyncBtn">立即同步</button> <span id="iocSyncStatus" class="muted"></span></span></div>
+          </fieldset>
+        </div>
       <fieldset class="full">
         <legend>威胁情报规则</legend>
         <div class="toolbar">
-          <div id="intelTableStatus" class="muted">当前已加载 <span id="intelCount">0</span> 条 IOC 规则</div>
+          <div id="intelTableStatus" class="muted">当前已加载 0 条 IOC 规则</div>
           <button class="secondary" type="button" id="refreshIntelBtn">刷新规则</button>
+        </div>
+        <div class="toolbar" style="justify-content:center;gap:12px;">
+          <button class="secondary" type="button" id="intelPrevBtn" disabled>上一页</button>
+          <span id="intelPageInfo" class="muted">第 1 页</span>
+          <button class="secondary" type="button" id="intelNextBtn">下一页</button>
         </div>
         <div class="table-wrap">
           <table>
@@ -661,6 +898,43 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
           </table>
         </div>
       </fieldset>
+      </section>
+
+      <section class="view" data-view-panel="delivery">
+        <div class="config-grid">
+          <fieldset>
+            <legend>事件队列</legend>
+            <div class="row"><label for="event.queue_db">SQLite DB</label><input id="event.queue_db" value="{{.Config.Event.QueueDB}}"></div>
+            <div class="row"><label for="event.local_hit_window_sec">本地命中窗口</label><input id="event.local_hit_window_sec" type="number" min="0" value="{{.Config.Event.LocalHitWindowSec}}"></div>
+          </fieldset>
+          <fieldset>
+            <legend>管理端上报</legend>
+            <div class="row"><label for="event.enable_push">启用推送</label><input id="event.enable_push" type="checkbox" {{if .Config.Event.EnablePush}}checked{{end}}></div>
+            <div class="row"><label for="node.management_url">管理端 URL</label><input id="node.management_url" value="{{.Config.Node.ManagementURL}}"></div>
+            <div class="row"><label for="node.api_key">内部 API Key</label><input id="node.api_key" type="password" placeholder="{{if .HasNodeAPIKey}}留空保持不变{{else}}X-API-Key，留空则不发送{{end}}"></div>
+            <div class="row"><label for="event.push_batch_size">推送批量</label><input id="event.push_batch_size" type="number" min="1" value="{{.Config.Event.PushBatchSize}}"></div>
+            <div class="row"><label for="event.retry_interval_sec">重试间隔</label><input id="event.retry_interval_sec" type="number" min="1" value="{{.Config.Event.RetryIntervalSec}}"></div>
+            <div class="row"><label for="event.push_timeout_sec">推送超时</label><input id="event.push_timeout_sec" type="number" min="1" value="{{.Config.Event.PushTimeoutSec}}"></div>
+            <div class="row"><label for="event.max_push_retry">最大推送重试</label><input id="event.max_push_retry" type="number" min="0" value="{{.Config.Event.MaxPushRetry}}"></div>
+          </fieldset>
+        </div>
+      </section>
+
+      <section class="view" data-view-panel="system">
+        <div class="config-grid">
+          <fieldset>
+            <legend>节点身份</legend>
+            <div class="row"><label for="node.device_id">设备 ID</label><input id="node.device_id" value="{{.Config.Node.DeviceID}}"></div>
+          </fieldset>
+          <fieldset>
+            <legend>本地管理服务</legend>
+            <div class="row"><label for="server.enable">启用 API</label><input id="server.enable" type="checkbox" {{if .Config.Server.Enable}}checked{{end}}></div>
+            <div class="row"><label for="server.listen">监听地址</label><input id="server.listen" value="{{.Config.Server.Listen}}"></div>
+            <div class="row"><label for="server.token">API Token</label><input id="server.token" type="password" placeholder="{{if .HasServerToken}}留空保持不变{{end}}"></div>
+          </fieldset>
+        </div>
+      </section>
+
       <div class="actions">
         <div id="status" class="status"></div>
         <input id="authToken" class="auth-token" type="password" autocomplete="current-password" placeholder="鉴权 Token（输入一次后记住）">
@@ -669,15 +943,20 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
       </div>
     </form>
   </main>
+  </div>
   <script>
     const ids = [
       "node.device_id", "node.management_url", "node.api_key",
       "capture.interface", "capture.pcap_file", "capture.bpf_filter", "capture.snaplen", "capture.promiscuous",
       "patterns.enable", "patterns.pattern_dir",
       "intel.intel_file", "intel.reload_interval_sec", "intel.enable_hot_reload", "intel.prune_expired_interval_sec", "intel.accept_stix", "intel.default_source", "intel.max_items",
-      "intel.enable_ioc_sync", "intel.ioc_sync_dir", "intel.ioc_sync_interval_min", "intel.ioc_sync_retain_days",
+      "intel.enable_ioc_sync", "intel.ioc_sync_dir", "intel.ioc_sync_dir2", "intel.ioc_sync_interval_min", "intel.ioc_sync_retain_days",
       "evidence.enable_pcap_save", "evidence.pcap_dir",
-      "event.enable_push", "event.queue_db", "event.push_batch_size", "event.retry_interval_sec", "event.push_timeout_sec", "event.max_push_retry",
+      "event.enable_push", "event.queue_db", "event.push_batch_size", "event.retry_interval_sec", "event.push_timeout_sec", "event.max_push_retry", "event.local_hit_window_sec",
+      "flow.max_flows", "flow.idle_timeout_sec", "flow.cleanup_interval_sec",
+      "aggregation.mode", "aggregation.enable_transaction_link", "aggregation.response_wait_sec", "aggregation.max_sessions",
+      "aggregation.max_transactions_per_session", "aggregation.max_packets_per_transaction", "aggregation.max_reassembly_bytes_per_side",
+      "aggregation.max_out_of_order_bytes", "aggregation.store_packet_index", "aggregation.save_full_session_pcap",
       "server.enable", "server.listen", "server.token"
     ];
     const statusEl = document.getElementById("status");
@@ -696,6 +975,24 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
       if (token) headers["Authorization"] = "Bearer " + token;
       return headers;
     }
+    const viewMeta = {
+      overview: ["运行概览", "查看节点采集、检测、告警和上报链路的整体状态。"],
+      alerts: ["告警中心", "查看每次命中、双向会话、请求响应事务和原始数据包证据。"],
+      capture: ["采集与会话", "配置流量来源、双向会话关联、资源上限和证据留存。"],
+      detection: ["检测策略", "管理指纹规则、威胁情报和自动同步策略。"],
+      delivery: ["事件与上报", "配置事件持久化、revision队列和管理端推送。"],
+      system: ["节点与系统", "管理节点身份、本地API和访问鉴权。"]
+    };
+    function setActiveView(name) {
+      if (!viewMeta[name]) name = "overview";
+      document.querySelectorAll("[data-view-panel]").forEach((panel) => panel.classList.toggle("active", panel.dataset.viewPanel === name));
+      document.querySelectorAll(".nav-button").forEach((button) => button.classList.toggle("active", button.dataset.view === name));
+      document.getElementById("viewTitle").textContent = viewMeta[name][0];
+      document.getElementById("viewDescription").textContent = viewMeta[name][1];
+      location.hash = name;
+    }
+    document.querySelectorAll(".nav-button,.view-shortcut").forEach((button) => button.addEventListener("click", () => setActiveView(button.dataset.view)));
+    setActiveView(location.hash.slice(1) || "overview");
     function readValue(id) {
       const el = document.getElementById(id);
       if (el.type === "checkbox") return el.checked;
@@ -735,6 +1032,150 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
         "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
       })[ch]);
     }
+    const INLINE_HEX_LIMIT = 512;
+    function hexDataHTML(value) {
+      const hex = String(value || "");
+      if (hex.length <= INLINE_HEX_LIMIT) {
+        return '<pre class="packet-data">' + escapeText(hex || "（无数据）") + '</pre>';
+      }
+      const byteLength = Math.ceil(hex.replace(/\s+/g, "").length / 2);
+      return '<details class="hex-details"><summary>HEX 内容较长，已隐藏（' +
+        escapeText(byteLength) + ' 字节），点击展开</summary><pre class="packet-data">' +
+        escapeText(hex) + '</pre></details>';
+    }
+    function pushStatusLabel(status) {
+      return ({pending: "待上报", pushed: "已上报", failed: "上报失败"})[status] || status || "未知";
+    }
+    function responseStatusLabel(status) {
+      return ({pending: "等待响应", complete: "已完成", not_captured: "未捕获"})[status] || status || "未知";
+    }
+    function messageForSide(item, side) {
+      const exchange = item.exchange?.[side];
+      if (exchange) {
+        const firstPacket = (exchange.packets || [])[0] || {};
+        return {
+          aggregate: true,
+          capture_time: exchange.capture_start_time_usec ? new Date(exchange.capture_start_time_usec / 1000).toLocaleString() : "",
+          packet_sequence: firstPacket.packet_sequence,
+          payload_hex: exchange.reassembled_hex,
+          payload_text: exchange.reassembled_text,
+          captured_length: exchange.captured_bytes,
+          wire_length: exchange.wire_bytes,
+          capture_truncated: exchange.truncated,
+          reassembly_incomplete: exchange.reassembly_incomplete,
+          retransmissions: exchange.retransmissions,
+          packet_count: exchange.packet_count,
+          packets: exchange.packets || []
+        };
+      }
+      const raw = item.raw_packet;
+      if (!raw) return null;
+      if (raw[side]) return raw[side];
+      if (raw.message_direction !== side) return null;
+      return {
+        capture_time: raw.capture_time,
+        capture_time_usec: raw.capture_time_usec,
+        packet_sequence: raw.packet_sequence,
+        packet_hex: raw.packet_hex,
+        payload_hex: raw.payload_hex,
+        payload_text: raw.payload_text,
+        captured_length: raw.captured_length,
+        wire_length: raw.wire_length,
+        capture_truncated: raw.capture_truncated
+      };
+    }
+    function packetFragmentsHTML(message) {
+      const packets = message?.packets || [];
+      if (!packets.length) return "";
+      return '<details class="packet-fragments"><summary>原始数据包（' + packets.length + ' 包）</summary>' +
+        packets.map((packet, index) => '<details class="fragment-item"><summary>#' + escapeText(packet.packet_sequence || (index + 1)) +
+          ' · Seq ' + escapeText(packet.tcp_seq || 0) + ' · ' + escapeText(packet.captured_length || 0) + ' 字节' +
+          (packet.retransmission ? ' · 重传' : '') + '</summary>' + hexDataHTML(packet.packet_hex || "") + '</details>').join("") +
+        '</details>';
+    }
+    function packetPanelHTML(message, side, emptyState) {
+      if (!message) {
+        return '<div class="packet-empty">' + escapeText(emptyState || "未捕获到对应报文") + '</div>';
+      }
+      const captured = message.captured_length || 0;
+      const wire = message.wire_length || captured;
+      const truncation = message.capture_truncated ? "（抓包已截断）" : "";
+      const payloadHex = message.payload_hex || "（无应用层负载）";
+      const text = message.payload_text || "（二进制或无负载，无可读文本）";
+      const label = side === "request" ? "请求" : "响应";
+      const flags = [message.capture_truncated ? "内容已截断" : "", message.reassembly_incomplete ? "重组不完整" : "", message.retransmissions ? ("重传 " + message.retransmissions + " 次") : ""].filter(Boolean).join(" · ");
+      return '<div class="packet-meta packet-block">' +
+          '<span><strong>抓包时间：</strong>' + escapeText(message.capture_time || "") + '</span>' +
+          '<span><strong>' + (message.aggregate ? '包数量' : '包序号') + '：</strong>' + escapeText(message.aggregate ? (message.packet_count || 0) : (message.packet_sequence || "")) + '</span>' +
+          '<span><strong>长度：</strong>' + escapeText(captured + " / " + wire + " 字节 " + truncation) + '</span>' +
+          (flags ? '<span><strong>状态：</strong>' + escapeText(flags) + '</span>' : '') +
+        '</div>' +
+        (!message.aggregate ? '<div class="packet-block"><div class="packet-block-title">完整' + label + '抓包（HEX）</div>' + hexDataHTML(message.packet_hex || "") + '</div>' : '') +
+        '<div class="packet-block"><div class="packet-block-title">' + (message.aggregate ? '重组' : '') + label + '报文（HEX）</div>' +
+          hexDataHTML(payloadHex) + '</div>' +
+        '<div class="packet-block"><div class="packet-block-title">' + (message.aggregate ? '重组' : '') + label + '报文（文本）</div>' +
+          '<pre class="packet-data">' + escapeText(text) + '</pre></div>' + packetFragmentsHTML(message);
+    }
+    function packetDetailHTML(item, detailID) {
+      const raw = item.raw_packet;
+      if (!raw && !item.exchange) return '<div class="packet-detail muted">该告警由旧版本产生，没有原始报文。</div>';
+      const request = messageForSide(item, "request");
+      const response = messageForSide(item, "response");
+      const initialSide = request ? "request" : "response";
+      const direction = raw?.message_direction === "request" ? "请求" :
+        (raw?.message_direction === "response" ? "响应" : "未知方向");
+      const requestPanelID = detailID + "-request";
+      const responsePanelID = detailID + "-response";
+      const summary = item.session_summary || {};
+      const responseState = item.exchange?.response_status || (response ? "complete" : "not_captured");
+      const responseEmpty = responseState === "pending" ? "等待响应报文" : "未捕获到响应报文";
+      return '<div class="packet-detail">' +
+        '<div class="packet-meta">' +
+          '<span><strong>告警触发方向：</strong>' + escapeText(direction) + '</span>' +
+          '<span><strong>会话 ID：</strong>' + escapeText(item.session_id || "逐包事件") + '</span>' +
+          '<span><strong>事务 ID：</strong>' + escapeText(item.transaction_id || "-") + '</span>' +
+          '<span><strong>上下文版本：</strong>rev ' + escapeText(item.context_revision || 1) + (item.context_final ? ' · 已完成' : ' · 更新中') + '</span>' +
+        '</div>' +
+        (item.session_summary ? '<div class="session-strip"><div class="session-stat">客户端流量<strong>' + escapeText((summary.client_packets || 0) + ' 包 / ' + (summary.client_wire_bytes || 0) + ' B') + '</strong></div><div class="session-stat">服务端流量<strong>' + escapeText((summary.server_packets || 0) + ' 包 / ' + (summary.server_wire_bytes || 0) + ' B') + '</strong></div><div class="session-stat">会话命中<strong>' + escapeText(summary.hit_count || 0) + ' 次</strong></div><div class="session-stat">响应状态<strong>' + escapeText(responseStatusLabel(responseState)) + '</strong></div></div>' : '') +
+        '<div class="packet-tabs" role="tablist" aria-label="请求和响应报文">' +
+          '<button type="button" class="packet-tab' + (initialSide === "request" ? ' active' : '') + '" data-side="request" role="tab" aria-selected="' + (initialSide === "request") + '" aria-controls="' + requestPanelID + '">请求报文</button>' +
+          '<button type="button" class="packet-tab' + (initialSide === "response" ? ' active' : '') + '" data-side="response" role="tab" aria-selected="' + (initialSide === "response") + '" aria-controls="' + responsePanelID + '">响应报文</button>' +
+        '</div>' +
+        '<div id="' + requestPanelID + '" class="packet-panel" data-side="request" role="tabpanel"' + (initialSide === "request" ? '' : ' hidden') + '>' + packetPanelHTML(request, "request", "未捕获到请求报文") + '</div>' +
+        '<div id="' + responsePanelID + '" class="packet-panel" data-side="response" role="tabpanel"' + (initialSide === "response" ? '' : ' hidden') + '>' + packetPanelHTML(response, "response", responseEmpty) + '</div>' +
+      '</div>';
+    }
+    function bindPacketToggles() {
+      document.querySelectorAll(".packet-toggle").forEach((button) => {
+        button.addEventListener("click", () => {
+          const detail = document.getElementById(button.dataset.target);
+          if (!detail) return;
+          const opening = detail.hidden;
+          detail.hidden = !opening;
+          button.textContent = opening ? "▼" : "▶";
+          button.setAttribute("aria-expanded", String(opening));
+          button.setAttribute("title", opening ? "收起原始报文" : "展开原始报文");
+        });
+      });
+    }
+    function bindPacketTabs() {
+      document.querySelectorAll(".packet-tabs").forEach((tabs) => {
+        tabs.querySelectorAll(".packet-tab").forEach((tab) => {
+          tab.addEventListener("click", () => {
+            const detail = tabs.closest(".packet-detail");
+            const side = tab.dataset.side;
+            tabs.querySelectorAll(".packet-tab").forEach((candidate) => {
+              const selected = candidate === tab;
+              candidate.classList.toggle("active", selected);
+              candidate.setAttribute("aria-selected", String(selected));
+            });
+            detail.querySelectorAll(".packet-panel").forEach((panel) => {
+              panel.hidden = panel.dataset.side !== side;
+            });
+          });
+        });
+      });
+    }
     async function loadPushLogs() {
       const rowsEl = document.getElementById("pushLogRows");
       const logStatus = document.getElementById("pushLogStatus");
@@ -744,30 +1185,43 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || res.statusText);
         const items = data.items || [];
+        document.getElementById("overviewAlertCount").textContent = items.length + " 条";
+        document.getElementById("overviewPendingCount").textContent = items.filter((item) => item.status === "pending" || item.status === "failed").length + " 条";
         if (items.length === 0) {
-          rowsEl.innerHTML = '<tr><td colspan="8" class="muted">暂无数据</td></tr>';
+          rowsEl.innerHTML = '<tr><td colspan="9" class="muted">暂无数据</td></tr>';
         } else {
-          rowsEl.innerHTML = items.map((item) => {
+          rowsEl.innerHTML = items.map((item, index) => {
             const rule = [item.ioc_type, item.ioc_value].filter(Boolean).join(": ") || item.event_name || item.event_id || "";
             const src = item.src_ip ? item.src_ip + (item.src_port ? ":" + item.src_port : "") : "";
             const dst = item.dst_ip ? item.dst_ip + (item.dst_port ? ":" + item.dst_port : "") : "";
             const hit = src && dst ? src + " → " + dst : (src || dst);
+            const detailID = "packet-detail-" + index;
+            const hasPacket = Boolean(item.raw_packet || item.exchange);
+            const contextLabel = item.context_final ? "上下文完成" : (item.exchange?.response_status === "pending" ? "等待响应" : "逐包事件");
+            const contextClass = item.context_final ? "complete" : "pending";
             return '<tr>' +
+              '<td><button type="button" class="packet-toggle" data-target="' + detailID + '"' +
+                (hasPacket ? ' title="展开原始报文" aria-expanded="false">▶' : ' title="无原始报文" disabled>▷') + '</button></td>' +
               '<td>' + escapeText(formatTime(item.occurred_at)) + '</td>' +
-              '<td><span class="badge ' + escapeText(item.status) + '">' + escapeText(item.status) + '</span></td>' +
+              '<td><span class="badge ' + escapeText(item.status) + '">' + escapeText(pushStatusLabel(item.status)) + '</span><span class="context-state ' + contextClass + '">' + escapeText(contextLabel) + '</span></td>' +
               '<td>' + escapeText(rule) + '</td>' +
               '<td>' + escapeText(hit) + '</td>' +
               '<td>' + escapeText(item.severity || "") + '</td>' +
               '<td>' + escapeText(item.retry_count) + '</td>' +
               '<td>' + escapeText(formatTime(item.updated_at)) + '</td>' +
               '<td>' + escapeText(item.last_error || "") + '</td>' +
-            '</tr>';
+            '</tr>' +
+            '<tr id="' + detailID + '" class="packet-detail-row" hidden><td colspan="9">' + packetDetailHTML(item, detailID) + '</td></tr>';
           }).join("");
+          bindPacketToggles();
+          bindPacketTabs();
         }
-        logStatus.textContent = data.error ? ("读取队列失败：" + data.error) : "最近 50 条队列推送状态";
+        logStatus.textContent = data.error ? ("读取队列失败：" + data.error) : "最近 50 条告警及最新上下文 revision";
       } catch (err) {
-        rowsEl.innerHTML = '<tr><td colspan="8" class="muted">读取失败</td></tr>';
+        rowsEl.innerHTML = '<tr><td colspan="9" class="muted">读取失败</td></tr>';
         logStatus.textContent = "读取推送日志失败：" + err.message;
+        document.getElementById("overviewAlertCount").textContent = "读取失败";
+        document.getElementById("overviewPendingCount").textContent = "读取失败";
       }
     }
     document.getElementById("configForm").addEventListener("submit", async (event) => {
@@ -802,18 +1256,27 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
     });
     document.getElementById("refreshPushLogsBtn").addEventListener("click", loadPushLogs);
     loadPushLogs();
+    let intelPage = 0;
+    const intelPageSize = 50;
     async function loadIntelRules() {
       const rowsEl = document.getElementById("intelRows");
       const status = document.getElementById("intelTableStatus");
-      const countEl = document.getElementById("intelCount");
+      const prevBtn = document.getElementById("intelPrevBtn");
+      const nextBtn = document.getElementById("intelNextBtn");
+      const pageInfo = document.getElementById("intelPageInfo");
+      const offset = intelPage * intelPageSize;
       try {
-        const res = await fetch("/api/v1/intel");
+        const res = await fetch("/api/v1/intel?offset=" + offset + "&limit=" + intelPageSize);
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || res.statusText);
         const items = data.items || [];
-        countEl.textContent = items.length;
-        status.textContent = "当前已加载 " + items.length + " 条 IOC 规则";
+        const total = data.total || 0;
+        document.getElementById("overviewIntelCount").textContent = total + " 条";
+        status.textContent = "共 " + total + " 条 IOC 规则（第 " + (offset + 1) + "-" + Math.min(offset + items.length, total) + " 条）";
         status.className = "muted";
+        pageInfo.textContent = "第 " + (intelPage + 1) + " / " + Math.max(1, Math.ceil(total / intelPageSize)) + " 页";
+        prevBtn.disabled = intelPage === 0;
+        nextBtn.disabled = offset + items.length >= total;
         if (items.length === 0) {
           rowsEl.innerHTML = '<tr><td colspan="8" class="muted">暂无数据</td></tr>';
         } else {
@@ -834,9 +1297,12 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
         rowsEl.innerHTML = '<tr><td colspan="8" class="muted">读取失败</td></tr>';
         status.textContent = "读取规则失败：" + err.message;
         status.className = "error";
+        document.getElementById("overviewIntelCount").textContent = "读取失败";
       }
     }
-    document.getElementById("refreshIntelBtn").addEventListener("click", loadIntelRules);
+    document.getElementById("refreshIntelBtn").addEventListener("click", () => { intelPage = 0; loadIntelRules(); });
+    document.getElementById("intelPrevBtn").addEventListener("click", () => { if (intelPage > 0) { intelPage--; loadIntelRules(); } });
+    document.getElementById("intelNextBtn").addEventListener("click", () => { intelPage++; loadIntelRules(); });
     loadIntelRules();
     document.getElementById("triggerIocSyncBtn").addEventListener("click", async () => {
       const btn = document.getElementById("triggerIocSyncBtn");

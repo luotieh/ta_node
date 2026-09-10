@@ -11,20 +11,26 @@ import (
 	"ta_node/internal/intel"
 )
 
-// Syncer performs the daily incremental IOC sync: it scans dir for gateway
-// *.zip packs, adds every rule not already in the store, then removes zips
-// older than retainDays. The store's own dedup (by canonical type/value) makes
-// the main file the consumption cursor. There is no per-day cap: how much the
-// gateway delivers is controlled upstream by the threat-aggregation platform.
+// Syncer performs the daily incremental IOC sync: it scans each directory in
+// dirs for gateway *.zip packs, adds every rule not already in the store, then
+// removes zips older than retainDays. The store's own dedup (by canonical
+// type/value) makes the main file the consumption cursor. There is no per-day
+// cap: how much the gateway delivers is controlled upstream by the
+// threat-aggregation platform.
 type Syncer struct {
 	store      *intel.Store
-	dir        string
+	dirs       []string
 	retainDays int
 	maxItems   int
 }
 
-func New(store *intel.Store, dir string, retainDays, maxItems int) *Syncer {
-	return &Syncer{store: store, dir: dir, retainDays: retainDays, maxItems: maxItems}
+func New(store *intel.Store, dirs []string, retainDays, maxItems int) *Syncer {
+	return &Syncer{store: store, dirs: dirs, retainDays: retainDays, maxItems: maxItems}
+}
+
+func globDir(dir, pattern string) []string {
+	paths, _ := filepath.Glob(filepath.Join(dir, pattern))
+	return paths
 }
 
 // isYAML reports whether path has a .yaml or .yml extension.
@@ -33,16 +39,18 @@ func isYAML(path string) bool {
 	return strings.HasSuffix(n, ".yaml") || strings.HasSuffix(n, ".yml")
 }
 
-// SyncOnce scans dir for *.zip and *.yaml/*.yml files, imports every "new" IOC
-// (canonical key not in the main file) into the store, then prunes files older
-// than retainDays. It returns the number of IOCs added. Bad/half-written files
-// are logged and skipped; a scan error never shrinks the rule set. retainDays
-// <= 0 disables cleanup.
+// SyncOnce scans all configured directories for *.zip and *.yaml/*.yml files,
+// imports every "new" IOC (canonical key not in the main file) into the store,
+// then prunes files older than retainDays. It returns the number of IOCs
+// added. Bad/half-written files are logged and skipped; a scan error never
+// shrinks the rule set. retainDays <= 0 disables cleanup.
 func (s *Syncer) SyncOnce() (int, error) {
-	zipPaths, _ := filepath.Glob(filepath.Join(s.dir, "*.zip"))
-	yamlPaths, _ := filepath.Glob(filepath.Join(s.dir, "*.yaml"))
-	ymlPaths, _ := filepath.Glob(filepath.Join(s.dir, "*.yml"))
-	allPaths := append(append(zipPaths, yamlPaths...), ymlPaths...)
+	var allPaths []string
+	for _, dir := range s.dirs {
+		allPaths = append(allPaths, globDir(dir, "*.zip")...)
+		allPaths = append(allPaths, globDir(dir, "*.yaml")...)
+		allPaths = append(allPaths, globDir(dir, "*.yml")...)
+	}
 	sort.Strings(allPaths)
 
 	// The main file is the cursor: an IOC already present is not "new".
@@ -89,16 +97,18 @@ func (s *Syncer) SyncOnce() (int, error) {
 	return len(candidates), nil
 }
 
-// cleanupOldFiles removes *.zip and *.yaml/*.yml files in dir whose mtime is
-// older than retainDays.
+// cleanupOldFiles removes *.zip and *.yaml/*.yml files in all configured dirs
+// whose mtime is older than retainDays.
 func (s *Syncer) cleanupOldFiles(now time.Time) int {
 	if s.retainDays <= 0 {
 		return 0
 	}
-	zipPaths, _ := filepath.Glob(filepath.Join(s.dir, "*.zip"))
-	yamlPaths, _ := filepath.Glob(filepath.Join(s.dir, "*.yaml"))
-	ymlPaths, _ := filepath.Glob(filepath.Join(s.dir, "*.yml"))
-	allPaths := append(append(zipPaths, yamlPaths...), ymlPaths...)
+	var allPaths []string
+	for _, dir := range s.dirs {
+		allPaths = append(allPaths, globDir(dir, "*.zip")...)
+		allPaths = append(allPaths, globDir(dir, "*.yaml")...)
+		allPaths = append(allPaths, globDir(dir, "*.yml")...)
+	}
 
 	cutoff := now.AddDate(0, 0, -s.retainDays)
 	removed := 0

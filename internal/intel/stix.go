@@ -128,14 +128,73 @@ func severityFromConfidence(confidence int) string {
 }
 
 func categoryFromLabels(labels []string) string {
-	priority := []string{"c2", "phishing", "malware", "scanner", "botnet", "exploit", "webshell", "unknown"}
-	seen := map[string]bool{}
-	for _, label := range labels {
-		seen[strings.ToLower(strings.TrimSpace(label))] = true
+	type labelPair struct{ key, category string }
+	orderedLabels := []labelPair{
+		{"c2", "c2"},
+		{"ransomware", "ransomware"},
+		{"phishing", "phishing"},
+		{"malware", "malware"},
+		{"botnet", "botnet"},
+		{"exploit", "exploit"},
+		{"webshell", "webshell"},
+		{"scanner", "scanner"},
+		{"network_activity", "network_activity"},
+		{"command_and_control", "c2"},
+		{"c2_server", "c2"},
+		{"trojan", "malware"},
+		{"stealer", "malware"},
+		{"backdoor", "malware"},
+		{"rat", "malware"},
+		{"spyware", "malware"},
+		{"dropper", "malware"},
+		{"loader", "malware"},
+		{"keylogger", "malware"},
+		{"worm", "malware"},
+		{"rootkit", "malware"},
+		{"banker", "malware"},
+		{"ddos", "botnet"},
+		{"spam", "botnet"},
+		{"proxy", "botnet"},
+		{"credential_phishing", "phishing"},
+		{"spear_phishing", "phishing"},
+		{"whaling", "phishing"},
+		{"smishing", "phishing"},
+		{"vishing", "phishing"},
+		{"sql_injection", "exploit"},
+		{"sqli", "exploit"},
+		{"xss", "exploit"},
+		{"rce", "exploit"},
+		{"lfi", "exploit"},
+		{"csrf", "exploit"},
+		{"ssrf", "exploit"},
+		{"port_scan", "scanner"},
+		{"vulnerability_scan", "scanner"},
+		{"reconnaissance", "scanner"},
 	}
-	for _, category := range priority {
-		if seen[category] {
-			return category
+	normalized := make([]string, len(labels))
+	for i, label := range labels {
+		normalized[i] = strings.ToLower(strings.TrimSpace(label))
+	}
+	// First pass: exact match, ordered by priority (c2 wins over malware)
+	for _, pair := range orderedLabels {
+		for _, label := range normalized {
+			if label == pair.key {
+				return pair.category
+			}
+		}
+	}
+	// Second pass: substring match for multi-word labels like "blockchain c2"
+	for _, pair := range orderedLabels {
+		for _, label := range normalized {
+			if strings.Contains(label, pair.key) {
+				return pair.category
+			}
+		}
+	}
+	// Final fallback: preserve first unknown label for precise classification
+	for _, label := range normalized {
+		if label != "" {
+			return label
 		}
 	}
 	return "unknown"

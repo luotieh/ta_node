@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	_ "modernc.org/sqlite"
@@ -63,7 +64,7 @@ func (q *SQLiteQueue) Enqueue(ev event.ThreatEvent) error {
 	}
 	now := time.Now().Unix()
 	_, err = q.db.Exec(`INSERT OR IGNORE INTO event_queue(event_id,event_time,payload,status,created_at,updated_at) VALUES(?,?,?,?,?,?)`,
-		ev.EventID, ev.EventTime, string(payload), 0, now, now)
+		queueRecordID(ev.EventID, ev.ContextRevision), ev.EventTime, string(payload), 0, now, now)
 	return err
 }
 
@@ -91,12 +92,22 @@ func (q *SQLiteQueue) LoadPending(limit int) ([]event.ThreatEvent, error) {
 	return out, rows.Err()
 }
 
-func (q *SQLiteQueue) MarkPushed(eventID string) error {
-	_, err := q.db.Exec(`UPDATE event_queue SET status=2, last_error='', updated_at=? WHERE event_id=?`, time.Now().Unix(), eventID)
+func (q *SQLiteQueue) MarkPushed(eventID string, contextRevision uint64) error {
+	_, err := q.db.Exec(`UPDATE event_queue SET status=2, last_error='', updated_at=? WHERE event_id=?`, time.Now().Unix(), queueRecordID(eventID, contextRevision))
 	return err
 }
 
-func (q *SQLiteQueue) MarkFailed(eventID string, errMsg string) error {
-	_, err := q.db.Exec(`UPDATE event_queue SET status=3, retry_count=retry_count+1, last_error=?, updated_at=? WHERE event_id=?`, errMsg, time.Now().Unix(), eventID)
+func (q *SQLiteQueue) MarkFailed(eventID string, contextRevision uint64, errMsg string) error {
+	_, err := q.db.Exec(`UPDATE event_queue SET status=3, retry_count=retry_count+1, last_error=?, updated_at=? WHERE event_id=?`, errMsg, time.Now().Unix(), queueRecordID(eventID, contextRevision))
 	return err
+}
+
+// queueRecordID keeps the legacy event_id UNIQUE schema usable while allowing
+// multiple immutable context revisions. The payload always retains the real
+// event_id; only the queue's internal dedupe key receives the revision suffix.
+func queueRecordID(eventID string, contextRevision uint64) string {
+	if contextRevision <= 1 {
+		return eventID
+	}
+	return eventID + "@revision:" + strconv.FormatUint(contextRevision, 10)
 }

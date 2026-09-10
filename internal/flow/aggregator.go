@@ -23,14 +23,28 @@ const (
 type Aggregator struct {
 	mu          sync.Mutex
 	flows       map[string]*flowState
+	pairs       map[string]*pairState
 	maxFlows    int
 	idleTimeout time.Duration
 	now         func() time.Time
+	packetSeq   uint64
 }
 
 type flowState struct {
 	feature  FlowFeature
 	lastSeen time.Time
+}
+
+type pairState struct {
+	clientPackets   uint64
+	serverPackets   uint64
+	clientBytes     uint64
+	serverBytes     uint64
+	clientWireBytes uint64
+	serverWireBytes uint64
+	firstTime       uint64
+	lastTime        uint64
+	lastSeen        time.Time
 }
 
 // NewAggregator builds an aggregator. Non-positive arguments fall back to sane
@@ -44,6 +58,7 @@ func NewAggregator(maxFlows int, idleTimeout time.Duration) *Aggregator {
 	}
 	return &Aggregator{
 		flows:       map[string]*flowState{},
+		pairs:       map[string]*pairState{},
 		maxFlows:    maxFlows,
 		idleTimeout: idleTimeout,
 		now:         time.Now,
@@ -54,6 +69,8 @@ func (a *Aggregator) Update(pf parser.PacketFeature, fpHits []fingerprint.Finger
 	key := fmt.Sprintf("%s:%d-%s:%d-%s", pf.SrcIP, pf.SrcPort, pf.DstIP, pf.DstPort, pf.Proto)
 	a.mu.Lock()
 	defer a.mu.Unlock()
+	a.packetSeq++
+	packetSeq := a.packetSeq
 
 	st := a.flows[key]
 	if st == nil {
@@ -62,7 +79,7 @@ func (a *Aggregator) Update(pf parser.PacketFeature, fpHits []fingerprint.Finger
 			if len(a.flows) >= a.maxFlows {
 				// Still at capacity: return a transient, untracked feature so
 				// detection still runs without letting the map grow.
-				return transientFeature(pf, fpHits, intelHits)
+				return transientFeature(pf, fpHits, intelHits, packetSeq)
 			}
 		}
 		st = &flowState{feature: FlowFeature{
@@ -92,7 +109,39 @@ func (a *Aggregator) Update(pf parser.PacketFeature, fpHits []fingerprint.Finger
 	out := st.feature
 	out.FingerprintHits = fpHits
 	out.IntelHits = intelHits
+	out.PacketSequence = packetSeq
 	attachAppContext(&out, pf)
+
+	pairKey := PairKey(pf.SrcIP, pf.SrcPort, pf.DstIP, pf.DstPort, pf.Proto)
+	ps := a.pairs[pairKey]
+	if ps == nil {
+		ps = &pairState{firstTime: pf.PacketTimeUsec}
+		a.pairs[pairKey] = ps
+	}
+	ps.lastTime = pf.PacketTimeUsec
+	if pf.PacketTimeUsec > 0 && (ps.firstTime == 0 || pf.PacketTimeUsec < ps.firstTime) {
+		ps.firstTime = pf.PacketTimeUsec
+	}
+	ps.lastSeen = a.now()
+	if IsForward(pf.SrcIP, pf.SrcPort, pf.DstIP, pf.DstPort, pf.Proto) {
+		ps.clientPackets++
+		ps.clientBytes += uint64(len(pf.Payload))
+		ps.clientWireBytes += uint64(pf.WireLen)
+	} else {
+		ps.serverPackets++
+		ps.serverBytes += uint64(len(pf.Payload))
+		ps.serverWireBytes += uint64(pf.WireLen)
+	}
+	out.PairStats = &PairStats{
+		ClientPackets:   ps.clientPackets,
+		ServerPackets:   ps.serverPackets,
+		ClientBytes:     ps.clientBytes,
+		ServerBytes:     ps.serverBytes,
+		ClientWireBytes: ps.clientWireBytes,
+		ServerWireBytes: ps.serverWireBytes,
+		FirstTime:       ps.firstTime,
+		LastTime:        ps.lastTime,
+	}
 	return out
 }
 
@@ -110,6 +159,12 @@ func attachAppContext(out *FlowFeature, pf parser.PacketFeature) {
 	out.DNSAnswers = pf.DNSAnswers
 	out.PayloadSample = pf.PayloadSample
 	out.ICMPSeq = pf.ICMPSeq
+	out.HTTPStatusCode = pf.HTTPStatusCode
+	out.RawPacket = pf.RawPacket
+	out.RawPayload = pf.Payload
+	out.CapturedLen = pf.CapturedLen
+	out.TriggerWireLen = pf.WireLen
+	out.MessageDirection = pf.MessageDirection
 	// HTTPHost/HTTPURL/DNSQuery already carried via firstNonEmpty on the stored
 	// flow, but prefer the triggering packet's values when present.
 	out.HTTPHost = firstNonEmpty(pf.HTTPHost, out.HTTPHost)
@@ -141,29 +196,40 @@ func (a *Aggregator) cleanupLocked(now time.Time) int {
 			removed++
 		}
 	}
+	for k, ps := range a.pairs {
+		if now.Sub(ps.lastSeen) >= a.idleTimeout {
+			delete(a.pairs, k)
+		}
+	}
 	return removed
 }
 
-func transientFeature(pf parser.PacketFeature, fpHits []fingerprint.FingerprintHit, intelHits []intel.ThreatIntel) FlowFeature {
+func transientFeature(pf parser.PacketFeature, fpHits []fingerprint.FingerprintHit, intelHits []intel.ThreatIntel, packetSeq uint64) FlowFeature {
 	return FlowFeature{
-		FirstTime:       pf.PacketTimeUsec,
-		LastTime:        pf.PacketTimeUsec,
-		PacketTimeUsec:  pf.PacketTimeUsec,
-		SrcIP:           pf.SrcIP,
-		SrcPort:         pf.SrcPort,
-		DstIP:           pf.DstIP,
-		DstPort:         pf.DstPort,
-		Proto:           pf.Proto,
-		Packets:         1,
-		Bytes:           uint64(len(pf.Payload)),
-		WireBytes:       uint64(pf.WireLen),
-		HTTPHost:        pf.HTTPHost,
-		HTTPURL:         pf.HTTPURL,
-		DNSQuery:        pf.DNSQuery,
-		SNI:             pf.SNI,
-		EvidenceFile:    pf.EvidenceFile,
-		FingerprintHits: fpHits,
-		IntelHits:       intelHits,
+		FirstTime:        pf.PacketTimeUsec,
+		LastTime:         pf.PacketTimeUsec,
+		PacketTimeUsec:   pf.PacketTimeUsec,
+		SrcIP:            pf.SrcIP,
+		SrcPort:          pf.SrcPort,
+		DstIP:            pf.DstIP,
+		DstPort:          pf.DstPort,
+		Proto:            pf.Proto,
+		Packets:          1,
+		Bytes:            uint64(len(pf.Payload)),
+		WireBytes:        uint64(pf.WireLen),
+		RawPacket:        pf.RawPacket,
+		RawPayload:       pf.Payload,
+		CapturedLen:      pf.CapturedLen,
+		TriggerWireLen:   pf.WireLen,
+		MessageDirection: pf.MessageDirection,
+		PacketSequence:   packetSeq,
+		HTTPHost:         pf.HTTPHost,
+		HTTPURL:          pf.HTTPURL,
+		DNSQuery:         pf.DNSQuery,
+		SNI:              pf.SNI,
+		EvidenceFile:     pf.EvidenceFile,
+		FingerprintHits:  fpHits,
+		IntelHits:        intelHits,
 	}
 }
 

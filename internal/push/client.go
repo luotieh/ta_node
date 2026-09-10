@@ -75,9 +75,9 @@ func drain(ctx context.Context, q queue.EventQueue, c *Client, batch int) {
 	}
 	for _, ev := range events {
 		if err := c.PushEvent(ctx, ev); err != nil {
-			_ = q.MarkFailed(ev.EventID, err.Error())
+			_ = q.MarkFailed(ev.EventID, ev.ContextRevision, err.Error())
 			continue
 		}
-		_ = q.MarkPushed(ev.EventID)
+		_ = q.MarkPushed(ev.EventID, ev.ContextRevision)
 	}
 }
