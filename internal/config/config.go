@@ -129,16 +129,19 @@ type FlowConfig struct {
 // transaction correlation. Mode "packet" preserves the 1.4 behavior; mode
 // "session" enables request/response enrichment revisions.
 type AggregationConfig struct {
-	Mode                      string `json:"mode" yaml:"mode"`
-	EnableTransactionLink     bool   `json:"enable_transaction_link" yaml:"enable_transaction_link"`
-	ResponseWaitSec           int    `json:"response_wait_sec" yaml:"response_wait_sec"`
-	MaxSessions               int    `json:"max_sessions" yaml:"max_sessions"`
-	MaxTransactionsPerSession int    `json:"max_transactions_per_session" yaml:"max_transactions_per_session"`
-	MaxPacketsPerTransaction  int    `json:"max_packets_per_transaction" yaml:"max_packets_per_transaction"`
-	MaxReassemblyBytesPerSide int    `json:"max_reassembly_bytes_per_side" yaml:"max_reassembly_bytes_per_side"`
-	MaxOutOfOrderBytes        int    `json:"max_out_of_order_bytes" yaml:"max_out_of_order_bytes"`
-	StorePacketIndex          bool   `json:"store_packet_index" yaml:"store_packet_index"`
-	SaveFullSessionPCAP       bool   `json:"save_full_session_pcap" yaml:"save_full_session_pcap"`
+	Mode                  string `json:"mode" yaml:"mode"`
+	EnableTransactionLink bool   `json:"enable_transaction_link" yaml:"enable_transaction_link"`
+	ResponseWaitSec       int    `json:"response_wait_sec" yaml:"response_wait_sec"`
+	// RevisionIntervalSec throttles non-final context revision pushes so an
+	// active long-lived flow does not emit one update per payload packet.
+	RevisionIntervalSec       int  `json:"revision_interval_sec" yaml:"revision_interval_sec"`
+	MaxSessions               int  `json:"max_sessions" yaml:"max_sessions"`
+	MaxTransactionsPerSession int  `json:"max_transactions_per_session" yaml:"max_transactions_per_session"`
+	MaxPacketsPerTransaction  int  `json:"max_packets_per_transaction" yaml:"max_packets_per_transaction"`
+	MaxReassemblyBytesPerSide int  `json:"max_reassembly_bytes_per_side" yaml:"max_reassembly_bytes_per_side"`
+	MaxOutOfOrderBytes        int  `json:"max_out_of_order_bytes" yaml:"max_out_of_order_bytes"`
+	StorePacketIndex          bool `json:"store_packet_index" yaml:"store_packet_index"`
+	SaveFullSessionPCAP       bool `json:"save_full_session_pcap" yaml:"save_full_session_pcap"`
 }
 
 type ServerConfig struct {
@@ -190,6 +193,7 @@ func Default() Config {
 			Mode:                      "packet",
 			EnableTransactionLink:     false,
 			ResponseWaitSec:           30,
+			RevisionIntervalSec:       10,
 			MaxSessions:               100000,
 			MaxTransactionsPerSession: 16,
 			MaxPacketsPerTransaction:  128,

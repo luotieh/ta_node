@@ -47,7 +47,7 @@ func runStorage(t *testing.T, n int, backend string) (int64, string) {
 		t.Fatal(err)
 	}
 	defer q.Close()
-	tracker := correlation.New(correlation.Options{StorePacketIndex: true})
+	tracker := correlation.New(correlation.Options{StorePacketIndex: true, RevisionInterval: time.Microsecond})
 	agg := flow.NewAggregator(100, time.Minute)
 	det := detector.New("repro")
 	hits := []intel.ThreatIntel{{ID: "test-ip", Type: "ip", Value: "203.0.113.9", Enabled: true, Severity: "high", Category: "c2"}}

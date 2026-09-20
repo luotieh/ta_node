@@ -74,6 +74,8 @@ aggregation:
   mode: "session"
   enable_transaction_link: true
   response_wait_sec: 30
+  # Throttle non-final context revision pushes for long-lived flows
+  revision_interval_sec: 10
   max_sessions: 100000
   max_transactions_per_session: 16
   max_packets_per_transaction: 128

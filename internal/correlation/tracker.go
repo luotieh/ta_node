@@ -24,6 +24,11 @@ type Options struct {
 	ResponseWait              time.Duration
 	SessionIdleTimeout        time.Duration
 	StorePacketIndex          bool
+	// RevisionInterval throttles non-final context revisions: after the first
+	// update, further updates are emitted at most once per interval so an
+	// active long-lived flow does not produce one push per payload packet.
+	// Final revisions (connection close / flush) are always emitted.
+	RevisionInterval time.Duration
 }
 
 type Observation struct {
@@ -61,12 +66,13 @@ type sessionState struct {
 }
 
 type transactionState struct {
-	id       string
-	lastUsec uint64
-	request  sideState
-	response sideState
-	events   map[string]event.ThreatEvent
-	final    bool
+	id             string
+	lastUsec       uint64
+	lastReviseUsec uint64
+	request        sideState
+	response       sideState
+	events         map[string]event.ThreatEvent
+	final          bool
 }
 
 type sideState struct {
@@ -98,6 +104,9 @@ func New(opts Options) *Tracker {
 	}
 	if opts.SessionIdleTimeout <= 0 {
 		opts.SessionIdleTimeout = 120 * time.Second
+	}
+	if opts.RevisionInterval <= 0 {
+		opts.RevisionInterval = 10 * time.Second
 	}
 	return &Tracker{opts: opts, sessions: map[string]*sessionState{}}
 }
@@ -389,6 +398,10 @@ func (t *Tracker) reviseTransaction(st *sessionState, tx *transactionState) []ev
 	if tx == nil || len(tx.events) == 0 {
 		return nil
 	}
+	if !tx.final && tx.lastReviseUsec != 0 && tx.lastUsec-tx.lastReviseUsec < uint64(t.opts.RevisionInterval.Microseconds()) {
+		return nil
+	}
+	tx.lastReviseUsec = tx.lastUsec
 	var updates []event.ThreatEvent
 	sharedExchange := t.exchange(tx)
 	sharedSummary := t.summary(st)

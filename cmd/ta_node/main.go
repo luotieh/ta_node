@@ -143,6 +143,7 @@ func runNode(cfg config.Config, configPath string) error {
 			MaxReassemblyBytesPerSide: cfg.Aggregation.MaxReassemblyBytesPerSide,
 			MaxOutOfOrderBytes:        cfg.Aggregation.MaxOutOfOrderBytes,
 			ResponseWait:              time.Duration(cfg.Aggregation.ResponseWaitSec) * time.Second,
+			RevisionInterval:          time.Duration(cfg.Aggregation.RevisionIntervalSec) * time.Second,
 			SessionIdleTimeout:        cfg.FlowIdleTimeout(),
 			StorePacketIndex:          cfg.Aggregation.StorePacketIndex,
 		})

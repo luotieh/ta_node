@@ -70,3 +70,47 @@ func TestTrackerBoundsReassemblyAndMarksRetransmission(t *testing.T) {
 		t.Fatalf("unexpected bounded payload: %q", obs.Exchange.Request.ReassembledText)
 	}
 }
+
+func TestTrackerThrottlesNonFinalRevisions(t *testing.T) {
+	tracker := New(Options{MaxSessions: 10, MaxTransactionsPerSession: 4, MaxPacketsPerTransaction: 8, MaxReassemblyBytesPerSide: 4096, ResponseWait: 30 * time.Second, RevisionInterval: 10 * time.Second, StorePacketIndex: true})
+	mk := func(usec uint64, seq uint32, fin bool) parser.PacketFeature {
+		payload := []byte("chunk")
+		return parser.PacketFeature{
+			PacketTimeUsec: usec, SrcIP: "10.0.0.1", SrcPort: 40000, DstIP: "10.0.0.2", DstPort: 80, Proto: "tcp",
+			Payload: payload, RawPacket: payload, CapturedLen: uint32(len(payload)), WireLen: uint32(len(payload)),
+			TCPSeq: seq, TCPFIN: fin,
+		}
+	}
+	first := mk(1_000_000, 100, false)
+	first.MessageDirection = "request"
+	first.HTTPMethod = "POST"
+	first.Payload = []byte("POST /up HTTP/1.1\r\nHost: example.test\r\n\r\n")
+	first.RawPacket = first.Payload
+	first.CapturedLen = uint32(len(first.Payload))
+	first.WireLen = first.CapturedLen
+	obs := tracker.Observe(first, 1)
+	tracker.Register(obs, event.ThreatEvent{EventID: "evt-1", EventTime: first.PacketTimeUsec})
+
+	// First follow-up packet always emits revision 2.
+	obs = tracker.Observe(mk(2_000_000, 200, false), 2)
+	if len(obs.Updates) != 1 || obs.Updates[0].ContextRevision != 2 {
+		t.Fatalf("first revision missing: %+v", obs.Updates)
+	}
+	// Packets inside the interval are throttled.
+	for i, usec := range []uint64{3_000_000, 5_000_000, 11_000_000} {
+		obs = tracker.Observe(mk(usec, uint32(300+i*100), false), uint64(3+i))
+		if len(obs.Updates) != 0 {
+			t.Fatalf("revision emitted inside throttle interval at %d usec: %+v", usec, obs.Updates)
+		}
+	}
+	// After the interval a new revision is emitted.
+	obs = tracker.Observe(mk(12_500_000, 900, false), 6)
+	if len(obs.Updates) != 1 || obs.Updates[0].ContextRevision != 3 || obs.Updates[0].ContextFinal {
+		t.Fatalf("post-interval revision wrong: %+v", obs.Updates)
+	}
+	// Final revisions are always emitted, even inside the interval.
+	obs = tracker.Observe(mk(13_000_000, 1000, true), 7)
+	if len(obs.Updates) != 1 || obs.Updates[0].ContextRevision != 4 || !obs.Updates[0].ContextFinal {
+		t.Fatalf("final revision wrong: %+v", obs.Updates)
+	}
+}
