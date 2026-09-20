@@ -13,3 +13,5 @@ go build -mod=vendor -trimpath -ldflags="-s -w" \
   ./cmd/ta_node
 
 file dist/ta_node-linux-arm64 || true
+
+CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -mod=vendor -trimpath -ldflags="-s -w" -o dist/ta_queue-linux-arm64 ./cmd/ta_queue

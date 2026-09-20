@@ -1,0 +1,19 @@
+[Unit]
+Description=TA traffic analysis node
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/ta_node
+ExecStart=/opt/ta_node/bin/ta_node --config /opt/ta_node/configs/ta_node.yaml
+Restart=on-failure
+RestartSec=5
+KillSignal=SIGTERM
+TimeoutStopSec=30
+CapabilityBoundingSet=CAP_NET_RAW
+NoNewPrivileges=true
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

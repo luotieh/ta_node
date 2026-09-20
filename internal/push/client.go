@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -69,15 +70,45 @@ func StartWorker(ctx context.Context, q queue.EventQueue, c *Client, batch int, 
 }
 
 func drain(ctx context.Context, q queue.EventQueue, c *Client, batch int) {
+	if lazy, ok := q.(interface {
+		PendingIDs(int) ([]int64, error)
+		LoadEvent(int64) (event.ThreatEvent, error)
+	}); ok {
+		ids, err := lazy.PendingIDs(batch)
+		if err != nil {
+			log.Printf("load pending events: %v", err)
+			return
+		}
+		for _, id := range ids {
+			if ctx.Err() != nil {
+				return
+			}
+			ev, err := lazy.LoadEvent(id)
+			if err != nil {
+				log.Printf("restore queued event %d: %v", id, err)
+				continue
+			}
+			sendOne(ctx, q, c, ev)
+		}
+		return
+	}
+
 	events, err := q.LoadPending(batch)
 	if err != nil {
 		return
 	}
 	for _, ev := range events {
-		if err := c.PushEvent(ctx, ev); err != nil {
-			_ = q.MarkFailed(ev.EventID, ev.ContextRevision, err.Error())
-			continue
+		sendOne(ctx, q, c, ev)
+	}
+}
+func sendOne(ctx context.Context, q queue.EventQueue, c *Client, ev event.ThreatEvent) {
+	if err := c.PushEvent(ctx, ev); err != nil {
+		if e := q.MarkFailed(ev.EventID, ev.ContextRevision, err.Error()); e != nil {
+			log.Printf("mark failed: %v", e)
 		}
-		_ = q.MarkPushed(ev.EventID, ev.ContextRevision)
+		return
+	}
+	if err := q.MarkPushed(ev.EventID, ev.ContextRevision); err != nil {
+		log.Printf("mark pushed: %v", err)
 	}
 }

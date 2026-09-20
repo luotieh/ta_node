@@ -1,7 +1,6 @@
 package queue
 
 import (
-	"database/sql"
 	"encoding/json"
 	"os"
 	"time"
@@ -42,33 +41,34 @@ type PushLog struct {
 }
 
 func RecentPushLogs(path string, limit int) ([]PushLog, error) {
+	return recentPushLogs(path, limit, false)
+}
+func RecentPushSummaries(path string, limit int) ([]PushLog, error) {
+	return recentPushLogs(path, limit, true)
+}
+func recentPushLogs(path string, limit int, summary bool) ([]PushLog, error) {
 	if limit <= 0 || limit > 200 {
 		limit = 50
 	}
 	if _, err := os.Stat(path); err != nil {
 		return nil, err
 	}
-	db, err := sql.Open("sqlite", path)
+	records, err := recentRecords(path, limit*4, summary)
 	if err != nil {
 		return nil, err
 	}
-	defer db.Close()
-	rows, err := db.Query(`SELECT event_id,event_time,payload,status,retry_count,COALESCE(last_error,''),COALESCE(created_at,0),updated_at FROM event_queue ORDER BY id DESC LIMIT ?`, limit*4)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
 	var logs []PushLog
 	seen := map[string]bool{}
-	for rows.Next() {
-		var payload string
-		var status int
-		log := PushLog{}
-		if err := rows.Scan(&log.EventID, &log.EventTime, &payload, &status, &log.RetryCount, &log.LastError, &log.CreatedAt, &log.UpdatedAt); err != nil {
-			return nil, err
-		}
+	for _, rec := range records {
+		payload := rec.Payload
+		status := rec.Status
+		log := PushLog{EventID: rec.Key, EventTime: rec.Time, RetryCount: rec.Retry, LastError: rec.Error, CreatedAt: rec.Created, UpdatedAt: rec.Updated}
 		var ev event.ThreatEvent
-		if err := json.Unmarshal([]byte(payload), &ev); err == nil {
+		decoded := []byte(payload)
+		if err := json.Unmarshal(decoded, &ev); err == nil {
+			if summary {
+				ev = summarize(ev)
+			}
 			if seen[ev.EventID] {
 				continue
 			}
@@ -103,7 +103,7 @@ func RecentPushLogs(path string, limit int) ([]PushLog, error) {
 			break
 		}
 	}
-	return logs, rows.Err()
+	return logs, nil
 }
 
 func pushStatusName(status int) string {

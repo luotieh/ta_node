@@ -2,6 +2,7 @@ package config
 
 import (
 	"flag"
+	"fmt"
 	"os"
 	"path/filepath"
 	"time"
@@ -19,7 +20,33 @@ type Config struct {
 	Flow        FlowConfig        `json:"flow" yaml:"flow"`
 	Aggregation AggregationConfig `json:"aggregation" yaml:"aggregation"`
 	Server      ServerConfig      `json:"server" yaml:"server"`
+	Storage     StorageConfig     `json:"storage" yaml:"storage"`
 	Runtime     RuntimeConfig     `json:"-" yaml:"-"`
+}
+
+// Storage settings change representation/lifecycle, never detection or evidence limits.
+type StorageConfig struct {
+	Backend                string `json:"backend" yaml:"backend"`
+	ArchiveDir             string `json:"archive_dir" yaml:"archive_dir"`
+	ArchiveAfterHours      int    `json:"archive_after_hours" yaml:"archive_after_hours"`
+	MaintenanceIntervalSec int    `json:"maintenance_interval_sec" yaml:"maintenance_interval_sec"`
+	ArchiveBatchSize       int    `json:"archive_batch_size" yaml:"archive_batch_size"`
+	HighWaterBytes         int64  `json:"high_water_bytes" yaml:"high_water_bytes"`
+	LowWaterBytes          int64  `json:"low_water_bytes" yaml:"low_water_bytes"`
+	MinFreeBytes           uint64 `json:"min_free_bytes" yaml:"min_free_bytes"`
+}
+
+func (s StorageConfig) Validate() error {
+	if s.Backend != "" && s.Backend != "v2" && s.Backend != "legacy" {
+		return fmt.Errorf("storage.backend must be v2 or legacy")
+	}
+	if s.ArchiveAfterHours < 0 || s.MaintenanceIntervalSec < 0 || s.ArchiveBatchSize < 0 || s.ArchiveBatchSize > 1000 || s.HighWaterBytes < 0 || s.LowWaterBytes < 0 {
+		return fmt.Errorf("invalid storage limit")
+	}
+	if s.HighWaterBytes > 0 && s.LowWaterBytes >= s.HighWaterBytes {
+		return fmt.Errorf("storage.low_water_bytes must be smaller than high_water_bytes")
+	}
+	return nil
 }
 
 type RuntimeConfig struct {
@@ -122,7 +149,8 @@ type ServerConfig struct {
 
 func Default() Config {
 	return Config{
-		Node: NodeConfig{DeviceID: "node-001", ManagementURL: "http://127.0.0.1:8080/api/events"},
+		Storage: StorageConfig{Backend: "v2", ArchiveAfterHours: 24, MaintenanceIntervalSec: 60, ArchiveBatchSize: 100},
+		Node:    NodeConfig{DeviceID: "node-001", ManagementURL: "http://127.0.0.1:8080/api/events"},
 		Capture: CaptureConfig{
 			Interface:   "eth0",
 			Snaplen:     1600,
@@ -189,6 +217,9 @@ func Load(path string) (Config, error) {
 }
 
 func Save(path string, cfg Config) error {
+	if err := cfg.Storage.Validate(); err != nil {
+		return err
+	}
 	data, err := yaml.Marshal(cfg)
 	if err != nil {
 		return err

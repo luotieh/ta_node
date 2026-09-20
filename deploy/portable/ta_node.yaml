@@ -1,0 +1,56 @@
+node:
+  device_id: "node-local-001"
+  management_url: ""
+  api_key: ""
+  home_net: []
+capture:
+  interface: "eth0"
+  pcap_file: ""
+  bpf_filter: ""
+  snaplen: 1600
+  promiscuous: true
+patterns:
+  enable: false
+  pattern_dir: "./patterns"
+intel:
+  intel_file: "./configs/intel.yaml"
+  reload_interval_sec: 30
+  enable_hot_reload: true
+  prune_expired_interval_sec: 300
+  accept_stix: true
+  default_source: "Threat Intel Hub"
+  max_items: 100000
+  ioc_sync_dir: "./data/ioc"
+  enable_ioc_sync: true
+  ioc_sync_interval_min: 60
+  ioc_sync_retain_days: 10
+evidence:
+  enable_pcap_save: true
+  pcap_dir: "./data/evidence"
+event:
+  enable_push: false
+  queue_db: "./data/event_queue.db"
+  push_batch_size: 100
+  retry_interval_sec: 30
+  push_timeout_sec: 5
+  max_push_retry: 20
+  local_hit_window_sec: 60
+flow:
+  max_flows: 1000000
+  idle_timeout_sec: 120
+  cleanup_interval_sec: 30
+server:
+  enable: true
+  listen: "127.0.0.1:19090"
+  token: ""
+
+# Lossless internal storage. All event revisions and public JSON remain intact.
+storage:
+  backend: "v2"                    # legacy remains available for compatibility
+  archive_dir: ""                  # configure a capacity-provisioned archive volume
+  archive_after_hours: 24           # acknowledged records only; archive retains history
+  maintenance_interval_sec: 60
+  archive_batch_size: 100
+  high_water_bytes: 0               # provision from actual disk capacity; 0 disables
+  low_water_bytes: 0
+  min_free_bytes: 0                 # capacity warning threshold; never silently drops events

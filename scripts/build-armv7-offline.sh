@@ -14,3 +14,5 @@ go build -mod=vendor -trimpath -ldflags="-s -w" \
   ./cmd/ta_node
 
 file dist/ta_node-linux-armv7 || true
+
+CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=7 go build -mod=vendor -trimpath -ldflags="-s -w" -o dist/ta_queue-linux-armv7 ./cmd/ta_queue

@@ -66,15 +66,28 @@ func runNode(cfg config.Config, configPath string) error {
 	}
 	log.Printf("loaded %d IOCs (file=%q)", intelStore.Stats().Total, cfg.Intel.IntelFile)
 	intelMatcher := intel.NewMatcher(intelStore)
-	q, err := queue.NewSQLite(cfg.Event.QueueDB)
+	if err := cfg.Storage.Validate(); err != nil {
+		return err
+	}
+	q, err := queue.OpenSQLite(cfg.Event.QueueDB, cfg.Storage.Backend)
 	if err != nil {
 		return fmt.Errorf("open event queue: %w", err)
 	}
 	defer q.Close()
+	if err = q.Activate(); err != nil {
+		return err
+	}
 	q.SetMaxRetry(cfg.Event.MaxPushRetry)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
+	maintenanceDone := make(chan struct{})
+	go func() {
+		defer close(maintenanceDone)
+		queue.Maintain(ctx, q, queue.MaintenanceOptions{ArchiveDir: cfg.Storage.ArchiveDir, After: time.Duration(cfg.Storage.ArchiveAfterHours) * time.Hour, Interval: time.Duration(cfg.Storage.MaintenanceIntervalSec) * time.Second, Batch: cfg.Storage.ArchiveBatchSize, HighWater: cfg.Storage.HighWaterBytes, LowWater: cfg.Storage.LowWaterBytes, MinFree: cfg.Storage.MinFreeBytes})
+	}()
+	defer func() { stop(); <-maintenanceDone }()
+	log.Printf("queue storage backend=%s archive=%q", cfg.Storage.Backend, cfg.Storage.ArchiveDir)
 
 	client := push.NewClient(cfg.Node.ManagementURL, cfg.Node.APIKey, cfg.PushTimeout())
 	if cfg.Event.EnablePush {
@@ -87,6 +100,7 @@ func runNode(cfg config.Config, configPath string) error {
 		if cfg.Server.Enable {
 			srv := server.New(intelStore, cfg, configPath)
 			srv.SetIOCSyncer(syncer)
+			srv.SetStorageStats(q.Stats)
 			go func() {
 				if err := srv.ListenAndServe(cfg.Server.Listen); err != nil {
 					log.Printf("intel api stopped: %v", err)
@@ -95,7 +109,9 @@ func runNode(cfg config.Config, configPath string) error {
 		}
 	} else if cfg.Server.Enable {
 		go func() {
-			if err := server.New(intelStore, cfg, configPath).ListenAndServe(cfg.Server.Listen); err != nil {
+			srv := server.New(intelStore, cfg, configPath)
+			srv.SetStorageStats(q.Stats)
+			if err := srv.ListenAndServe(cfg.Server.Listen); err != nil {
 				log.Printf("intel api stopped: %v", err)
 			}
 		}()

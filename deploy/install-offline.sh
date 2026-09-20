@@ -35,6 +35,13 @@ sudo systemctl stop ta_node 2>/dev/null || true
 sudo cp "$BIN" /opt/ta_node/ta_node.new
 sudo chmod +x /opt/ta_node/ta_node.new
 sudo mv -f /opt/ta_node/ta_node.new /opt/ta_node/ta_node
+QUEUE_BIN="${BIN/ta_node/ta_queue}"
+if [ -f "$QUEUE_BIN" ]; then
+  sudo cp "$QUEUE_BIN" /opt/ta_node/ta_queue.new
+  sudo chmod +x /opt/ta_node/ta_queue.new
+  sudo mv -f /opt/ta_node/ta_queue.new /opt/ta_node/ta_queue
+fi
+
 
 # configs/ is operator-owned: settings the admin edits (interface, listen,
 # token, ...) plus runtime data the API/CLI/sync write to (intel.yaml,

@@ -2,6 +2,14 @@
 
 `ta_node` is a Go all-in-one traffic analysis node that combines packet capture, protocol parsing, payload fingerprint rules, threat-intel matching, local event durability, and management push.
 
+## Windows local testing and portable Linux deployment
+
+For native Windows testing without Docker and migration to Linux amd64/arm64,
+see [the portable deployment guide](deploy/portable/README.md).
+Run `scripts/build-portable.ps1` in PowerShell to build portable directories and
+Linux archives under `dist/`. Windows starts in config-only mode and supports
+offline PCAP replay; Linux also supports live AF_PACKET capture.
+
 ## Build
 
 ```bash
@@ -148,3 +156,12 @@ sudo systemctl restart ta_node
 The offline config is `configs/ta_node.offline.yaml`. It disables event push by default and binds the local config service to `127.0.0.1:19090`. For remote access to the config page, set a strong `server.token` and configure your firewall or reverse proxy explicitly.
 
 The default ARM offline build uses Linux AF_PACKET and does not use `-tags pcap`. In this mode, keep `capture.bpf_filter` empty. If BPF filter support is required, build a separate `-tags pcap` version and provide the target ARM libpcap development libraries. The pcap build is an optional advanced path and is not part of the default offline package.
+
+## Lossless queue storage
+
+New writes use content-addressed binary chunks and lossless compression. Existing
+JSON queue rows remain readable; public event JSON and context revisions are
+unchanged. Large historical databases are not rewritten or indexed at startup.
+See [storage v2 operations](docs/storage-v2-operations.md) before upgrading,
+migrating, enabling archives, or rolling back. The `ta_queue` command migrates a
+frozen database to a separate destination and can export legacy format.

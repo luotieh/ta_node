@@ -3,7 +3,6 @@ package correlation
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"net"
 	"sort"
@@ -391,11 +390,14 @@ func (t *Tracker) reviseTransaction(st *sessionState, tx *transactionState) []ev
 		return nil
 	}
 	var updates []event.ThreatEvent
+	sharedExchange := t.exchange(tx)
+	sharedSummary := t.summary(st)
 	for id, stored := range tx.events {
+		stored = cloneEvent(stored)
 		stored.ContextRevision++
 		stored.ContextFinal = tx.final
-		stored.Exchange = t.exchange(tx)
-		stored.SessionSummary = t.summary(st)
+		stored.Exchange = sharedExchange
+		stored.SessionSummary = sharedSummary
 		applyLegacyExchange(&stored, stored.Exchange)
 		tx.events[id] = cloneEvent(stored)
 		updates = append(updates, stored)
@@ -562,20 +564,31 @@ func applyLegacyExchange(ev *event.ThreatEvent, ex *event.ExchangeContext) {
 	}
 }
 
+// Internal events are immutable after publication. Copy only mutable wrappers;
+// strings and immutable application/IOC structures can be shared safely.
 func cloneEvent(in event.ThreatEvent) event.ThreatEvent {
-	var out event.ThreatEvent
-	b, _ := json.Marshal(in)
-	_ = json.Unmarshal(b, &out)
+	out := in
+	if in.RawPacket != nil {
+		raw := *in.RawPacket
+		out.RawPacket = &raw
+	}
+	out.Exchange = cloneExchange(in.Exchange)
+	out.SessionSummary = cloneSummary(in.SessionSummary)
 	return out
 }
-
 func cloneExchange(in *event.ExchangeContext) *event.ExchangeContext {
 	if in == nil {
 		return nil
 	}
-	var out event.ExchangeContext
-	b, _ := json.Marshal(in)
-	_ = json.Unmarshal(b, &out)
+	out := *in
+	if in.Request != nil {
+		side := *in.Request
+		out.Request = &side
+	}
+	if in.Response != nil {
+		side := *in.Response
+		out.Response = &side
+	}
 	return &out
 }
 

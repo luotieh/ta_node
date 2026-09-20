@@ -2,6 +2,7 @@ package server
 
 import (
 	"crypto/subtle"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -27,12 +28,20 @@ type Server struct {
 	mu           sync.RWMutex
 	mux          *http.ServeMux
 	syncOnceFunc func() (int, error)
+	storageStats func() (queue.StorageStats, error)
+	detailSlots  chan struct{}
 }
 
 func New(store *intel.Store, cfg config.Config, configPath string) *Server {
-	s := &Server{store: store, cfg: cfg, configPath: configPath, mux: http.NewServeMux()}
+	s := &Server{store: store, cfg: cfg, configPath: configPath, mux: http.NewServeMux(), detailSlots: make(chan struct{}, 2)}
 	s.routes()
 	return s
+}
+
+func (s *Server) SetStorageStats(fn func() (queue.StorageStats, error)) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.storageStats = fn
 }
 
 func (s *Server) SetIOCSyncer(syncer *iocsync.Syncer) {
@@ -53,6 +62,8 @@ func (s *Server) routes() {
 	s.mux.HandleFunc("/api/v1/config", s.handleConfig)
 	s.mux.HandleFunc("/api/v1/health", s.handleHealth)
 	s.mux.HandleFunc("/api/v1/push/logs", s.handlePushLogs)
+	s.mux.HandleFunc("/api/v1/push/event", s.handleEventDetail)
+	s.mux.HandleFunc("/api/v1/storage", s.handleStorageStats)
 	s.mux.HandleFunc("/api/v1/intel", s.handleIntel)
 	s.mux.HandleFunc("/api/v1/intel/", s.handleIntelID)
 	s.mux.HandleFunc("/api/v1/evidence/", s.handleEvidenceDownload)
@@ -82,6 +93,9 @@ func (s *Server) handleConfig(w http.ResponseWriter, r *http.Request) {
 		s.mu.RLock()
 		current := s.cfg
 		s.mu.RUnlock()
+		if req.Config.Storage == (config.StorageConfig{}) {
+			req.Config.Storage = current.Storage
+		}
 		if current.Node.APIKey != "" && req.Config.Node.APIKey == "" {
 			req.Config.Node.APIKey = current.Node.APIKey
 		}
@@ -316,12 +330,105 @@ func (s *Server) handlePushLogs(w http.ResponseWriter, r *http.Request) {
 	s.mu.RLock()
 	path := s.cfg.Event.QueueDB
 	s.mu.RUnlock()
-	logs, err := queue.RecentPushLogs(path, 50)
+	read := queue.RecentPushLogs
+	if r.URL.Query().Get("summary") == "1" {
+		read = queue.RecentPushSummaries
+	}
+	logs, err := read(path, 50)
 	if err != nil {
 		writeJSON(w, http.StatusOK, map[string]any{"items": []queue.PushLog{}, "error": err.Error()})
 		return
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"items": logs})
+}
+
+func (s *Server) handleStorageStats(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	if !s.authorized(r) {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+	s.mu.RLock()
+	fn := s.storageStats
+	s.mu.RUnlock()
+	if fn == nil {
+		writeJSON(w, http.StatusServiceUnavailable, map[string]any{"error": "storage metrics unavailable"})
+		return
+	}
+	stats, err := fn()
+	if err != nil {
+		writeJSON(w, 500, map[string]any{"error": err.Error()})
+		return
+	}
+	writeJSON(w, 200, stats)
+}
+func (s *Server) handleEventDetail(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	if !s.authorized(r) {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+	select {
+	case s.detailSlots <- struct{}{}:
+		defer func() { <-s.detailSlots }()
+	default:
+		writeJSON(w, 429, map[string]any{"error": "too many evidence reads"})
+		return
+	}
+	key := r.URL.Query().Get("event_id")
+	if key == "" || len(key) > 512 {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	revision, err := strconv.ParseUint(r.URL.Query().Get("revision"), 10, 64)
+	if err != nil && r.URL.Query().Get("revision") != "" {
+		w.WriteHeader(400)
+		return
+	}
+	if revision > 1 {
+		key += "@revision:" + strconv.FormatUint(revision, 10)
+	}
+	s.mu.RLock()
+	path := s.cfg.Event.QueueDB
+	s.mu.RUnlock()
+	if r.URL.Query().Get("offset") != "" {
+		offset, e := strconv.Atoi(r.URL.Query().Get("offset"))
+		length, e2 := strconv.Atoi(r.URL.Query().Get("length"))
+		if e != nil || e2 != nil || offset < 0 || length < 1 || length > 65536 {
+			w.WriteHeader(400)
+			return
+		}
+		part, e := queue.ReadPacketRange(path, key, offset, length)
+		if e != nil {
+			code := 500
+			if e == sql.ErrNoRows {
+				code = 404
+			}
+			if strings.Contains(e.Error(), "offset exceeds") || strings.Contains(e.Error(), "invalid range") {
+				code = 416
+			}
+			writeJSON(w, code, map[string]any{"error": e.Error()})
+			return
+		}
+		writeJSON(w, 200, part)
+		return
+	}
+	ev, err := queue.ReadEvent(path, key)
+	if err != nil {
+		code := 500
+		if err == sql.ErrNoRows {
+			code = 404
+		}
+		writeJSON(w, code, map[string]any{"error": err.Error()})
+		return
+	}
+	writeJSON(w, 200, ev)
 }
 
 func (s *Server) authorized(r *http.Request) bool {
@@ -904,6 +1011,16 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
         <div class="config-grid">
           <fieldset>
             <legend>事件队列</legend>
+            <div class="row"><label for="storage.backend">存储格式</label><select id="storage.backend"><option value="v2" {{if ne .Config.Storage.Backend "legacy"}}selected{{end}}>无损去重</option><option value="legacy" {{if eq .Config.Storage.Backend "legacy"}}selected{{end}}>旧版兼容</option></select></div>
+            <div class="row"><label for="storage.archive_dir">历史归档目录</label><input id="storage.archive_dir" value="{{.Config.Storage.ArchiveDir}}" placeholder="留空不启用归档"></div>
+            <div class="row"><label for="storage.archive_after_hours">成功事件本机保留（小时）</label><input id="storage.archive_after_hours" type="number" min="0" value="{{.Config.Storage.ArchiveAfterHours}}"></div>
+            <div class="row"><label for="storage.maintenance_interval_sec">归档检查间隔（秒）</label><input id="storage.maintenance_interval_sec" type="number" min="1" value="{{.Config.Storage.MaintenanceIntervalSec}}"></div>
+            <div class="row"><label for="storage.archive_batch_size">每次归档条数</label><input id="storage.archive_batch_size" type="number" min="1" max="1000" value="{{.Config.Storage.ArchiveBatchSize}}"></div>
+            <div class="row"><label for="storage.high_water_bytes">活动数据高水位（字节）</label><input id="storage.high_water_bytes" type="number" min="0" value="{{.Config.Storage.HighWaterBytes}}"></div>
+            <div class="row"><label for="storage.low_water_bytes">活动数据低水位（字节）</label><input id="storage.low_water_bytes" type="number" min="0" value="{{.Config.Storage.LowWaterBytes}}"></div>
+            <div class="row"><label for="storage.min_free_bytes">剩余空间警戒值（字节）</label><input id="storage.min_free_bytes" type="number" min="0" value="{{.Config.Storage.MinFreeBytes}}"></div>
+            <p class="muted">归档保留完整历史。请选择有充足容量的磁盘；归档不等于删除证据，待发和失败事件不会被清除。</p>
+
             <div class="row"><label for="event.queue_db">SQLite DB</label><input id="event.queue_db" value="{{.Config.Event.QueueDB}}"></div>
             <div class="row"><label for="event.local_hit_window_sec">本地命中窗口</label><input id="event.local_hit_window_sec" type="number" min="0" value="{{.Config.Event.LocalHitWindowSec}}"></div>
           </fieldset>
@@ -952,6 +1069,7 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
       "intel.intel_file", "intel.reload_interval_sec", "intel.enable_hot_reload", "intel.prune_expired_interval_sec", "intel.accept_stix", "intel.default_source", "intel.max_items",
       "intel.enable_ioc_sync", "intel.ioc_sync_dir", "intel.ioc_sync_dir2", "intel.ioc_sync_interval_min", "intel.ioc_sync_retain_days",
       "evidence.enable_pcap_save", "evidence.pcap_dir",
+      "storage.backend", "storage.archive_dir", "storage.archive_after_hours", "storage.maintenance_interval_sec", "storage.archive_batch_size", "storage.high_water_bytes", "storage.low_water_bytes", "storage.min_free_bytes",
       "event.enable_push", "event.queue_db", "event.push_batch_size", "event.retry_interval_sec", "event.push_timeout_sec", "event.max_push_retry", "event.local_hit_window_sec",
       "flow.max_flows", "flow.idle_timeout_sec", "flow.cleanup_interval_sec",
       "aggregation.mode", "aggregation.enable_transaction_link", "aggregation.response_wait_sec", "aggregation.max_sessions",
@@ -1147,10 +1265,25 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
     }
     function bindPacketToggles() {
       document.querySelectorAll(".packet-toggle").forEach((button) => {
-        button.addEventListener("click", () => {
+        button.addEventListener("click", async () => {
           const detail = document.getElementById(button.dataset.target);
           if (!detail) return;
           const opening = detail.hidden;
+          if (opening && detail.dataset.eventId && !detail.dataset.loaded) {
+            button.disabled = true;
+            try {
+              const query = new URLSearchParams({event_id: detail.dataset.eventId, revision: detail.dataset.revision});
+              const res = await fetch("/api/v1/push/event?" + query, {headers: authHeaders({})});
+              const item = await res.json();
+              if (!res.ok) throw new Error(item.error || res.statusText);
+              detail.querySelector("td").innerHTML = packetDetailHTML(item, detail.id);
+              detail.dataset.loaded = "1";
+              bindPacketTabs();
+            } catch (err) {
+              detail.querySelector("td").textContent = "读取报文失败：" + err.message;
+            } finally {button.disabled = false;}
+          }
+
           detail.hidden = !opening;
           button.textContent = opening ? "▼" : "▶";
           button.setAttribute("aria-expanded", String(opening));
@@ -1181,7 +1314,7 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
       const logStatus = document.getElementById("pushLogStatus");
       logStatus.textContent = "正在读取推送日志...";
       try {
-        const res = await fetch("/api/v1/push/logs");
+        const res = await fetch("/api/v1/push/logs?summary=1");
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || res.statusText);
         const items = data.items || [];
@@ -1211,7 +1344,7 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
               '<td>' + escapeText(formatTime(item.updated_at)) + '</td>' +
               '<td>' + escapeText(item.last_error || "") + '</td>' +
             '</tr>' +
-            '<tr id="' + detailID + '" class="packet-detail-row" hidden><td colspan="9">' + packetDetailHTML(item, detailID) + '</td></tr>';
+            '<tr id="' + detailID + '" data-event-id="' + escapeText(item.event_id) + '" data-revision="' + escapeText(item.context_revision || 1) + '" class="packet-detail-row" hidden><td colspan="9">展开后读取完整报文</td></tr>';
           }).join("");
           bindPacketToggles();
           bindPacketTabs();

@@ -81,3 +81,14 @@ server:
   enable: true
   listen: "127.0.0.1:19090"
   token: "CHANGE_ME_TO_A_RANDOM_TOKEN"
+
+# Lossless internal storage. All event revisions and public JSON remain intact.
+storage:
+  backend: "v2"                    # legacy remains available for compatibility
+  archive_dir: ""                  # configure a capacity-provisioned archive volume
+  archive_after_hours: 24           # acknowledged records only; archive retains history
+  maintenance_interval_sec: 60
+  archive_batch_size: 100
+  high_water_bytes: 0               # provision from actual disk capacity; 0 disables
+  low_water_bytes: 0
+  min_free_bytes: 0                 # capacity warning threshold; never silently drops events

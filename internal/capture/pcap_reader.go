@@ -3,15 +3,17 @@ package capture
 import (
 	"io"
 	"os"
+	"sync"
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/pcapgo"
 )
 
 type PCAPReader struct {
-	file   *os.File
-	reader *pcapgo.Reader
-	out    chan gopacket.Packet
+	file      *os.File
+	reader    *pcapgo.Reader
+	out       chan gopacket.Packet
+	closeOnce sync.Once
 }
 
 func NewPCAPReader(path, bpf string) (*PCAPReader, error) {
@@ -30,6 +32,7 @@ func NewPCAPReader(path, bpf string) (*PCAPReader, error) {
 }
 
 func (r *PCAPReader) readLoop() {
+	defer r.closeFile()
 	defer close(r.out)
 	for {
 		data, ci, err := r.reader.ReadPacketData()
@@ -47,4 +50,15 @@ func (r *PCAPReader) readLoop() {
 
 func (r *PCAPReader) Packets() <-chan gopacket.Packet { return r.out }
 
-func (r *PCAPReader) Close() { _ = r.file.Close() }
+func (r *PCAPReader) Close() {
+	r.closeOnce.Do(func() {
+		r.closeFile()
+	})
+}
+
+func (r *PCAPReader) closeFile() {
+	if r.file != nil {
+		_ = r.file.Close()
+		r.file = nil
+	}
+}
