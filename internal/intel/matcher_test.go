@@ -82,3 +82,29 @@ func TestMatcherMatchesSNI(t *testing.T) {
 		t.Fatalf("SNI non-match: want 0 hits, got %d", len(hits))
 	}
 }
+
+func TestIntelMatcherSkipsLoopbackAndUnspecifiedIPs(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "intel.yaml")
+	if err := SaveFile(path, []ThreatIntel{
+		{ID: "loopback", Type: "ip", Value: "127.0.0.1", Category: "c2", Severity: "high", Enabled: true},
+		{ID: "unspecified", Type: "ip", Value: "0.0.0.0", Category: "c2", Severity: "high", Enabled: true},
+		{ID: "loopback6", Type: "ip", Value: "::1", Category: "c2", Severity: "high", Enabled: true},
+		{ID: "legit", Type: "ip", Value: "1.2.3.4", Category: "c2", Severity: "high", Enabled: true},
+	}); err != nil {
+		t.Fatal(err)
+	}
+	store, err := NewStore(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	m := NewMatcher(store)
+	pf := parser.PacketFeature{
+		SrcIP:      "127.0.0.1",
+		DstIP:      "1.2.3.4",
+		DNSAnswers: []string{"0.0.0.0", "::1"},
+	}
+	hits := m.MatchPacket(pf)
+	if len(hits) != 1 || hits[0].ID != "legit" {
+		t.Fatalf("expected only the routable IOC to match, got %#v", hits)
+	}
+}

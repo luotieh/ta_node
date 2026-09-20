@@ -1261,46 +1261,6 @@ items:
         tlp: white
         misp_event_id: 6a5e7a9d5abc92aab562f131
         narrative: 检测到针对以色列目标的DNS隧道活动，IOC q.cloudlanecdn.com被标记为HOLLOWGRAPH入侵，利用Microsoft Graph API滥用日历构建立隐蔽C2信道，可能与伊朗相关（置信度高，来源OTX）。建议立即阻断该域名解析，排查环境中异常日历权限及Graph API调用。
-    - id: d1969f5a4933b9ac42650f5bddd4a7db03116c99c9114ba234649aa2d8064f50
-      type: ip
-      value: 127.0.0.1
-      category: c2
-      severity: high
-      source: Threat Intel Hub
-      description: '[DNS解析自 sonra.eutialyson.com] 命中威胁: Potemkin Loader & RMMProject The Anatomy of a ClickFix Attack | 关联: rmmproject, blockchain c2, chisel, etherrat, credential theft, clickfix | 来源: otx · 置信: high (1 source) | TLP:WHITE'
-      tags:
-        - source:otx
-        - tlp:white
-        - otx:tag="rmmproject"
-        - otx:tag="blockchain c2"
-        - otx:tag="chisel"
-        - otx:tag="etherrat"
-        - otx:tag="credential theft"
-        - otx:tag="clickfix"
-        - otx:tag="dga"
-        - otx:tag="lateral movement"
-        - otx:tag="hidden desktop"
-        - otx:tag="potemkin"
-        - dns_resolved_from:sonra.eutialyson.com
-      enabled: true
-      created_at: 1784872448
-      updated_at: 1785119525
-      recommended_action: block_and_report
-      evidence:
-        activity: Potemkin Loader & RMMProject The Anatomy of a ClickFix Attack
-        threat_labels:
-            - rmmproject
-            - blockchain c2
-            - chisel
-            - etherrat
-            - credential theft
-            - clickfix
-            - dga
-            - lateral movement
-        source: otx
-        confidence: high (1 source)
-        tlp: white
-        misp_event_id: 6a315d670f9460fe003298a8
     - id: otx-6a5dec09c0c4b7d2a00d7b2c-4456404123
       type: url
       value: http://viuyeyrwqs.gu.cc

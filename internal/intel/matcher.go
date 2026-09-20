@@ -45,12 +45,17 @@ func (m *Matcher) MatchPacket(pf parser.PacketFeature) []ThreatIntel {
 	ips := append([]string{pf.SrcIP, pf.DstIP}, pf.DNSAnswers...)
 	m.mu.RLock()
 	for _, ip := range ips {
-		for _, it := range m.ipSet[canonicalIP(ip)] {
-			addHit(it)
-		}
 		parsed := net.ParseIP(ip)
 		if parsed == nil {
 			continue
+		}
+		// Loopback and unspecified endpoints (including DNS sinkhole answers
+		// such as 127.0.0.1 or 0.0.0.0) must never match IP IOCs.
+		if parsed.IsLoopback() || parsed.IsUnspecified() {
+			continue
+		}
+		for _, it := range m.ipSet[canonicalIP(ip)] {
+			addHit(it)
 		}
 		for _, cidr := range m.cidrs {
 			if cidr.Network.Contains(parsed) {
