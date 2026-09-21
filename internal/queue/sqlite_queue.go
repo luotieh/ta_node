@@ -197,26 +197,43 @@ func registerRoot(tx *sql.Tx, key, payload string) error {
 	return err
 }
 
-// PendingIDs returns lightweight descriptors; only one complete event is restored
-// at a time by the production push worker.
-func (q *SQLiteQueue) PendingIDs(limit int) ([]int64, error) {
+type pendingEntry struct {
+	id      int64
+	created int64
+}
+
+func (q *SQLiteQueue) pendingEntries(limit int) ([]pendingEntry, error) {
 	if limit <= 0 {
 		limit = 100
 	}
-	rows, err := q.db.Query(`SELECT id FROM event_queue WHERE status IN (0,3) AND (?<=0 OR retry_count<?) ORDER BY id LIMIT ?`, q.maxRetry, q.maxRetry, limit)
+	rows, err := q.db.Query(`SELECT id,COALESCE(created_at,0) FROM event_queue WHERE status IN (0,3) AND (?<=0 OR retry_count<?) ORDER BY id LIMIT ?`, q.maxRetry, q.maxRetry, limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var ids []int64
+	var out []pendingEntry
 	for rows.Next() {
-		var id int64
-		if err = rows.Scan(&id); err != nil {
+		var e pendingEntry
+		if err = rows.Scan(&e.id, &e.created); err != nil {
 			return nil, err
 		}
-		ids = append(ids, id)
+		out = append(out, e)
 	}
-	return ids, rows.Err()
+	return out, rows.Err()
+}
+
+// PendingIDs returns lightweight descriptors; only one complete event is restored
+// at a time by the production push worker.
+func (q *SQLiteQueue) PendingIDs(limit int) ([]int64, error) {
+	entries, err := q.pendingEntries(limit)
+	if err != nil {
+		return nil, err
+	}
+	ids := make([]int64, len(entries))
+	for i, e := range entries {
+		ids[i] = e.id
+	}
+	return ids, nil
 }
 func (q *SQLiteQueue) LoadEvent(id int64) (event.ThreatEvent, error) {
 	var ev event.ThreatEvent

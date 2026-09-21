@@ -388,6 +388,8 @@ type StorageStats struct {
 	AvailableBytes  uint64 `json:"available_bytes"`
 	ArchiveSegments int    `json:"archive_segments"`
 	Backend         string `json:"backend"`
+	// Shards is the number of queue databases writes are distributed across.
+	Shards int `json:"shards,omitempty"`
 }
 
 func (q *SQLiteQueue) Stats() (StorageStats, error) {

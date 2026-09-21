@@ -158,7 +158,26 @@ func rangeFromPayload(db sqlReader, payload string, offset, length int) (PacketR
 	out.PacketHex = hex.EncodeToString(data[offset:end])
 	return out, nil
 }
+
+// ReadPacketRange locates the event in whichever shard holds it; pre-sharding
+// rows live in the base file, so every shard file is tried in turn.
 func ReadPacketRange(path, key string, offset, length int) (PacketRange, error) {
+	var last error
+	for _, p := range shardPaths(path) {
+		result, err := readPacketRangeOne(p, key, offset, length)
+		if isMissing(err) {
+			last = err
+			continue
+		}
+		return result, err
+	}
+	if last != nil {
+		return PacketRange{}, last
+	}
+	return PacketRange{}, sql.ErrNoRows
+}
+
+func readPacketRangeOne(path, key string, offset, length int) (PacketRange, error) {
 	if offset < 0 || length < 1 || length > 65536 || offset > int(^uint(0)>>1)-length {
 		return PacketRange{}, fmt.Errorf("invalid range")
 	}

@@ -15,9 +15,18 @@ type MaintenanceOptions struct {
 	MinFree             uint64
 }
 
+// MaintenanceTarget is the storage surface Maintain drives; both the
+// single-file SQLiteQueue and the hash-sharded ShardedQueue implement it.
+type MaintenanceTarget interface {
+	RecoverArchives() error
+	Stats() (StorageStats, error)
+	Archive(ctx context.Context, dir string, before time.Time, limit int) (int, error)
+	Collect(limit int) (int, error)
+}
+
 // Maintain never drops data. Capacity alerts require operational action when
 // pending traffic or an unavailable archive prevents safe reclamation.
-func Maintain(ctx context.Context, q *SQLiteQueue, o MaintenanceOptions) {
+func Maintain(ctx context.Context, q MaintenanceTarget, o MaintenanceOptions) {
 	if o.Interval <= 0 {
 		o.Interval = time.Minute
 	}

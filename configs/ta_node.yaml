@@ -94,6 +94,7 @@ server:
 
 # Lossless internal storage. All event revisions and public JSON remain intact.
 storage:
+  shards: 4                        # hash-routed concurrent queue databases; 1 disables
   backend: "v2"                    # legacy remains available for compatibility
   archive_dir: ""                  # configure a capacity-provisioned archive volume
   archive_after_hours: 24           # acknowledged records only; archive retains history

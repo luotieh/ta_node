@@ -69,7 +69,7 @@ func runNode(cfg config.Config, configPath string) error {
 	if err := cfg.Storage.Validate(); err != nil {
 		return err
 	}
-	q, err := queue.OpenSQLite(cfg.Event.QueueDB, cfg.Storage.Backend)
+	q, err := queue.Open(cfg.Event.QueueDB, cfg.Storage.Backend, cfg.Storage.Shards)
 	if err != nil {
 		return fmt.Errorf("open event queue: %w", err)
 	}
@@ -87,7 +87,7 @@ func runNode(cfg config.Config, configPath string) error {
 		queue.Maintain(ctx, q, queue.MaintenanceOptions{ArchiveDir: cfg.Storage.ArchiveDir, After: time.Duration(cfg.Storage.ArchiveAfterHours) * time.Hour, Interval: time.Duration(cfg.Storage.MaintenanceIntervalSec) * time.Second, Batch: cfg.Storage.ArchiveBatchSize, HighWater: cfg.Storage.HighWaterBytes, LowWater: cfg.Storage.LowWaterBytes, MinFree: cfg.Storage.MinFreeBytes})
 	}()
 	defer func() { stop(); <-maintenanceDone }()
-	log.Printf("queue storage backend=%s archive=%q", cfg.Storage.Backend, cfg.Storage.ArchiveDir)
+	log.Printf("queue storage backend=%s archive=%q shards=%d", cfg.Storage.Backend, cfg.Storage.ArchiveDir, max(1, cfg.Storage.Shards))
 
 	client := push.NewClient(cfg.Node.ManagementURL, cfg.Node.APIKey, cfg.PushTimeout())
 	if cfg.Event.EnablePush {

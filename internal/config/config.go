@@ -34,6 +34,9 @@ type StorageConfig struct {
 	HighWaterBytes         int64  `json:"high_water_bytes" yaml:"high_water_bytes"`
 	LowWaterBytes          int64  `json:"low_water_bytes" yaml:"low_water_bytes"`
 	MinFreeBytes           uint64 `json:"min_free_bytes" yaml:"min_free_bytes"`
+	// Shards distributes queue writes across N hash-routed databases for
+	// concurrent storage. 0 or 1 keeps the single-file layout.
+	Shards int `json:"shards" yaml:"shards"`
 }
 
 func (s StorageConfig) Validate() error {
@@ -42,6 +45,9 @@ func (s StorageConfig) Validate() error {
 	}
 	if s.ArchiveAfterHours < 0 || s.MaintenanceIntervalSec < 0 || s.ArchiveBatchSize < 0 || s.ArchiveBatchSize > 1000 || s.HighWaterBytes < 0 || s.LowWaterBytes < 0 {
 		return fmt.Errorf("invalid storage limit")
+	}
+	if s.Shards < 0 || s.Shards > 64 {
+		return fmt.Errorf("storage.shards must be between 0 (single file) and 64")
 	}
 	if s.HighWaterBytes > 0 && s.LowWaterBytes >= s.HighWaterBytes {
 		return fmt.Errorf("storage.low_water_bytes must be smaller than high_water_bytes")
@@ -152,7 +158,7 @@ type ServerConfig struct {
 
 func Default() Config {
 	return Config{
-		Storage: StorageConfig{Backend: "v2", ArchiveAfterHours: 24, MaintenanceIntervalSec: 60, ArchiveBatchSize: 100},
+		Storage: StorageConfig{Backend: "v2", ArchiveAfterHours: 24, MaintenanceIntervalSec: 60, ArchiveBatchSize: 100, Shards: 1},
 		Node:    NodeConfig{DeviceID: "node-001", ManagementURL: "http://127.0.0.1:8080/api/events"},
 		Capture: CaptureConfig{
 			Interface:   "eth0",

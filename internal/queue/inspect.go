@@ -3,6 +3,7 @@ package queue
 import (
 	"encoding/json"
 	"os"
+	"sort"
 	"time"
 
 	_ "modernc.org/sqlite"
@@ -53,9 +54,24 @@ func recentPushLogs(path string, limit int, summary bool) ([]PushLog, error) {
 	if _, err := os.Stat(path); err != nil {
 		return nil, err
 	}
-	records, err := recentRecords(path, limit*4, summary)
-	if err != nil {
-		return nil, err
+	var records []record
+	for _, p := range shardPaths(path) {
+		recs, err := recentRecords(p, limit*4, summary)
+		if err != nil {
+			return nil, err
+		}
+		records = append(records, recs...)
+	}
+	// Merge shard results newest-first; updated_at tracks the latest push
+	// attempt, so the most recent revision of each event sorts first.
+	sort.Slice(records, func(i, j int) bool {
+		if records[i].Updated != records[j].Updated {
+			return records[i].Updated > records[j].Updated
+		}
+		return records[i].Created > records[j].Created
+	})
+	if len(records) > limit*4 {
+		records = records[:limit*4]
 	}
 	var logs []PushLog
 	seen := map[string]bool{}
