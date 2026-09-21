@@ -98,6 +98,7 @@ func (q *SQLiteQueue) init() error {
 	}
 	_, err = q.db.Exec(`
  PRAGMA busy_timeout=5000;
+ PRAGMA journal_mode=WAL;
  CREATE TABLE IF NOT EXISTS queue_content(hash TEXT PRIMARY KEY,codec INTEGER NOT NULL,size INTEGER NOT NULL,data BLOB NOT NULL);
  CREATE TABLE IF NOT EXISTS queue_edges(parent TEXT NOT NULL,child TEXT NOT NULL,PRIMARY KEY(parent,child));
  CREATE INDEX IF NOT EXISTS queue_edges_child ON queue_edges(child);

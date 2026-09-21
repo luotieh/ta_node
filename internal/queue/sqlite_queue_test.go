@@ -189,3 +189,20 @@ func TestPushStatusName(t *testing.T) {
 		t.Errorf("status 99 = %q, want unknown", name)
 	}
 }
+
+func TestSQLiteQueueEnablesWAL(t *testing.T) {
+	q, err := NewSQLite(filepath.Join(t.TempDir(), "queue.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer q.Close()
+	var mode string
+	if err := q.db.QueryRow("PRAGMA journal_mode").Scan(&mode); err != nil {
+		t.Fatal(err)
+	}
+	// WAL keeps read-only API readers and the maintenance worker from blocking
+	// event enqueue with SQLITE_BUSY under concurrent load.
+	if mode != "wal" {
+		t.Fatalf("journal_mode = %s, want wal", mode)
+	}
+}
