@@ -3,7 +3,7 @@ module ta_node
 go 1.22
 
 require (
-	github.com/google/gopacket v1.1.19
+	github.com/google/gopacket v1.1.20-0.20250319234736-b7d9dbd15ae4
 	github.com/google/uuid v1.6.0
 	golang.org/x/sys v0.22.0
 	gopkg.in/yaml.v3 v3.0.1
