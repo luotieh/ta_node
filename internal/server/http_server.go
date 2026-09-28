@@ -62,6 +62,8 @@ func (s *Server) routes() {
 	s.mux.HandleFunc("/api/v1/config", s.handleConfig)
 	s.mux.HandleFunc("/api/v1/health", s.handleHealth)
 	s.mux.HandleFunc("/api/v1/push/logs", s.handlePushLogs)
+	s.mux.HandleFunc("/api/v1/push/requeue", s.handlePushRequeue)
+	s.mux.HandleFunc("/api/v1/push/delete", s.handlePushDelete)
 	s.mux.HandleFunc("/api/v1/push/event", s.handleEventDetail)
 	s.mux.HandleFunc("/api/v1/storage", s.handleStorageStats)
 	s.mux.HandleFunc("/api/v1/intel", s.handleIntel)
@@ -330,6 +332,23 @@ func (s *Server) handlePushLogs(w http.ResponseWriter, r *http.Request) {
 	s.mu.RLock()
 	path := s.cfg.Event.QueueDB
 	s.mu.RUnlock()
+	params := r.URL.Query()
+	if params.Get("offset") != "" || params.Get("limit") != "" || params.Get("status") != "" || params.Get("q") != "" {
+		offset, _ := strconv.Atoi(params.Get("offset"))
+		limit, _ := strconv.Atoi(params.Get("limit"))
+		logs, hasMore, err := queue.ListPushLogs(path, queue.PushLogQuery{
+			Offset: offset,
+			Limit:  limit,
+			Status: params.Get("status"),
+			Search: params.Get("q"),
+		})
+		if err != nil {
+			writeJSON(w, http.StatusOK, map[string]any{"items": []queue.PushLog{}, "error": err.Error()})
+			return
+		}
+		writeJSON(w, http.StatusOK, map[string]any{"items": logs, "offset": offset, "limit": limit, "has_more": hasMore})
+		return
+	}
 	read := queue.RecentPushLogs
 	if r.URL.Query().Get("summary") == "1" {
 		read = queue.RecentPushSummaries
@@ -340,6 +359,52 @@ func (s *Server) handlePushLogs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"items": logs})
+}
+
+func (s *Server) handlePushRequeue(w http.ResponseWriter, r *http.Request) {
+	s.mutatePushEvent(w, r, queue.RequeueEvent, "requeued")
+}
+
+func (s *Server) handlePushDelete(w http.ResponseWriter, r *http.Request) {
+	s.mutatePushEvent(w, r, queue.DeleteEvent, "deleted")
+}
+
+// mutatePushEvent applies a queue mutation (requeue/delete) to every context
+// revision of one event in the active shard databases.
+func (s *Server) mutatePushEvent(w http.ResponseWriter, r *http.Request, op func(string, string) (int64, error), resultKey string) {
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	if !s.authorized(r) {
+		writeJSON(w, http.StatusUnauthorized, map[string]any{"success": false, "error": "unauthorized"})
+		return
+	}
+	var req struct {
+		EventID string `json:"event_id"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]any{"success": false, "error": err.Error()})
+		return
+	}
+	req.EventID = strings.TrimSpace(req.EventID)
+	if req.EventID == "" || len(req.EventID) > 512 {
+		writeJSON(w, http.StatusBadRequest, map[string]any{"success": false, "error": "invalid event_id"})
+		return
+	}
+	s.mu.RLock()
+	path := s.cfg.Event.QueueDB
+	s.mu.RUnlock()
+	n, err := op(path, req.EventID)
+	if err != nil {
+		code := http.StatusInternalServerError
+		if err == sql.ErrNoRows {
+			code = http.StatusNotFound
+		}
+		writeJSON(w, code, map[string]any{"success": false, "error": err.Error()})
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"success": true, resultKey: n})
 }
 
 func (s *Server) handleStorageStats(w http.ResponseWriter, r *http.Request) {
@@ -653,6 +718,11 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
       justify-content: space-between;
       margin-bottom: 10px;
     }
+    .push-filters { display: flex; gap: 10px; align-items: center; }
+    .push-filters select, .push-filters input { width: auto; min-width: 170px; }
+    .push-pager { justify-content: center; gap: 12px; }
+    .push-actions { white-space: nowrap; }
+    .push-action { padding: 3px 9px; font-size: 12px; margin-right: 6px; }
     .muted { color: var(--muted); }
     .badge {
       display: inline-block;
@@ -888,7 +958,21 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
         <legend>告警事件与会话证据</legend>
         <div class="toolbar">
           <div id="pushLogStatus" class="muted">最近 50 条告警及上下文状态</div>
-          <button class="secondary" type="button" id="refreshPushLogsBtn">刷新告警</button>
+          <div class="push-filters">
+            <select id="pushLogStatusFilter" aria-label="状态筛选">
+              <option value="" selected>全部状态</option>
+              <option value="pending">待上报</option>
+              <option value="pushed">已上报</option>
+              <option value="failed">上报失败</option>
+            </select>
+            <input id="pushLogSearch" type="search" placeholder="搜索事件ID / IOC / IP（回车查询）">
+            <button class="secondary" type="button" id="refreshPushLogsBtn">刷新告警</button>
+          </div>
+        </div>
+        <div class="toolbar push-pager">
+          <button class="secondary" type="button" id="pushLogPrevBtn" disabled>上一页</button>
+          <span id="pushLogPageInfo" class="muted">第 1 页</span>
+          <button class="secondary" type="button" id="pushLogNextBtn" disabled>下一页</button>
         </div>
         <div class="table-wrap">
           <table>
@@ -903,10 +987,11 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
                 <th>重试</th>
                 <th>最近推送</th>
                 <th>错误</th>
+                <th>操作</th>
               </tr>
             </thead>
             <tbody id="pushLogRows">
-              <tr><td colspan="9" class="muted">暂无数据</td></tr>
+              <tr><td colspan="10" class="muted">暂无数据</td></tr>
             </tbody>
           </table>
         </div>
@@ -1309,19 +1394,26 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
         });
       });
     }
+    let pushLogPage = 0;
+    const pushLogPageSize = 50;
     async function loadPushLogs() {
       const rowsEl = document.getElementById("pushLogRows");
       const logStatus = document.getElementById("pushLogStatus");
+      const statusFilter = document.getElementById("pushLogStatusFilter").value;
+      const keyword = document.getElementById("pushLogSearch").value.trim();
       logStatus.textContent = "正在读取推送日志...";
       try {
-        const res = await fetch("/api/v1/push/logs?summary=1");
+        const params = new URLSearchParams({offset: String(pushLogPage * pushLogPageSize), limit: String(pushLogPageSize)});
+        if (statusFilter) params.set("status", statusFilter);
+        if (keyword) params.set("q", keyword);
+        const res = await fetch("/api/v1/push/logs?" + params.toString());
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || res.statusText);
         const items = data.items || [];
         document.getElementById("overviewAlertCount").textContent = items.length + " 条";
         document.getElementById("overviewPendingCount").textContent = items.filter((item) => item.status === "pending" || item.status === "failed").length + " 条";
         if (items.length === 0) {
-          rowsEl.innerHTML = '<tr><td colspan="9" class="muted">暂无数据</td></tr>';
+          rowsEl.innerHTML = '<tr><td colspan="10" class="muted">暂无数据</td></tr>';
         } else {
           rowsEl.innerHTML = items.map((item, index) => {
             const rule = [item.ioc_type, item.ioc_value].filter(Boolean).join(": ") || item.event_name || item.event_id || "";
@@ -1332,6 +1424,9 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
             const hasPacket = Boolean(item.raw_packet || item.exchange);
             const contextLabel = item.context_final ? "上下文完成" : (item.exchange?.response_status === "pending" ? "等待响应" : "逐包事件");
             const contextClass = item.context_final ? "complete" : "pending";
+            const actions =
+              (item.status === "failed" ? '<button type="button" class="secondary push-action" data-action="requeue" data-event="' + escapeText(item.event_id) + '">重推</button>' : "") +
+              '<button type="button" class="secondary push-action" data-action="delete" data-event="' + escapeText(item.event_id) + '">删除</button>';
             return '<tr>' +
               '<td><button type="button" class="packet-toggle" data-target="' + detailID + '"' +
                 (hasPacket ? ' title="展开原始报文" aria-expanded="false">▶' : ' title="无原始报文" disabled>▷') + '</button></td>' +
@@ -1343,20 +1438,60 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
               '<td>' + escapeText(item.retry_count) + '</td>' +
               '<td>' + escapeText(formatTime(item.updated_at)) + '</td>' +
               '<td>' + escapeText(item.last_error || "") + '</td>' +
+              '<td class="push-actions">' + actions + '</td>' +
             '</tr>' +
-            '<tr id="' + detailID + '" data-event-id="' + escapeText(item.event_id) + '" data-revision="' + escapeText(item.context_revision || 1) + '" class="packet-detail-row" hidden><td colspan="9">展开后读取完整报文</td></tr>';
+            '<tr id="' + detailID + '" data-event-id="' + escapeText(item.event_id) + '" data-revision="' + escapeText(item.context_revision || 1) + '" class="packet-detail-row" hidden><td colspan="10">展开后读取完整报文</td></tr>';
           }).join("");
           bindPacketToggles();
           bindPacketTabs();
         }
-        logStatus.textContent = data.error ? ("读取队列失败：" + data.error) : "最近 50 条告警及最新上下文 revision";
+        document.getElementById("pushLogPrevBtn").disabled = pushLogPage === 0;
+        document.getElementById("pushLogNextBtn").disabled = !data.has_more;
+        document.getElementById("pushLogPageInfo").textContent = "第 " + (pushLogPage + 1) + " 页";
+        if (data.error) {
+          logStatus.textContent = "读取队列失败：" + data.error;
+        } else {
+          const filterNote = (statusFilter || keyword) ? "已筛选 · " : "";
+          logStatus.textContent = filterNote + "第 " + (pushLogPage + 1) + " 页 · 每页 " + pushLogPageSize + " 条告警（最新上下文 revision）";
+        }
       } catch (err) {
-        rowsEl.innerHTML = '<tr><td colspan="9" class="muted">读取失败</td></tr>';
+        rowsEl.innerHTML = '<tr><td colspan="10" class="muted">读取失败</td></tr>';
         logStatus.textContent = "读取推送日志失败：" + err.message;
         document.getElementById("overviewAlertCount").textContent = "读取失败";
         document.getElementById("overviewPendingCount").textContent = "读取失败";
       }
     }
+    async function pushLogAction(eventID, action) {
+      const logStatus = document.getElementById("pushLogStatus");
+      if (!eventID || (action !== "requeue" && action !== "delete")) return;
+      if (action === "delete") {
+        if (!confirm("删除事件 " + eventID + " 及其所有 revision？删除后不再上报，且不可恢复。")) return;
+      } else if (!confirm("将事件 " + eventID + " 的所有 revision 重置为待上报并重新推送？")) return;
+      try {
+        const res = await fetch("/api/v1/push/" + action, {
+          method: "POST",
+          headers: authHeaders({"Content-Type": "application/json"}),
+          body: JSON.stringify({event_id: eventID})
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || res.statusText);
+        logStatus.textContent = (action === "requeue" ? "已重新入队 " : "已删除 ") + eventID;
+        loadPushLogs();
+      } catch (err) {
+        logStatus.textContent = "操作失败：" + err.message;
+      }
+    }
+    document.getElementById("pushLogRows").addEventListener("click", (ev) => {
+      const btn = ev.target.closest("button.push-action");
+      if (!btn) return;
+      pushLogAction(btn.dataset.event || "", btn.dataset.action);
+    });
+    document.getElementById("pushLogStatusFilter").addEventListener("change", () => { pushLogPage = 0; loadPushLogs(); });
+    document.getElementById("pushLogSearch").addEventListener("keydown", (ev) => {
+      if (ev.key === "Enter") { ev.preventDefault(); pushLogPage = 0; loadPushLogs(); }
+    });
+    document.getElementById("pushLogPrevBtn").addEventListener("click", () => { if (pushLogPage > 0) { pushLogPage--; loadPushLogs(); } });
+    document.getElementById("pushLogNextBtn").addEventListener("click", () => { pushLogPage++; loadPushLogs(); });
     document.getElementById("configForm").addEventListener("submit", async (event) => {
       event.preventDefault();
       setStatus("正在保存...", "");

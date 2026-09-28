@@ -76,6 +76,9 @@ type CaptureConfig struct {
 	BPFFilter   string `json:"bpf_filter" yaml:"bpf_filter"`
 	Snaplen     int32  `json:"snaplen" yaml:"snaplen"`
 	Promiscuous bool   `json:"promiscuous" yaml:"promiscuous"`
+	// Workers is the packet-processing worker count. 0 uses all CPUs; 1
+	// reproduces the legacy single-goroutine serial loop.
+	Workers int `json:"workers" yaml:"workers"`
 }
 
 type PatternConfig struct {

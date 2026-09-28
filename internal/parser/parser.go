@@ -3,6 +3,7 @@ package parser
 import (
 	"bytes"
 	"encoding/hex"
+	"fmt"
 	"net"
 	"strconv"
 	"strings"
@@ -71,9 +72,17 @@ type PacketFeature struct {
 	Packet           gopacket.Packet
 }
 
-func Parse(packet gopacket.Packet) (PacketFeature, error) {
+func Parse(packet gopacket.Packet) (pf PacketFeature, err error) {
+	// Third-party layer decoders run on attacker-controlled bytes; a decoder
+	// bug must drop one packet, never crash the node.
+	defer func() {
+		if r := recover(); r != nil {
+			pf = PacketFeature{}
+			err = fmt.Errorf("decode panic: %v", r)
+		}
+	}()
 	raw := packet.Data()
-	pf := PacketFeature{
+	pf = PacketFeature{
 		Packet:      packet,
 		RawPacket:   raw,
 		CapturedLen: uint32(len(raw)),

@@ -26,6 +26,11 @@ func saveSummary(tx *sql.Tx, key string, ev event.ThreatEvent) error {
 	_, err = tx.Exec("INSERT OR REPLACE INTO queue_summary(event_id,payload) VALUES(?,?)", key, string(b))
 	return err
 }
+
+// summaryPayloadExpr resolves the compact summary JSON for a queue row when
+// the queue_summary table is available, falling back to the stored payload.
+const summaryPayloadExpr = "COALESCE((SELECT s.payload FROM queue_summary s WHERE s.event_id=event_queue.event_id),payload)"
+
 func summaryColumns(tx *sql.Tx, summary bool) (string, error) {
 	if !summary {
 		return recordColumns, nil
@@ -37,5 +42,5 @@ func summaryColumns(tx *sql.Tx, summary bool) (string, error) {
 	if exists == 0 {
 		return recordColumns, nil
 	}
-	return "id,event_id,event_time,COALESCE((SELECT s.payload FROM queue_summary s WHERE s.event_id=event_queue.event_id),payload),status,retry_count,COALESCE(last_error,''),COALESCE(created_at,0),COALESCE(updated_at,0)", nil
+	return "id,event_id,event_time," + summaryPayloadExpr + ",status,retry_count,COALESCE(last_error,''),COALESCE(created_at,0),COALESCE(updated_at,0)", nil
 }

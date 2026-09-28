@@ -76,43 +76,12 @@ func recentPushLogs(path string, limit int, summary bool) ([]PushLog, error) {
 	var logs []PushLog
 	seen := map[string]bool{}
 	for _, rec := range records {
-		payload := rec.Payload
-		status := rec.Status
-		log := PushLog{EventID: rec.Key, EventTime: rec.Time, RetryCount: rec.Retry, LastError: rec.Error, CreatedAt: rec.Created, UpdatedAt: rec.Updated}
-		var ev event.ThreatEvent
-		decoded := []byte(payload)
-		if err := json.Unmarshal(decoded, &ev); err == nil {
-			if summary {
-				ev = summarize(ev)
-			}
-			if seen[ev.EventID] {
+		log, key, decoded := pushLogFromRecord(rec, summary)
+		if decoded {
+			if seen[key] {
 				continue
 			}
-			seen[ev.EventID] = true
-			log.EventID = ev.EventID
-			log.EventName = ev.EventName
-			log.Severity = ev.Severity
-			log.IOCType = ev.IOCType
-			log.IOCValue = ev.IOCValue
-			log.SrcIP = ev.SrcIP
-			log.SrcPort = ev.SrcPort
-			log.DstIP = ev.DstIP
-			log.DstPort = ev.DstPort
-			log.RawPacket = ev.RawPacket
-			log.SessionID = ev.SessionID
-			log.TransactionID = ev.TransactionID
-			log.ContextRevision = ev.ContextRevision
-			log.ContextFinal = ev.ContextFinal
-			log.Exchange = ev.Exchange
-			log.SessionSummary = ev.SessionSummary
-		}
-		log.OccurredAt = int64(log.EventTime / 1_000_000)
-		if log.OccurredAt == 0 {
-			log.OccurredAt = log.CreatedAt
-		}
-		log.Status = pushStatusName(status)
-		if log.UpdatedAt == 0 {
-			log.UpdatedAt = time.Now().Unix()
+			seen[key] = true
 		}
 		logs = append(logs, log)
 		if len(logs) >= limit {
@@ -120,6 +89,47 @@ func recentPushLogs(path string, limit int, summary bool) ([]PushLog, error) {
 		}
 	}
 	return logs, nil
+}
+
+// pushLogFromRecord converts a stored queue row into a PushLog. The returned
+// key is the decoded event ID used to collapse context revisions; decoded is
+// false when the payload is not parseable event JSON (the row is kept as-is).
+func pushLogFromRecord(rec record, summary bool) (PushLog, string, bool) {
+	log := PushLog{EventID: rec.Key, EventTime: rec.Time, RetryCount: rec.Retry, LastError: rec.Error, CreatedAt: rec.Created, UpdatedAt: rec.Updated}
+	var ev event.ThreatEvent
+	decoded := json.Unmarshal([]byte(rec.Payload), &ev) == nil
+	key := ""
+	if decoded {
+		if summary {
+			ev = summarize(ev)
+		}
+		key = ev.EventID
+		log.EventID = ev.EventID
+		log.EventName = ev.EventName
+		log.Severity = ev.Severity
+		log.IOCType = ev.IOCType
+		log.IOCValue = ev.IOCValue
+		log.SrcIP = ev.SrcIP
+		log.SrcPort = ev.SrcPort
+		log.DstIP = ev.DstIP
+		log.DstPort = ev.DstPort
+		log.RawPacket = ev.RawPacket
+		log.SessionID = ev.SessionID
+		log.TransactionID = ev.TransactionID
+		log.ContextRevision = ev.ContextRevision
+		log.ContextFinal = ev.ContextFinal
+		log.Exchange = ev.Exchange
+		log.SessionSummary = ev.SessionSummary
+	}
+	log.OccurredAt = int64(log.EventTime / 1_000_000)
+	if log.OccurredAt == 0 {
+		log.OccurredAt = log.CreatedAt
+	}
+	log.Status = pushStatusName(rec.Status)
+	if log.UpdatedAt == 0 {
+		log.UpdatedAt = time.Now().Unix()
+	}
+	return log, key, decoded
 }
 
 func pushStatusName(status int) string {

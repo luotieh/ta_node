@@ -9,6 +9,8 @@ capture:
   bpf_filter: ""
   snaplen: 1600
   promiscuous: true
+  # Packet-processing worker count; 0 = all CPUs, 1 = legacy serial loop.
+  workers: 0
 patterns:
   enable: false
   pattern_dir: "./patterns"

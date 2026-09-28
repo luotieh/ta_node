@@ -8,6 +8,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"runtime"
 	"strings"
 	"syscall"
 	"time"
@@ -18,13 +19,12 @@ import (
 	"ta_node/internal/correlation"
 	"ta_node/internal/counter"
 	"ta_node/internal/detector"
-	"ta_node/internal/event"
 	"ta_node/internal/evidence"
 	"ta_node/internal/fingerprint"
 	"ta_node/internal/flow"
 	"ta_node/internal/intel"
 	"ta_node/internal/iocsync"
-	"ta_node/internal/parser"
+	"ta_node/internal/pipeline"
 	"ta_node/internal/push"
 	"ta_node/internal/queue"
 	"ta_node/internal/server"
@@ -169,61 +169,21 @@ func runNode(cfg config.Config, configPath string) error {
 		go evidenceArchive(ctx, evWriter)
 	}
 
-	for {
-		select {
-		case <-ctx.Done():
-			if sessionTracker != nil {
-				enqueueContextUpdates(q, sessionTracker.Flush())
-			}
-			return nil
-		case pkt, ok := <-src.Packets():
-			if !ok {
-				if sessionTracker != nil {
-					enqueueContextUpdates(q, sessionTracker.Flush())
-				}
-				return nil
-			}
-			pf, err := parser.Parse(pkt)
-			if err != nil {
-				continue
-			}
-			fpHits := fpEngine.Match(pf)
-			intelHits := intelMatcher.MatchPacket(pf)
-			f := agg.Update(pf, fpHits, intelHits)
-			var observation correlation.Observation
-			if sessionTracker != nil {
-				observation = sessionTracker.Observe(pf, f.PacketSequence)
-				enqueueContextUpdates(q, observation.Updates)
-			}
-			if len(fpHits) == 0 && len(intelHits) == 0 {
-				continue
-			}
-			events := det.Detect(f)
-			for _, ev := range events {
-				path, err := evWriter.Save(ev.EventID, pkt)
-				if err != nil {
-					log.Printf("save evidence failed: %v", err)
-				}
-				if path != "" {
-					ev.EvidenceFile = path
-				}
-				if sessionTracker != nil {
-					ev = sessionTracker.Register(observation, ev)
-				}
-				if err := q.Enqueue(ev); err != nil {
-					log.Printf("enqueue event failed: %v", err)
-				}
-			}
-		}
+	workers := cfg.Capture.Workers
+	if workers <= 0 {
+		workers = runtime.NumCPU()
 	}
-}
-
-func enqueueContextUpdates(q queue.EventQueue, updates []event.ThreatEvent) {
-	for _, ev := range updates {
-		if err := q.Enqueue(ev); err != nil {
-			log.Printf("enqueue event context revision failed: %v", err)
-		}
-	}
+	log.Printf("packet pipeline workers=%d", workers)
+	pipeline.Run(ctx, src, pipeline.Deps{
+		Fingerprints: fpEngine,
+		Intel:        intelMatcher,
+		Flows:        agg,
+		Tracker:      sessionTracker,
+		Detector:     det,
+		Evidence:     evWriter,
+		Queue:        q,
+	}, workers)
+	return nil
 }
 
 // collectSyncDirs builds a deduped, non-empty directory list from the primary

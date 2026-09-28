@@ -323,3 +323,104 @@ func TestNotFound(t *testing.T) {
 		t.Fatalf("expected 404, got %d", rec.Code)
 	}
 }
+
+func TestPushLogsCRUDAPI(t *testing.T) {
+	dir := t.TempDir()
+	queuePath := filepath.Join(dir, "events.db")
+	q, err := queue.NewSQLite(queuePath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer q.Close()
+	for _, ev := range []event.ThreatEvent{
+		{EventID: "ev-failed", EventTime: 1_000_000, EventName: "failed.example.com", Severity: "high", IOCType: "domain", IOCValue: "failed.example.com", SrcIP: "10.0.0.2"},
+		{EventID: "ev-pushed", EventTime: 2_000_000, EventName: "pushed.example.com", Severity: "low", IOCType: "domain", IOCValue: "pushed.example.com", SrcIP: "10.0.0.1"},
+	} {
+		if err := q.Enqueue(ev); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := q.MarkFailed("ev-failed", 1, "boom"); err != nil {
+		t.Fatal(err)
+	}
+	if err := q.MarkPushed("ev-pushed", 1); err != nil {
+		t.Fatal(err)
+	}
+
+	cfg := config.Default()
+	cfg.Event.QueueDB = queuePath
+	cfg.Server.Token = "secret"
+	store, err := intel.NewStore("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := New(store, cfg, filepath.Join(dir, "ta_node.yaml"))
+
+	doReq := func(method, target, body, token string) *httptest.ResponseRecorder {
+		req := httptest.NewRequest(method, target, bytes.NewReader([]byte(body)))
+		if body != "" {
+			req.Header.Set("Content-Type", "application/json")
+		}
+		if token != "" {
+			req.Header.Set("Authorization", "Bearer "+token)
+		}
+		rec := httptest.NewRecorder()
+		s.Handler().ServeHTTP(rec, req)
+		return rec
+	}
+	listLogs := func(target string) ([]queue.PushLog, bool) {
+		t.Helper()
+		rec := doReq(http.MethodGet, target, "", "")
+		if rec.Code != http.StatusOK {
+			t.Fatalf("list %s status=%d body=%s", target, rec.Code, rec.Body.String())
+		}
+		var out struct {
+			Items   []queue.PushLog `json:"items"`
+			HasMore bool            `json:"has_more"`
+			Error   string          `json:"error"`
+		}
+		if err := json.NewDecoder(rec.Body).Decode(&out); err != nil {
+			t.Fatal(err)
+		}
+		if out.Error != "" {
+			t.Fatalf("list %s error=%s", target, out.Error)
+		}
+		return out.Items, out.HasMore
+	}
+
+	items, _ := listLogs("/api/v1/push/logs?status=failed&limit=10")
+	if len(items) != 1 || items[0].EventID != "ev-failed" {
+		t.Fatalf("status filter items=%+v", items)
+	}
+	items, _ = listLogs("/api/v1/push/logs?q=pushed.example.com")
+	if len(items) != 1 || items[0].EventID != "ev-pushed" {
+		t.Fatalf("keyword search items=%+v", items)
+	}
+	if items, more := listLogs("/api/v1/push/logs?limit=1&offset=1"); len(items) != 1 || more {
+		t.Fatalf("pagination items=%+v more=%v", items, more)
+	}
+
+	if rec := doReq(http.MethodPost, "/api/v1/push/requeue", `{"event_id":"ev-failed"}`, ""); rec.Code != http.StatusUnauthorized {
+		t.Fatalf("requeue without token status=%d", rec.Code)
+	}
+	rec := doReq(http.MethodPost, "/api/v1/push/requeue", `{"event_id":"ev-failed"}`, "secret")
+	if rec.Code != http.StatusOK || !bytes.Contains(rec.Body.Bytes(), []byte(`"requeued":1`)) {
+		t.Fatalf("requeue status=%d body=%s", rec.Code, rec.Body.String())
+	}
+	items, _ = listLogs("/api/v1/push/logs?status=pending")
+	if len(items) != 1 || items[0].EventID != "ev-failed" || items[0].RetryCount != 0 {
+		t.Fatalf("after requeue items=%+v", items)
+	}
+
+	rec = doReq(http.MethodPost, "/api/v1/push/delete", `{"event_id":"ev-pushed"}`, "secret")
+	if rec.Code != http.StatusOK || !bytes.Contains(rec.Body.Bytes(), []byte(`"deleted":1`)) {
+		t.Fatalf("delete status=%d body=%s", rec.Code, rec.Body.String())
+	}
+	items, _ = listLogs("/api/v1/push/logs?limit=10")
+	if len(items) != 1 || items[0].EventID != "ev-failed" {
+		t.Fatalf("after delete items=%+v", items)
+	}
+	if rec = doReq(http.MethodPost, "/api/v1/push/requeue", `{"event_id":"ev-missing"}`, "secret"); rec.Code != http.StatusNotFound {
+		t.Fatalf("requeue missing status=%d", rec.Code)
+	}
+}
