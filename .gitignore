@@ -8,3 +8,7 @@
 /ta_node
 ~$*.docx
 ta_node-arm64.tar.gz
+
+.analysis/
+/1
+ta_node.exe
