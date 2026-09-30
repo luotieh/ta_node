@@ -175,3 +175,36 @@ func TestConcurrentWriteReloadNoClobber(t *testing.T) {
 		t.Fatalf("want %d durable items after run, got %d", n, got)
 	}
 }
+
+func TestListFilteredQueryAndType(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "intel.yaml")
+	store, err := NewStore(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, it := range []ThreatIntel{
+		{ID: "ip-1", Type: "ip", Value: "203.0.113.10", Category: "c2", Description: "test botnet", Enabled: true},
+		{ID: "ip-2", Type: "ip", Value: "203.0.113.20", Category: "scan", Enabled: true},
+		{ID: "dom-1", Type: "domain", Value: "evil.example.com", Category: "c2", Enabled: true},
+	} {
+		if _, err := store.Add(it); err != nil {
+			t.Fatal(err)
+		}
+	}
+	items, total := store.ListFiltered(0, 50, Filter{Query: "203.0.113"})
+	if total != 2 || len(items) != 2 {
+		t.Fatalf("value substring query: want 2, got total=%d items=%d", total, len(items))
+	}
+	if _, total := store.ListFiltered(0, 50, Filter{Type: "domain"}); total != 1 {
+		t.Fatalf("type filter: want 1, got %d", total)
+	}
+	if _, total := store.ListFiltered(0, 50, Filter{Type: "ip", Category: "c2"}); total != 1 {
+		t.Fatalf("type+category filter: want 1, got %d", total)
+	}
+	if _, total := store.ListFiltered(0, 50, Filter{Query: "BOTNET"}); total != 1 {
+		t.Fatalf("case-insensitive description query: want 1, got %d", total)
+	}
+	if items, total := store.ListFiltered(1, 1, Filter{}); total != 3 || len(items) != 1 {
+		t.Fatalf("paging after filter: want total=3 len=1, got total=%d len=%d", total, len(items))
+	}
+}

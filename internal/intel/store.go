@@ -83,10 +83,36 @@ func (s *Store) List() []ThreatIntel {
 }
 
 func (s *Store) ListPaged(offset, limit int) ([]ThreatIntel, int) {
+	return s.ListFiltered(offset, limit, Filter{})
+}
+
+// Filter narrows ListFiltered results; empty fields match everything.
+type Filter struct {
+	Query    string // case-insensitive substring on ID, value, or description
+	Type     string // exact match on IOC type (ip/cidr/domain/url)
+	Category string // exact match on category
+}
+
+// ListFiltered returns one page of IOCs matching filter, sorted by ID, plus
+// the total number of matches (ignoring pagination).
+func (s *Store) ListFiltered(offset, limit int, filter Filter) ([]ThreatIntel, int) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
+	query := strings.ToLower(strings.TrimSpace(filter.Query))
 	out := make([]ThreatIntel, 0, len(s.items))
 	for _, it := range s.items {
+		if filter.Type != "" && !strings.EqualFold(it.Type, filter.Type) {
+			continue
+		}
+		if filter.Category != "" && it.Category != filter.Category {
+			continue
+		}
+		if query != "" &&
+			!strings.Contains(strings.ToLower(it.ID), query) &&
+			!strings.Contains(strings.ToLower(it.Value), query) &&
+			!strings.Contains(strings.ToLower(it.Description), query) {
+			continue
+		}
 		out = append(out, it)
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })

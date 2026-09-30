@@ -149,7 +149,11 @@ func (s *Server) handleIntel(w http.ResponseWriter, r *http.Request) {
 		if limit <= 0 {
 			limit = 50
 		}
-		items, total := s.store.ListPaged(offset, limit)
+		items, total := s.store.ListFiltered(offset, limit, intel.Filter{
+			Query:    r.URL.Query().Get("q"),
+			Type:     r.URL.Query().Get("type"),
+			Category: r.URL.Query().Get("category"),
+		})
 		writeJSON(w, http.StatusOK, map[string]any{"items": items, "total": total, "offset": offset, "limit": limit})
 	case http.MethodPost:
 		if !s.authorized(r) {
@@ -1063,6 +1067,14 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
         <legend>威胁情报规则</legend>
         <div class="toolbar">
           <div id="intelTableStatus" class="muted">当前已加载 0 条 IOC 规则</div>
+          <select id="intelTypeFilter" aria-label="类型筛选">
+            <option value="" selected>全部类型</option>
+            <option value="ip">ip</option>
+            <option value="cidr">cidr</option>
+            <option value="domain">domain</option>
+            <option value="url">url</option>
+          </select>
+          <input id="intelSearch" type="search" placeholder="搜索ID / IOC值 / 描述（回车查询）">
           <button class="secondary" type="button" id="refreshIntelBtn">刷新规则</button>
         </div>
         <div class="toolbar" style="justify-content:center;gap:12px;">
@@ -1533,8 +1545,12 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
       const nextBtn = document.getElementById("intelNextBtn");
       const pageInfo = document.getElementById("intelPageInfo");
       const offset = intelPage * intelPageSize;
+      const keyword = document.getElementById("intelSearch").value.trim();
+      const typeFilter = document.getElementById("intelTypeFilter").value;
       try {
-        const res = await fetch("/api/v1/intel?offset=" + offset + "&limit=" + intelPageSize);
+        const res = await fetch("/api/v1/intel?offset=" + offset + "&limit=" + intelPageSize +
+          (keyword ? "&q=" + encodeURIComponent(keyword) : "") +
+          (typeFilter ? "&type=" + encodeURIComponent(typeFilter) : ""));
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || res.statusText);
         const items = data.items || [];
@@ -1569,6 +1585,10 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
       }
     }
     document.getElementById("refreshIntelBtn").addEventListener("click", () => { intelPage = 0; loadIntelRules(); });
+    document.getElementById("intelSearch").addEventListener("keydown", (ev) => {
+      if (ev.key === "Enter") { ev.preventDefault(); intelPage = 0; loadIntelRules(); }
+    });
+    document.getElementById("intelTypeFilter").addEventListener("change", () => { intelPage = 0; loadIntelRules(); });
     document.getElementById("intelPrevBtn").addEventListener("click", () => { if (intelPage > 0) { intelPage--; loadIntelRules(); } });
     document.getElementById("intelNextBtn").addEventListener("click", () => { intelPage++; loadIntelRules(); });
     loadIntelRules();
