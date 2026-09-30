@@ -725,8 +725,6 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
     .push-filters { display: flex; gap: 10px; align-items: center; }
     .push-filters select, .push-filters input { width: auto; min-width: 170px; }
     .push-pager { justify-content: center; gap: 12px; }
-    .push-actions { white-space: nowrap; }
-    .push-action { padding: 3px 9px; font-size: 12px; margin-right: 6px; }
     .muted { color: var(--muted); }
     .badge {
       display: inline-block;
@@ -991,11 +989,10 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
                 <th>重试</th>
                 <th>最近推送</th>
                 <th>错误</th>
-                <th>操作</th>
               </tr>
             </thead>
             <tbody id="pushLogRows">
-              <tr><td colspan="10" class="muted">暂无数据</td></tr>
+              <tr><td colspan="9" class="muted">暂无数据</td></tr>
             </tbody>
           </table>
         </div>
@@ -1425,7 +1422,7 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
         document.getElementById("overviewAlertCount").textContent = items.length + " 条";
         document.getElementById("overviewPendingCount").textContent = items.filter((item) => item.status === "pending" || item.status === "failed").length + " 条";
         if (items.length === 0) {
-          rowsEl.innerHTML = '<tr><td colspan="10" class="muted">暂无数据</td></tr>';
+          rowsEl.innerHTML = '<tr><td colspan="9" class="muted">暂无数据</td></tr>';
         } else {
           rowsEl.innerHTML = items.map((item, index) => {
             const rule = [item.ioc_type, item.ioc_value].filter(Boolean).join(": ") || item.event_name || item.event_id || "";
@@ -1436,9 +1433,6 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
             const hasPacket = Boolean(item.raw_packet || item.exchange);
             const contextLabel = item.context_final ? "上下文完成" : (item.exchange?.response_status === "pending" ? "等待响应" : "逐包事件");
             const contextClass = item.context_final ? "complete" : "pending";
-            const actions =
-              (item.status === "failed" ? '<button type="button" class="secondary push-action" data-action="requeue" data-event="' + escapeText(item.event_id) + '">重推</button>' : "") +
-              '<button type="button" class="secondary push-action" data-action="delete" data-event="' + escapeText(item.event_id) + '">删除</button>';
             return '<tr>' +
               '<td><button type="button" class="packet-toggle" data-target="' + detailID + '"' +
                 (hasPacket ? ' title="展开原始报文" aria-expanded="false">▶' : ' title="无原始报文" disabled>▷') + '</button></td>' +
@@ -1450,9 +1444,8 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
               '<td>' + escapeText(item.retry_count) + '</td>' +
               '<td>' + escapeText(formatTime(item.updated_at)) + '</td>' +
               '<td>' + escapeText(item.last_error || "") + '</td>' +
-              '<td class="push-actions">' + actions + '</td>' +
             '</tr>' +
-            '<tr id="' + detailID + '" data-event-id="' + escapeText(item.event_id) + '" data-revision="' + escapeText(item.context_revision || 1) + '" class="packet-detail-row" hidden><td colspan="10">展开后读取完整报文</td></tr>';
+            '<tr id="' + detailID + '" data-event-id="' + escapeText(item.event_id) + '" data-revision="' + escapeText(item.context_revision || 1) + '" class="packet-detail-row" hidden><td colspan="9">展开后读取完整报文</td></tr>';
           }).join("");
           bindPacketToggles();
           bindPacketTabs();
@@ -1467,37 +1460,12 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
           logStatus.textContent = filterNote + "第 " + (pushLogPage + 1) + " 页 · 每页 " + pushLogPageSize + " 条告警（最新上下文 revision）";
         }
       } catch (err) {
-        rowsEl.innerHTML = '<tr><td colspan="10" class="muted">读取失败</td></tr>';
+        rowsEl.innerHTML = '<tr><td colspan="9" class="muted">读取失败</td></tr>';
         logStatus.textContent = "读取推送日志失败：" + err.message;
         document.getElementById("overviewAlertCount").textContent = "读取失败";
         document.getElementById("overviewPendingCount").textContent = "读取失败";
       }
     }
-    async function pushLogAction(eventID, action) {
-      const logStatus = document.getElementById("pushLogStatus");
-      if (!eventID || (action !== "requeue" && action !== "delete")) return;
-      if (action === "delete") {
-        if (!confirm("删除事件 " + eventID + " 及其所有 revision？删除后不再上报，且不可恢复。")) return;
-      } else if (!confirm("将事件 " + eventID + " 的所有 revision 重置为待上报并重新推送？")) return;
-      try {
-        const res = await fetch("/api/v1/push/" + action, {
-          method: "POST",
-          headers: authHeaders({"Content-Type": "application/json"}),
-          body: JSON.stringify({event_id: eventID})
-        });
-        const data = await res.json();
-        if (!res.ok || !data.success) throw new Error(data.error || res.statusText);
-        logStatus.textContent = (action === "requeue" ? "已重新入队 " : "已删除 ") + eventID;
-        loadPushLogs();
-      } catch (err) {
-        logStatus.textContent = "操作失败：" + err.message;
-      }
-    }
-    document.getElementById("pushLogRows").addEventListener("click", (ev) => {
-      const btn = ev.target.closest("button.push-action");
-      if (!btn) return;
-      pushLogAction(btn.dataset.event || "", btn.dataset.action);
-    });
     document.getElementById("pushLogStatusFilter").addEventListener("change", () => { pushLogPage = 0; loadPushLogs(); });
     document.getElementById("pushLogSearch").addEventListener("keydown", (ev) => {
       if (ev.key === "Enter") { ev.preventDefault(); pushLogPage = 0; loadPushLogs(); }
