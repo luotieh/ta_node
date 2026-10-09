@@ -109,15 +109,21 @@ func (d *Deps) process(pkt gopacket.Packet) {
 	fpHits := d.Fingerprints.Match(pf)
 	intelHits := d.Intel.MatchPacket(pf)
 	f := d.Flows.Update(pf, fpHits, intelHits)
+	direction := correlation.PacketDirection(pf)
 	var observation correlation.Observation
 	if d.Tracker != nil {
 		observation = d.Tracker.Observe(pf, f.PacketSequence)
+		direction = observation.Direction
 		for _, ev := range observation.Updates {
 			if err := d.Queue.Enqueue(ev); err != nil {
 				log.Printf("enqueue event context revision failed: %v", err)
 			}
 		}
 	}
+	f.MessageDirection = direction.MessageDirection
+	f.DirectionSource = direction.DirectionSource
+	f.DirectionConfidence = direction.DirectionConfidence
+	f.TransportDirection = direction.TransportDirection
 	if len(fpHits) == 0 && len(intelHits) == 0 {
 		return
 	}

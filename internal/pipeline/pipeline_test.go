@@ -12,6 +12,7 @@ import (
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 
+	"ta_node/internal/correlation"
 	"ta_node/internal/detector"
 	"ta_node/internal/event"
 	"ta_node/internal/evidence"
@@ -22,6 +23,25 @@ import (
 
 type fakeSource struct {
 	ch chan gopacket.Packet
+}
+
+func TestNewEventDirectionBackfill(t *testing.T) {
+	deps, _, q := testDeps(t)
+	deps.Tracker = correlation.New(correlation.Options{})
+	deps.Fingerprints = fingerprint.New([]fingerprint.PatternRule{{ID: "body", Type: "TEST", Regex: "cdef"}})
+	head := "POST / HTTP/1.1\r\nHost: example.test\r\nContent-Length: 8\r\n\r\nab"
+	deps.process(buildPacket(t, "10.0.0.1", "10.0.0.2", 40000, 80, 100, head))
+	deps.process(buildPacket(t, "10.0.0.1", "10.0.0.2", 40000, 80, 100+uint32(len(head)), "cdef"))
+	if len(q.events) != 1 {
+		t.Fatalf("events=%d", len(q.events))
+	}
+	ev := q.events[0]
+	if ev.RawPacket.MessageDirection != "request" || ev.RawPacket.DirectionSource != "session" || ev.RawPacket.DirectionConfidence != "medium" || ev.RawPacket.TransportDirection != "client_to_server" {
+		t.Fatalf("direction not carried into new event: %+v", ev.RawPacket)
+	}
+	if ev.RawPacket.Request == nil || ev.RawPacket.Request.PayloadText != "cdef" {
+		t.Fatal("trigger continuation missing from request tab")
+	}
 }
 
 func (s *fakeSource) Packets() <-chan gopacket.Packet { return s.ch }
@@ -44,7 +64,7 @@ func (q *fakeQueue) MarkFailed(eventID string, rev uint64, m string) error {
 	return nil
 }
 
-func buildPacket(t *testing.T, srcIP, dstIP string, sport, dport uint16, seq uint32) gopacket.Packet {
+func buildPacket(t *testing.T, srcIP, dstIP string, sport, dport uint16, seq uint32, payloads ...string) gopacket.Packet {
 	t.Helper()
 	buf := gopacket.NewSerializeBuffer()
 	opts := gopacket.SerializeOptions{FixLengths: true, ComputeChecksums: true}
@@ -56,7 +76,11 @@ func buildPacket(t *testing.T, srcIP, dstIP string, sport, dport uint16, seq uin
 	if err := tcp.SetNetworkLayerForChecksum(ip); err != nil {
 		t.Fatal(err)
 	}
-	if err := gopacket.SerializeLayers(buf, opts, eth, ip, tcp, gopacket.Payload([]byte("x"))); err != nil {
+	payload := "x"
+	if len(payloads) > 0 {
+		payload = payloads[0]
+	}
+	if err := gopacket.SerializeLayers(buf, opts, eth, ip, tcp, gopacket.Payload([]byte(payload))); err != nil {
 		t.Fatal(err)
 	}
 	return gopacket.NewPacket(buf.Bytes(), layers.LayerTypeEthernet, gopacket.Default)

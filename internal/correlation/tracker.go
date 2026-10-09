@@ -36,6 +36,7 @@ type Options struct {
 }
 
 type Observation struct {
+	Direction      event.DirectionAssessment
 	SessionID      string
 	TransactionID  string
 	Exchange       *event.ExchangeContext
@@ -52,21 +53,23 @@ type Tracker struct {
 }
 
 type sessionState struct {
-	key          string
-	id           string
-	firstUsec    uint64
-	lastUsec     uint64
-	endpointA    string
-	endpointB    string
-	client       string
-	midstream    bool
-	aPackets     uint64
-	bPackets     uint64
-	aWireBytes   uint64
-	bWireBytes   uint64
-	hitCount     uint64
-	nextTxn      uint64
-	transactions []*transactionState
+	key               string
+	id                string
+	firstUsec         uint64
+	lastUsec          uint64
+	endpointA         string
+	endpointB         string
+	client            string
+	directionClient   string
+	directionConflict bool
+	midstream         bool
+	aPackets          uint64
+	bPackets          uint64
+	aWireBytes        uint64
+	bWireBytes        uint64
+	hitCount          uint64
+	nextTxn           uint64
+	transactions      []*transactionState
 }
 
 type transactionState struct {
@@ -158,6 +161,7 @@ func (t *Tracker) Observe(pf parser.PacketFeature, packetSequence uint64) Observ
 	}
 
 	st.lastUsec = max64(st.lastUsec, pf.PacketTimeUsec)
+	direction := assessDirection(st, pf)
 	if sourceIsA {
 		st.aPackets++
 		st.aWireBytes += uint64(pf.WireLen)
@@ -185,6 +189,7 @@ func (t *Tracker) Observe(pf parser.PacketFeature, packetSequence uint64) Observ
 	case pf.Proto == "tcp" && len(pf.Payload) > 0:
 		tx = t.continuationTransaction(st, source)
 		if tx != nil {
+			inferHTTPContinuation(&direction, st, tx, pf)
 			if st.client != "" && source == st.client && tx.response.context.PacketCount == 0 {
 				t.appendSide(&tx.request, pf, packetSequence)
 			} else {
@@ -209,6 +214,7 @@ func (t *Tracker) Observe(pf parser.PacketFeature, packetSequence uint64) Observ
 	}
 
 	obs := Observation{SessionID: st.id, SessionSummary: t.summary(st), Updates: updates}
+	obs.Direction = direction
 	if tx != nil {
 		obs.TransactionID = tx.id
 		obs.Exchange = t.exchange(tx)

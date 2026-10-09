@@ -5,7 +5,15 @@ import "ta_node/internal/intel"
 // SchemaVersion identifies the event payload layout. Bump it whenever fields
 // are added or their meaning changes so downstream consumers (AI analysis /
 // management ingest) can adapt to format evolution.
-const SchemaVersion = "1.6"
+const SchemaVersion = "1.7"
+
+// DirectionAssessment separates application semantics from connection roles.
+type DirectionAssessment struct {
+	MessageDirection    string `json:"message_direction,omitempty"`
+	DirectionSource     string `json:"direction_source,omitempty"`
+	DirectionConfidence string `json:"direction_confidence,omitempty"`
+	TransportDirection  string `json:"transport_direction,omitempty"`
+}
 
 // AppContext carries application-layer evidence from the packet that triggered
 // the event. All fields are best-effort and may be empty depending on protocol.
@@ -58,6 +66,9 @@ type RawPacketContext struct {
 	CaptureTimeUsec      uint64             `json:"capture_time_usec,omitempty"`
 	PacketSequence       uint64             `json:"packet_sequence,omitempty"`
 	MessageDirection     string             `json:"message_direction,omitempty"`
+	DirectionSource      string             `json:"direction_source,omitempty"`
+	DirectionConfidence  string             `json:"direction_confidence,omitempty"`
+	TransportDirection   string             `json:"transport_direction,omitempty"`
 	PacketHex            string             `json:"packet_hex"`
 	PayloadHex           string             `json:"payload_hex,omitempty"`
 	PayloadText          string             `json:"payload_text,omitempty"`
@@ -195,40 +206,40 @@ type ThreatEvent struct {
 
 	// --- schema 1.6: 量化报告字段 ---
 
-	AppStats       *AppStats       `json:"app_stats,omitempty"`
+	AppStats        *AppStats        `json:"app_stats,omitempty"`
 	PayloadFeatures []PayloadFeature `json:"payload_features,omitempty"`
-	DataExfil      *DataExfil      `json:"data_exfil,omitempty"`
-	IOCStats       []IOCStat       `json:"ioc_stats,omitempty"`
-	RuleStats      []RuleStat      `json:"rule_stats,omitempty"`
-	ImpactHints    *ImpactHints    `json:"impact_hints,omitempty"`
-	ActionHints    []ActionHint    `json:"action_hints,omitempty"`
-	EvidenceFiles  []EvidenceFile  `json:"evidence_files,omitempty"`
-	SeverityBasis  *SeverityBasis  `json:"severity_basis,omitempty"`
-	Service        string          `json:"service,omitempty"`
+	DataExfil       *DataExfil       `json:"data_exfil,omitempty"`
+	IOCStats        []IOCStat        `json:"ioc_stats,omitempty"`
+	RuleStats       []RuleStat       `json:"rule_stats,omitempty"`
+	ImpactHints     *ImpactHints     `json:"impact_hints,omitempty"`
+	ActionHints     []ActionHint     `json:"action_hints,omitempty"`
+	EvidenceFiles   []EvidenceFile   `json:"evidence_files,omitempty"`
+	SeverityBasis   *SeverityBasis   `json:"severity_basis,omitempty"`
+	Service         string           `json:"service,omitempty"`
 }
 
 // --- 1.6 支撑类型 ---
 
 // AppStats holds per-endpoint application-layer aggregation within the node's local window.
 type AppStats struct {
-	WindowStartUsec uint64      `json:"window_start_usec"`
-	WindowEndUsec   uint64      `json:"window_end_usec"`
-	RequestCount    uint64      `json:"request_count"`
-	ResponseCount   uint64      `json:"response_count,omitempty"`
-	HTTP4xxCount    uint64      `json:"http_4xx_count,omitempty"`
-	HTTP5xxCount    uint64      `json:"http_5xx_count,omitempty"`
-	P95LatencyMs    uint64      `json:"p95_latency_ms,omitempty"`
-	MaxLatencyMs    uint64      `json:"max_latency_ms,omitempty"`
+	WindowStartUsec uint64        `json:"window_start_usec"`
+	WindowEndUsec   uint64        `json:"window_end_usec"`
+	RequestCount    uint64        `json:"request_count"`
+	ResponseCount   uint64        `json:"response_count,omitempty"`
+	HTTP4xxCount    uint64        `json:"http_4xx_count,omitempty"`
+	HTTP5xxCount    uint64        `json:"http_5xx_count,omitempty"`
+	P95LatencyMs    uint64        `json:"p95_latency_ms,omitempty"`
+	MaxLatencyMs    uint64        `json:"max_latency_ms,omitempty"`
 	Endpoints       []AppEndpoint `json:"endpoints,omitempty"`
 }
 
 type AppEndpoint struct {
-	Method      string   `json:"method,omitempty"`
-	Path        string   `json:"path,omitempty"`
-	Host        string   `json:"host,omitempty"`
-	Count       uint64   `json:"count"`
-	UserAgents  []string `json:"user_agents,omitempty"`
-	SampleBody  string   `json:"sample_request_body,omitempty"`
+	Method     string   `json:"method,omitempty"`
+	Path       string   `json:"path,omitempty"`
+	Host       string   `json:"host,omitempty"`
+	Count      uint64   `json:"count"`
+	UserAgents []string `json:"user_agents,omitempty"`
+	SampleBody string   `json:"sample_request_body,omitempty"`
 }
 
 // PayloadFeature describes one category of malicious payload found in the window.
@@ -243,13 +254,13 @@ type PayloadFeature struct {
 
 // DataExfil reports observed exfiltration patterns within the window.
 type DataExfil struct {
-	TotalWireBytes    uint64            `json:"total_wire_bytes"`
-	TotalPackets      uint64            `json:"total_packets"`
-	Dest              string            `json:"dest,omitempty"`
-	DestPort          uint32            `json:"dest_port,omitempty"`
-	Encrypted         bool              `json:"encrypted,omitempty"`
+	TotalWireBytes    uint64             `json:"total_wire_bytes"`
+	TotalPackets      uint64             `json:"total_packets"`
+	Dest              string             `json:"dest,omitempty"`
+	DestPort          uint32             `json:"dest_port,omitempty"`
+	Encrypted         bool               `json:"encrypted,omitempty"`
 	SensitiveKeywords []SensitiveKeyword `json:"sensitive_keywords,omitempty"`
-	ObservedEntries   uint64            `json:"observed_entries,omitempty"`
+	ObservedEntries   uint64             `json:"observed_entries,omitempty"`
 }
 
 type SensitiveKeyword struct {
@@ -284,13 +295,13 @@ type RuleStat struct {
 
 // ImpactHints carries observable impact clues — facts only, no conclusions.
 type ImpactHints struct {
-	ErrorRatePercent   float64 `json:"error_rate_percent,omitempty"`
-	LatencyDegraded    bool    `json:"latency_degraded,omitempty"`
-	LatencyBaselineMs  uint64  `json:"latency_baseline_ms,omitempty"`
-	LatencyObservedMs  uint64  `json:"latency_observed_ms,omitempty"`
-	AffectedEntries    uint64  `json:"affected_entries,omitempty"`
-	ObservedIntent     string  `json:"observed_intent,omitempty"`
-	IntentBasis        string  `json:"intent_basis,omitempty"`
+	ErrorRatePercent  float64 `json:"error_rate_percent,omitempty"`
+	LatencyDegraded   bool    `json:"latency_degraded,omitempty"`
+	LatencyBaselineMs uint64  `json:"latency_baseline_ms,omitempty"`
+	LatencyObservedMs uint64  `json:"latency_observed_ms,omitempty"`
+	AffectedEntries   uint64  `json:"affected_entries,omitempty"`
+	ObservedIntent    string  `json:"observed_intent,omitempty"`
+	IntentBasis       string  `json:"intent_basis,omitempty"`
 }
 
 // ActionHint suggests an observable response action.

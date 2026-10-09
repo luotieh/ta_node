@@ -76,12 +76,15 @@ type FlowFeature struct {
 	ICMPSeq        uint32            `json:"icmp_seq,omitempty"`
 	// Trigger-packet evidence is attached only to the returned feature and is
 	// never retained in the aggregator's long-lived flow table.
-	RawPacket        []byte `json:"-"`
-	RawPayload       []byte `json:"-"`
-	CapturedLen      uint32 `json:"captured_len,omitempty"`
-	TriggerWireLen   uint32 `json:"trigger_wire_len,omitempty"`
-	MessageDirection string `json:"message_direction,omitempty"`
-	PacketSequence   uint64 `json:"-"`
+	RawPacket           []byte `json:"-"`
+	RawPayload          []byte `json:"-"`
+	CapturedLen         uint32 `json:"captured_len,omitempty"`
+	TriggerWireLen      uint32 `json:"trigger_wire_len,omitempty"`
+	MessageDirection    string `json:"message_direction,omitempty"`
+	DirectionSource     string `json:"direction_source,omitempty"`
+	DirectionConfidence string `json:"direction_confidence,omitempty"`
+	TransportDirection  string `json:"transport_direction,omitempty"`
+	PacketSequence      uint64 `json:"-"`
 
 	FingerprintHits []fingerprint.FingerprintHit `json:"fingerprint_hits,omitempty"`
 	IntelHits       []intel.ThreatIntel          `json:"intel_hits,omitempty"`

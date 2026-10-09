@@ -30,7 +30,8 @@ func TestSessionStorageGoldenAndDiskReduction(t *testing.T) {
 	if digest != digest2 {
 		t.Fatal("event sequence changed")
 	}
-	if n == 20 && digest != "45c82c628146ecc0cdae1b3096fadb9dd7db0381ba350ded6b83f6ac68be49d8" {
+	// Schema 1.7 changes the serialized version; this fixture bypasses pipeline direction enrichment.
+	if n == 20 && digest != "08830b2d8a4ee6eee6f00b6c040181ad2234956d42584c2eea8e6964f377191a" {
 		t.Fatalf("legacy golden mismatch: %s", digest)
 	}
 	t.Logf("packets=%d legacy_disk=%d compact_disk=%d reduction=%.2f%%", n, legacy, compact, 100*(1-float64(compact)/float64(legacy)))

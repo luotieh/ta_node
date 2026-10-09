@@ -23,6 +23,31 @@ func richEvent(id string, revision uint64) event.ThreatEvent {
 		RawPacket: &event.RawPacketContext{PacketHex: hex.EncodeToString([]byte(raw)), PayloadHex: hex.EncodeToString([]byte(raw)), PayloadText: raw},
 		Exchange:  &event.ExchangeContext{Request: &event.ExchangeMessageContext{ReassembledHex: hex.EncodeToString([]byte(raw)), ReassembledText: raw, Packets: []event.RawMessageContext{{PacketHex: hex.EncodeToString([]byte(raw)), PayloadText: raw}}}}}
 }
+
+func TestDirectionMetadataStorageRoundTrip(t *testing.T) {
+	for _, backend := range []string{"legacy", "v2"} {
+		t.Run(backend, func(t *testing.T) {
+			q, err := OpenSQLite(filepath.Join(t.TempDir(), "queue.db"), backend)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer q.Close()
+			ev := event.ThreatEvent{EventID: "direction", SchemaVersion: "1.7", ContextRevision: 1, RawPacket: &event.RawPacketContext{PacketHex: "00", MessageDirection: "request", DirectionSource: "session", DirectionConfidence: "medium", TransportDirection: "client_to_server"}}
+			if err := q.Enqueue(ev); err != nil {
+				t.Fatal(err)
+			}
+			items, err := q.LoadPending(1)
+			if err != nil || len(items) != 1 {
+				t.Fatalf("read: %v, %d", err, len(items))
+			}
+			want, _ := json.Marshal(ev)
+			got, _ := json.Marshal(items[0])
+			if string(want) != string(got) {
+				t.Fatalf("direction metadata lost: %s", got)
+			}
+		})
+	}
+}
 func TestContentRoundTripAndDedup(t *testing.T) {
 	q, err := NewSQLite(filepath.Join(t.TempDir(), "queue.db"))
 	if err != nil {

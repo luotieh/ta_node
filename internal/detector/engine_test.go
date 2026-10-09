@@ -92,8 +92,8 @@ func TestDetectAttachesRawTriggerPacket(t *testing.T) {
 	if raw.SessionStartTime != "1970-01-01T00:00:01Z" || raw.CaptureTime != "1970-01-01T00:00:02Z" {
 		t.Fatalf("raw packet times wrong: %+v", raw)
 	}
-	if ev.SchemaVersion != "1.6" {
-		t.Fatalf("schema version = %q, want 1.6", ev.SchemaVersion)
+	if ev.SchemaVersion != "1.7" {
+		t.Fatalf("schema version = %q, want 1.7", ev.SchemaVersion)
 	}
 }
 

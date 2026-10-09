@@ -1337,6 +1337,8 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
       const initialSide = request ? "request" : "response";
       const direction = raw?.message_direction === "request" ? "请求" :
         (raw?.message_direction === "response" ? "响应" : "未知方向");
+      const directionSource = {protocol: "协议识别", handshake: "TCP 握手", session: "HTTP 事务推断", unknown: "证据不足"}[raw?.direction_source] || "未记录";
+      const transportDirection = {client_to_server: "客户端 → 服务端", server_to_client: "服务端 → 客户端"}[raw?.transport_direction] || "未知";
       const requestPanelID = detailID + "-request";
       const responsePanelID = detailID + "-response";
       const summary = item.session_summary || {};
@@ -1345,6 +1347,8 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
       return '<div class="packet-detail">' +
         '<div class="packet-meta">' +
           '<span><strong>告警触发方向：</strong>' + escapeText(direction) + '</span>' +
+          '<span><strong>判断依据：</strong>' + escapeText(directionSource) + '</span>' +
+          '<span><strong>传输方向：</strong>' + escapeText(transportDirection) + '</span>' +
           '<span><strong>会话 ID：</strong>' + escapeText(item.session_id || "逐包事件") + '</span>' +
           '<span><strong>事务 ID：</strong>' + escapeText(item.transaction_id || "-") + '</span>' +
           '<span><strong>上下文版本：</strong>rev ' + escapeText(item.context_revision || 1) + (item.context_final ? ' · 已完成' : ' · 更新中') + '</span>' +
