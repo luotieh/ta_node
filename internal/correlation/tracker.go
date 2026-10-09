@@ -1,10 +1,14 @@
 package correlation
 
 import (
+	"bufio"
+	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"io"
 	"net"
+	"net/http"
 	"sort"
 	"strconv"
 	"strings"
@@ -76,11 +80,15 @@ type transactionState struct {
 }
 
 type sideState struct {
-	context event.ExchangeMessageContext
-	payload []byte
-	seen    map[string]bool
-	nextSeq uint32
-	seqSet  bool
+	context     event.ExchangeMessageContext
+	payload     []byte
+	seen        map[string]bool
+	baseSeq     uint32
+	seqSet      bool
+	data        []byte
+	present     []bool
+	expectedEnd int
+	limited     bool
 }
 
 func New(opts Options) *Tracker {
@@ -171,7 +179,7 @@ func (t *Tracker) Observe(pf parser.PacketFeature, packetSequence uint64) Observ
 		}
 		tx = t.responseTransaction(st, pf.PacketTimeUsec)
 		t.appendSide(&tx.response, pf, packetSequence)
-		if httpMessageComplete(tx.response.payload, true) {
+		if responseComplete(&tx.response) {
 			tx.final = true
 		}
 	case pf.Proto == "tcp" && len(pf.Payload) > 0:
@@ -181,7 +189,7 @@ func (t *Tracker) Observe(pf parser.PacketFeature, packetSequence uint64) Observ
 				t.appendSide(&tx.request, pf, packetSequence)
 			} else {
 				t.appendSide(&tx.response, pf, packetSequence)
-				if httpMessageComplete(tx.response.payload, true) {
+				if responseComplete(&tx.response) {
 					tx.final = true
 				}
 			}
@@ -307,43 +315,18 @@ func (t *Tracker) appendSide(side *sideState, pf parser.PacketFeature, packetSeq
 		side.context.CaptureStartTimeUsec = pf.PacketTimeUsec
 	}
 	side.context.CaptureEndTimeUsec = pf.PacketTimeUsec
+	if pf.CapturedLen > 0 && pf.WireLen > pf.CapturedLen {
+		side.context.Truncated = true
+	}
+	if len(side.seen) < t.opts.MaxPacketsPerTransaction {
+		side.seen[key] = true
+	}
+	if len(pf.Payload) > 0 {
+		// Coverage distinguishes genuinely duplicate payload from overlapping or late new bytes.
+		retransmission = t.reassemble(side, pf)
+	}
 	if retransmission {
 		side.context.Retransmissions++
-	} else {
-		side.seen[key] = true
-		if len(pf.Payload) > 0 {
-			if side.seqSet {
-				switch {
-				case pf.TCPSeq < side.nextSeq:
-					retransmission = true
-					side.context.Retransmissions++
-				case pf.TCPSeq > side.nextSeq:
-					gap := uint64(pf.TCPSeq - side.nextSeq)
-					side.context.ReassemblyIncomplete = true
-					if gap > uint64(t.opts.MaxOutOfOrderBytes) {
-						side.context.Truncated = true
-					}
-				}
-			}
-			if !retransmission {
-				remaining := t.opts.MaxReassemblyBytesPerSide - len(side.payload)
-				if remaining > 0 {
-					chunk := pf.Payload
-					if len(chunk) > remaining {
-						chunk = chunk[:remaining]
-						side.context.Truncated = true
-					}
-					side.payload = append(side.payload, chunk...)
-				} else {
-					side.context.Truncated = true
-				}
-				end := pf.TCPSeq + uint32(len(pf.Payload))
-				if !side.seqSet || end > side.nextSeq {
-					side.nextSeq = end
-					side.seqSet = true
-				}
-			}
-		}
 	}
 	if t.opts.StorePacketIndex && len(side.context.Packets) < t.opts.MaxPacketsPerTransaction {
 		wireLen := pf.WireLen
@@ -379,7 +362,20 @@ func (t *Tracker) exchange(tx *transactionState) *event.ExchangeContext {
 	}
 	if tx.response.context.PacketCount > 0 {
 		ex.Response = snapshotSide(&tx.response)
-		ex.ResponseStatus = "complete"
+		switch {
+		case ex.Response.Truncated:
+			ex.Response.CompletenessReason = "capture_or_evidence_truncated"
+		case ex.Response.ReassemblyIncomplete:
+			ex.Response.CompletenessReason = "tcp_gap_or_conflicting_overlap"
+		case !httpMessageComplete(tx.response.payload, true):
+			ex.Response.CompletenessReason = "application_framing_unverified"
+		default:
+			ex.Response.CompletenessReason = "verified_http_framing"
+		}
+		ex.ResponseStatus = "partial"
+		if responseComplete(&tx.response) {
+			ex.ResponseStatus = "complete"
+		}
 	} else if tx.final {
 		ex.ResponseStatus = "not_captured"
 	}
@@ -533,34 +529,24 @@ func eventTime(usec uint64) string {
 }
 
 func httpMessageComplete(payload []byte, response bool) bool {
-	text := string(payload)
-	headerEnd := strings.Index(text, "\r\n\r\n")
-	if headerEnd < 0 {
+	if !response {
 		return false
 	}
-	head := text[:headerEnd]
-	body := text[headerEnd+4:]
-	lower := strings.ToLower(head)
-	if strings.Contains(lower, "transfer-encoding: chunked") {
-		return strings.HasSuffix(body, "\r\n0\r\n\r\n") || body == "0\r\n\r\n"
-	}
-	for _, line := range strings.Split(head, "\r\n") {
-		key, value, ok := strings.Cut(line, ":")
-		if !ok || !strings.EqualFold(strings.TrimSpace(key), "content-length") {
-			continue
-		}
-		n, err := strconv.Atoi(strings.TrimSpace(value))
-		return err == nil && len(body) >= n
-	}
-	if response {
-		first, _, _ := strings.Cut(head, "\r\n")
-		parts := strings.Fields(first)
-		if len(parts) >= 2 && (strings.HasPrefix(parts[1], "1") || parts[1] == "204" || parts[1] == "304") {
-			return true
-		}
+	msg, err := http.ReadResponse(bufio.NewReader(bytes.NewReader(payload)), nil)
+	if err != nil {
 		return false
 	}
-	return true
+	defer msg.Body.Close()
+	// Informational responses do not end the transaction. Close-delimited bodies
+	// and encrypted/unknown protocols cannot be proven complete from a finite buffer.
+	if msg.StatusCode < 200 {
+		return false
+	}
+	if msg.ContentLength < 0 && len(msg.TransferEncoding) == 0 {
+		return false
+	}
+	_, err = io.Copy(io.Discard, msg.Body)
+	return err == nil
 }
 
 func applyLegacyExchange(ev *event.ThreatEvent, ex *event.ExchangeContext) {

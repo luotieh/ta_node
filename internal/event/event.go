@@ -82,12 +82,14 @@ type ExchangeMessageContext struct {
 	ReassembledHex       string              `json:"reassembled_hex,omitempty"`
 	ReassembledText      string              `json:"reassembled_text,omitempty"`
 	Truncated            bool                `json:"truncated,omitempty"`
+	CompletenessReason   string              `json:"completeness_reason,omitempty"`
 	ReassemblyIncomplete bool                `json:"reassembly_incomplete,omitempty"`
 	Packets              []RawMessageContext `json:"packets,omitempty"`
 }
 
 // ExchangeContext links the request and response evidence for one protocol
-// transaction. ResponseStatus is pending, complete, or not_captured.
+// transaction. ResponseStatus is pending, partial, complete, or not_captured.
+// complete requires verified HTTP framing with no truncation or unresolved TCP gaps.
 type ExchangeContext struct {
 	Request        *ExchangeMessageContext `json:"request,omitempty"`
 	Response       *ExchangeMessageContext `json:"response,omitempty"`

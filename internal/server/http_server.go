@@ -1259,7 +1259,7 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
       return ({pending: "待上报", pushed: "已上报", failed: "上报失败"})[status] || status || "未知";
     }
     function responseStatusLabel(status) {
-      return ({pending: "等待响应", complete: "已完成", not_captured: "未捕获"})[status] || status || "未知";
+      return ({partial: "不完整或未核验", pending: "等待响应", complete: "已完成", not_captured: "未捕获"})[status] || status || "未知";
     }
     function messageForSide(item, side) {
       const exchange = item.exchange?.[side];
@@ -1275,6 +1275,7 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
           wire_length: exchange.wire_bytes,
           capture_truncated: exchange.truncated,
           reassembly_incomplete: exchange.reassembly_incomplete,
+          completeness_reason: exchange.completeness_reason,
           retransmissions: exchange.retransmissions,
           packet_count: exchange.packet_count,
           packets: exchange.packets || []
@@ -1315,7 +1316,7 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
       const payloadHex = message.payload_hex || "（无应用层负载）";
       const text = message.payload_text || "（二进制或无负载，无可读文本）";
       const label = side === "request" ? "请求" : "响应";
-      const flags = [message.capture_truncated ? "内容已截断" : "", message.reassembly_incomplete ? "重组不完整" : "", message.retransmissions ? ("重传 " + message.retransmissions + " 次") : ""].filter(Boolean).join(" · ");
+      const flags = [message.capture_truncated ? "内容已截断" : "", message.reassembly_incomplete ? "重组不完整" : "", message.completeness_reason ? ("完整性：" + message.completeness_reason) : "", message.retransmissions ? ("重传 " + message.retransmissions + " 次") : ""].filter(Boolean).join(" · ");
       return '<div class="packet-meta packet-block">' +
           '<span><strong>抓包时间：</strong>' + escapeText(message.capture_time || "") + '</span>' +
           '<span><strong>' + (message.aggregate ? '包数量' : '包序号') + '：</strong>' + escapeText(message.aggregate ? (message.packet_count || 0) : (message.packet_sequence || "")) + '</span>' +
@@ -1339,7 +1340,7 @@ var configPage = template.Must(template.New("config").Parse(`<!doctype html>
       const requestPanelID = detailID + "-request";
       const responsePanelID = detailID + "-response";
       const summary = item.session_summary || {};
-      const responseState = item.exchange?.response_status || (response ? "complete" : "not_captured");
+      const responseState = item.exchange?.response_status || (response ? "partial" : "not_captured");
       const responseEmpty = responseState === "pending" ? "等待响应报文" : "未捕获到响应报文";
       return '<div class="packet-detail">' +
         '<div class="packet-meta">' +

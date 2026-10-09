@@ -14,7 +14,7 @@ capture:
   interface: "eth0"
   pcap_file: ""
   bpf_filter: ""
-  snaplen: 1600
+  snaplen: 65535
   promiscuous: true
   # Packet-processing worker count; 0 = all CPUs, 1 = legacy serial loop.
   workers: 0

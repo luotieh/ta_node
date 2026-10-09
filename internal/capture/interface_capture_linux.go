@@ -33,7 +33,7 @@ func NewInterfaceCapture(name string, snaplen int32, promiscuous bool, bpf strin
 		return nil, err
 	}
 	if snaplen <= 0 {
-		snaplen = 1600
+		snaplen = 65535
 	}
 
 	fd, err := unix.Socket(unix.AF_PACKET, unix.SOCK_RAW, int(htons(unix.ETH_P_ALL)))
@@ -74,20 +74,22 @@ func (c *InterfaceCapture) Close() { _ = unix.Close(c.fd) }
 
 func (s *rawPacketSource) ReadPacketData() ([]byte, gopacket.CaptureInfo, error) {
 	for {
-		n, _, err := unix.Recvfrom(s.fd, s.buf, 0)
+		n, _, err := unix.Recvfrom(s.fd, s.buf, unix.MSG_TRUNC)
 		if err == syscall.EINTR {
 			continue
 		}
 		if err != nil {
 			return nil, gopacket.CaptureInfo{}, err
 		}
-		data := append([]byte(nil), s.buf[:n]...)
-		return data, gopacket.CaptureInfo{
-			Timestamp:      time.Now(),
-			CaptureLength:  n,
-			Length:         n,
-			InterfaceIndex: s.ifaceIndex,
-		}, nil
+		// MSG_TRUNC returns the original frame length even when the buffer is shorter.
+		captured := n
+		if captured > len(s.buf) {
+			captured = len(s.buf)
+		}
+		data := append([]byte(nil), s.buf[:captured]...)
+		info := packetCaptureInfo(captured, n, s.ifaceIndex)
+		info.Timestamp = time.Now()
+		return data, info, nil
 	}
 }
 

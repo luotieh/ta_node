@@ -55,7 +55,11 @@ func (w *Writer) Save(eventID string, packet gopacket.Packet) (string, error) {
 		link = layers.LinkTypeRaw
 	}
 	pw := pcapgo.NewWriter(f)
-	if err := pw.WriteFileHeader(1600, link); err != nil {
+	snaplen := uint32(65535)
+	if uint32(len(packet.Data())) > snaplen {
+		snaplen = uint32(len(packet.Data()))
+	}
+	if err := pw.WriteFileHeader(snaplen, link); err != nil {
 		return "", err
 	}
 	return path, pw.WritePacket(packet.Metadata().CaptureInfo, packet.Data())

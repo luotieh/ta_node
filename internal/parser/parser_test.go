@@ -2,6 +2,7 @@ package parser
 
 import (
 	"bytes"
+	"encoding/hex"
 	"net"
 	"testing"
 	"time"
@@ -150,5 +151,23 @@ func TestParseDNSOverTCP(t *testing.T) {
 	parseDNSOverTCP(&pf2)
 	if pf2.DNSQuery != "" {
 		t.Errorf("segmented message should be skipped, got DNSQuery=%q", pf2.DNSQuery)
+	}
+}
+
+// Regression for the supplied 1600-byte frame whose IPv4 length declares 2834 bytes.
+func TestParseRecoversOriginalLengthFromIPHeader(t *testing.T) {
+	header, err := hex.DecodeString("8c2a8e816138a4dcbeef19b0080045000b1212ee400035066d8f68153975b468647601bb9e12d6a481415c6fc00780180010c56d00000101080aa6ff4aee5ea98f90")
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw := append(header, make([]byte, 1600-len(header))...)
+	pkt := gopacket.NewPacket(raw, layers.LayerTypeEthernet, gopacket.Default)
+	pkt.Metadata().CaptureInfo = gopacket.CaptureInfo{CaptureLength: 1600, Length: 1600}
+	pf, err := Parse(pkt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if pf.CapturedLen != 1600 || pf.WireLen != 2848 || len(pf.Payload) != 1534 {
+		t.Fatalf("lengths captured=%d wire=%d payload=%d", pf.CapturedLen, pf.WireLen, len(pf.Payload))
 	}
 }

@@ -165,7 +165,7 @@ func Default() Config {
 		Node:    NodeConfig{DeviceID: "node-001", ManagementURL: "http://127.0.0.1:8080/api/events"},
 		Capture: CaptureConfig{
 			Interface:   "eth0",
-			Snaplen:     1600,
+			Snaplen:     65535,
 			Promiscuous: true,
 		},
 		Patterns: PatternConfig{PatternDir: "./patterns"},

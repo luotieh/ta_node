@@ -1,6 +1,7 @@
 package evidence
 
 import (
+	"bytes"
 	"net"
 	"os"
 	"path/filepath"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
+	"github.com/google/gopacket/pcapgo"
 )
 
 func makeTestPacket(t *testing.T, ts time.Time) gopacket.Packet {
@@ -174,5 +176,29 @@ func TestArchiveLastMonthDisabled(t *testing.T) {
 	archived := w.ArchiveLastMonth(time.Now().AddDate(0, 2, 0))
 	if archived != 0 {
 		t.Errorf("archive disabled should return 0, got %d", archived)
+	}
+}
+
+func TestWriterPreservesLargeFrameAndOriginalLength(t *testing.T) {
+	raw := make([]byte, 2848)
+	raw[12], raw[13] = 8, 0
+	pkt := gopacket.NewPacket(raw, layers.LayerTypeEthernet, gopacket.Default)
+	pkt.Metadata().CaptureInfo = gopacket.CaptureInfo{Timestamp: time.Now(), CaptureLength: len(raw), Length: 4000}
+	path, err := New(true, t.TempDir(), "test", false, 1, false).Save("evt-large", pkt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	f, err := os.Open(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+	reader, err := pcapgo.NewReader(f)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, info, err := reader.ReadPacketData()
+	if err != nil || !bytes.Equal(got, raw) || info.Length != 4000 || reader.Snaplen() < uint32(len(raw)) {
+		t.Fatalf("pcap lost frame/length: len=%d info=%+v err=%v", len(got), info, err)
 	}
 }

@@ -100,6 +100,26 @@ func Parse(packet gopacket.Packet) (pf PacketFeature, err error) {
 	} else {
 		pf.WireLen = uint32(len(packet.Data()))
 	}
+	// Network headers supply a lower bound when old capture metadata loses wire length.
+	prefix := 0
+	for _, layer := range packet.Layers() {
+		var declared int
+		switch ip := layer.(type) {
+		case *layers.IPv4:
+			declared = int(ip.Length)
+		case *layers.IPv6:
+			if ip.Length > 0 {
+				declared = 40 + int(ip.Length)
+			}
+		}
+		if declared > 0 {
+			if wire := uint32(prefix + declared); wire > pf.WireLen {
+				pf.WireLen = wire
+			}
+			break
+		}
+		prefix += len(layer.LayerContents())
+	}
 	if ip4 := packet.Layer(layers.LayerTypeIPv4); ip4 != nil {
 		ip := ip4.(*layers.IPv4)
 		pf.SrcIP = ip.SrcIP.String()
